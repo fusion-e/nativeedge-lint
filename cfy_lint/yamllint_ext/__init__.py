@@ -140,7 +140,6 @@ def get_cosmetic_problems(buffer, conf, filepath):
 
     for elem in token_or_comment_or_line_generator(buffer):
         if isinstance(elem, CfyToken):
-            # elem = CfyToken.from_token(token=elem)
             update_model(elem)
             for rule in token_rules:
                 if hasattr(rule, 'LintProblem'):

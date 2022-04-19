@@ -35,15 +35,6 @@ def check(conf, token, prev, next, nextnext, context):
     if skip():
         return
 
-    state = 'State: {}'.format(
-        {
-            'prev': prev,
-            'token': token,
-            'next': next,
-            'nextnext': nextnext,
-            'context': context
-        }
-    )
     if not isinstance(token, yaml.tokens.ScalarToken):
         return
     if token.value == ID:
