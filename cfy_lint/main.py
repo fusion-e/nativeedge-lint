@@ -1,5 +1,5 @@
 ########
-# Copyright (c) 2014-2021 Cloudify Platform Ltd. All rights reserved
+# Copyright (c) 2014-2022 Cloudify Platform Ltd. All rights reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,21 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import cfy_lint
-from .commands import linter
+from . import cli
+from .commands.lint import lint
 
-
-@cfy_lint.group(name='cfy-lint')
-def _cfy_lint():
-    """Ecosystem tests Command Line Interface."""
-    cfy_lint.init()
-
-
-def _register_commands():
-    _cfy_lint.add_command(linter.lint)
-
-
-_register_commands()
 
 if __name__ == "__main__":
-    _cfy_lint()
+    lint()
