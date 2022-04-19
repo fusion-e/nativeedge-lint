@@ -64,7 +64,10 @@ def token_or_comment_generator(buffer):
             for comment in comments_between_tokens(curr, next):
                 yield comment
 
-            stack.insert(0, prev)
+            print(curr)
+            # stack.append(curr)
+
+            # stack.insert(0, prev)
             prev = curr
             curr = next
 

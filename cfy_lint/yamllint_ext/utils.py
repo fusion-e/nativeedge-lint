@@ -88,7 +88,19 @@ def skip_inputs_in_node_templates(top_level):
 
 
 def token_to_string(token):
-    if isinstance(token, yaml.tokens.ValueToken):
+    if isinstance(token, (
+            yaml.tokens.ValueToken,
+            yaml.tokens.ScalarToken,
+            yaml.tokens.FlowEntryToken,
+            yaml.tokens.FlowMappingEndToken,
+            yaml.tokens.FlowMappingEndToken,
+            yaml.tokens.FlowMappingStartToken,
+            yaml.tokens.BlockEntryToken)):
+        return str(token)
+    return
+    if isinstance(token, yaml.tokens.KeyToken):
+        return '\n'
+    elif isinstance(token, yaml.tokens.ValueToken):
         return ': '
     elif isinstance(token, yaml.tokens.ScalarToken):
         return token.value
@@ -108,10 +120,8 @@ def token_to_string(token):
     #     string = '] ' + string
 
 
-def build_string_from_stack(stack, prev, curr):
+def build_string_from_stack(stack):
     string = ''
-    stack.insert(0, prev)
-    stack.insert(0, curr)
     index = 0
     while True:
         if index > len(stack):
@@ -139,3 +149,59 @@ def build_string_from_stack(stack, prev, curr):
         else:
             break
     print(string)
+
+
+def recurse_tokens(stack, index=0, recurse_until=None):
+    new_stack = []
+    while True:
+
+        try:
+            token = stack[index]
+            index += 1
+        except IndexError:
+            return new_stack, index
+
+        if not isinstance(token, (yaml.tokens.FlowMappingStartToken,
+                                  yaml.tokens.FlowMappingEndToken,
+                                  yaml.tokens.BlockMappingStartToken,
+                                  yaml.tokens.BlockSequenceStartToken,
+                                  yaml.tokens.BlockEndToken)):
+            new_stack.append(token)
+
+        elif isinstance(token, yaml.tokens.BlockSequenceStartToken):
+            # Seems to be indentation.
+            inner_stack, index = recurse_tokens(
+                stack, index, yaml.tokens.BlockEndToken)
+            inner_stack.insert(0, token)
+            new_stack.append(inner_stack)
+            continue
+
+
+        elif isinstance(token, yaml.tokens.BlockMappingStartToken):
+            # Seems to be indentation.
+            inner_stack, index = recurse_tokens(
+                stack, index, yaml.tokens.BlockEndToken)
+            inner_stack.insert(0, token)
+            new_stack.append(inner_stack)
+            continue
+
+        elif isinstance(token, yaml.tokens.FlowMappingStartToken):
+            # These get dicts.
+            inner_stack, index = recurse_tokens(
+                stack, index, yaml.tokens.FlowMappingEndToken)
+            inner_stack.insert(0, token)
+            new_stack.append(inner_stack)
+            continue
+
+        elif isinstance(token, yaml.tokens.FlowSequenceStartToken):
+            # These get lists.
+            inner_stack, index = recurse_tokens(
+                stack, index, yaml.tokens.FlowSequenceEndToken)
+            inner_stack.insert(0, token)
+            new_stack.append(inner_stack)
+            continue
+
+        elif recurse_until and isinstance(token, recurse_until):
+            return new_stack, index
+
+    return new_stack, index

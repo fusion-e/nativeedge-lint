@@ -29,6 +29,7 @@ from .overrides import (
 from .utils import (
     context,
     update_model,
+    recurse_tokens,
     build_string_from_stack
 )
 
@@ -132,7 +133,8 @@ def get_cosmetic_problems(buffer, conf, filepath):
                                           context[rule.ID]):
                     problem.rule = rule.ID
                     problem.level = rule_conf['level']
-                    build_string_from_stack(elem.stack, elem.prev, elem.curr)
+                    # build_string_from_stack(elem.stack)
+                    # print(recurse_tokens(elem.stack))
                     cache.append(problem)
         elif isinstance(elem, parser.Comment):
             for rule in comment_rules:
