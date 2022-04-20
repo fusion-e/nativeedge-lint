@@ -17,6 +17,7 @@ import yaml
 from .. import LintProblem
 
 from . import constants
+from ..utils import recurse_nodes
 
 VALUES = []
 
@@ -28,15 +29,9 @@ DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
 def check(conf, token, prev, next, nextnext, context):
 
-    def skip():
-        return not context.get('current_level') != 'node_templates' or \
-                context.get('node_template_level') != ID
-
-    if skip():
-        return
-
     if not isinstance(token, yaml.tokens.ScalarToken):
         return
+
     if token.value == ID:
         if not isinstance(nextnext, constants.ACCEPTED_LIST_TYPES):
             yield LintProblem(
@@ -46,6 +41,9 @@ def check(conf, token, prev, next, nextnext, context):
                 "The provided type was {}.".format(type(nextnext))
             )
     elif token.value in constants.deprecated_relationship_types:
+        nodes = recurse_nodes(context.get('node'), token.end_mark.line)
+        print('Line number: {}'.format(token.end_mark.line))
+        print('Nodes: {}'.format(nodes))
         yield LintProblem(
             token.start_mark.line + 1,
             token.start_mark.column + 1,

@@ -125,12 +125,15 @@ def get_cosmetic_problems(buffer, conf, filepath):
                 context[rule.ID]['node_template_level'] = context.get(
                     'node_template_level')
                 rule_conf = conf.rules[rule.ID]
-                for problem in rule.check(rule_conf,
-                                          elem.curr,
-                                          elem.prev,
-                                          elem.after,
-                                          elem.nextnext,
-                                          context[rule.ID]):
+                if hasattr(elem, 'node'):
+                    context[rule.ID]['node'] = elem.node
+                problems = rule.check(rule_conf,
+                                      elem.curr,
+                                      elem.prev,
+                                      elem.after,
+                                      elem.nextnext,
+                                      context[rule.ID])
+                for problem in problems:
                     problem.rule = rule.ID
                     problem.level = rule_conf['level']
                     # build_string_from_stack(elem.stack)

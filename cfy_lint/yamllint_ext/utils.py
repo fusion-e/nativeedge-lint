@@ -148,7 +148,7 @@ def build_string_from_stack(stack):
             string = converted_token + string
         else:
             break
-    print(string)
+    # print(string)
 
 
 def recurse_tokens(stack, index=0, recurse_until=None):
@@ -205,3 +205,20 @@ def recurse_tokens(stack, index=0, recurse_until=None):
             return new_stack, index
 
     return new_stack, index
+
+
+def recurse_nodes(node, line_no=0):
+    ordered_nodes = []
+    if not node:
+        return
+    elif isinstance(node, (list, tuple)):
+        for sub in node:
+            ordered_nodes.extend(recurse_nodes(sub, line_no))
+    elif isinstance(node, yaml.nodes.Node):
+        if node.start_mark.line <= line_no <= node.end_mark.line:
+            ordered_nodes.append(node)
+        if isinstance(node, yaml.nodes.CollectionNode):
+            if node.start_mark.line <= line_no <= node.end_mark.line:
+                ordered_nodes.append(node)
+                ordered_nodes.extend(recurse_nodes(node.value, line_no))
+    return list(dict.fromkeys(ordered_nodes))
