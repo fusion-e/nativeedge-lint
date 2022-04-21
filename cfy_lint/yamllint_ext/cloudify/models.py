@@ -40,21 +40,44 @@ class CloudifyDSLObject(object):
 
 
 class NodeTemplate(object):
-    def __init__(self, name, data):
+    def __init__(self, name):
         self.name = name
-        self.data = data
+        self._type = None
+        self._properties = None
+        self._interfaces = None
+        self._relationships = None
 
+    @property
     def node_type(self):
-        return self.data.get('type', {})
+        return self._type
 
+    @node_type.setter
+    def node_type(self, value):
+        self._type = value
+
+    @property
     def properties(self):
-        return self.data.get('properties', {})
+        return self._properties
 
+    @properties.setter
+    def properties(self, value):
+        self._properties = value
+
+    @property
     def interfaces(self):
-        return self.data.get('interfaces', {})
+        return self._interfaces
 
+    @interfaces.setter
+    def interfaces(self, value):
+        self._interfaces = value
+
+    @property
     def relationships(self):
-        return self.data.get('relationships', [])
+        return self._relationships
+
+    @relationships.setter
+    def relationships(self, value):
+        self._relationships = value
 
 
 class RelationshipsList(CloudifyDSLObject):

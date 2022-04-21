@@ -33,8 +33,11 @@ class CfyToken(Token):
 
     @staticmethod
     def from_token(token):
-        return CfyToken(
-            token.line_no, token.curr, token.prev, token.next, token.nextnext)
+        return CfyToken(token.line_no,
+                        token.curr,
+                        token.prev,
+                        token.next,
+                        token.nextnext)
 
     @property
     def node(self):
@@ -43,6 +46,34 @@ class CfyToken(Token):
     @node.setter
     def node(self, value):
         self._node = value
+
+
+class CfyNode(object):
+
+    def __init__(self, node, prev=None):
+        """
+        :param node: yaml.nodes.Node
+        :param cfy_token: CfyToken from current or previous loop.
+        """
+        self.node = node
+        self._prev = prev
+        self._node_templates = None
+
+    @property
+    def prev(self):
+        return self._prev
+
+    @prev.setter
+    def prev(self, value):
+        self._prev = value
+
+    @property
+    def node_templates(self):
+        return self._node_templates
+
+    @node_templates.setter
+    def node_templates(self, value):
+        self._node_templates = value
 
 
 class SafeLineLoader(yaml.SafeLoader):
@@ -54,11 +85,15 @@ class SafeLineLoader(yaml.SafeLoader):
 
 
 def generate_nodes_recursively(node):
+    # print(node)
     if isinstance(node, (tuple, list)):
         for sub in node:
             yield from generate_nodes_recursively(sub)
     else:
         yield node
+        if isinstance(node, yaml.nodes.CollectionNode):
+            for sub in node.value:
+                yield from generate_nodes_recursively(sub)
 
 
 def node_generator(buffer):
@@ -112,21 +147,24 @@ def token_or_comment_or_line_generator(buffer):
 
     tok_or_com = next(tok_or_com_gen, None)
     line = next(line_gen, None)
-    node = next(node_gen, None)
+    node = CfyNode(next(node_gen, None))
 
-    while tok_or_com is not None or line is not None:
-        if tok_or_com is None or (line is not None and
-                                  tok_or_com.line_no > line.line_no):
+    while any([g for g in [tok_or_com, line, node.node] if g is not None]):
+        if (tok_or_com is None or (line is not None and tok_or_com.line_no > line.line_no)) or (node.node is None or (node is not None and node.node.start_mark.line > line.line_no)):
             yield line
             line = next(line_gen, None)
-        else:
-            while token_in_node(node, tok_or_com.line_no) is False:
-                # We want to find a node that the token is contained in.
-                node = next(node_gen, None)
-            if node and isinstance(tok_or_com, CfyToken):
-                tok_or_com.node = node
+        if node.node is None or (tok_or_com is not None and node.node.start_mark.line > tok_or_com.line_no):
+            # while token_in_node(node, tok_or_com.line_no) is False:
+            #     # We want to find a node that the token is contained in.
+            #     node = next(node_gen, None)
+            # if node and isinstance(tok_or_com, CfyToken):
+            #     tok_or_com.node = node
             yield tok_or_com
             tok_or_com = next(tok_or_com_gen, None)
+        else:
+            yield node
+            prev_node = node
+            node = CfyNode(next(node_gen, None), prev_node)
 
 
 def token_in_node(node, line_no):

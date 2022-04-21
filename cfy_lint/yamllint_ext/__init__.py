@@ -14,9 +14,11 @@
 # limitations under the License.
 
 import re
+import yaml
 
 from yamllint import parser
 from .generators import (
+    CfyNode,
     CfyToken,
     token_or_comment_or_line_generator,
 )
@@ -29,6 +31,7 @@ from .overrides import (
 from .utils import (
     context,
     update_model,
+    setup_node_templates,
     recurse_tokens,
     build_string_from_stack
 )
@@ -113,6 +116,27 @@ def get_cosmetic_problems(buffer, conf, filepath):
     disabled_for_next_line = DisableLineDirective()
 
     for elem in token_or_comment_or_line_generator(buffer):
+        if isinstance(elem, CfyNode):
+            setup_node_templates(elem)
+            for rule in token_rules:
+                if hasattr(rule, 'LintProblem'):
+                    rule.LintProblem = LintProblem
+                if hasattr(rule, 'spaces_before'):
+                    rule.spaces_before = spaces_before
+                if hasattr(rule, 'spaces_after'):
+                    rule.spaces_after = spaces_after
+                rule_conf = conf.rules[rule.ID]
+                try:
+                    problems = rule.check(conf=rule_conf,
+                                          token=elem,
+                                          context=context[rule.ID])
+                except TypeError:
+                    continue
+                else:
+                    for problem in problems:
+                        problem.rule = rule.ID
+                        problem.level = rule_conf['level']
+                        cache.append(problem)
         if isinstance(elem, CfyToken):
             update_model(elem)
             for rule in token_rules:
@@ -122,11 +146,7 @@ def get_cosmetic_problems(buffer, conf, filepath):
                     rule.spaces_before = spaces_before
                 if hasattr(rule, 'spaces_after'):
                     rule.spaces_after = spaces_after
-                context[rule.ID]['node_template_level'] = context.get(
-                    'node_template_level')
                 rule_conf = conf.rules[rule.ID]
-                if hasattr(elem, 'node'):
-                    context[rule.ID]['node'] = elem.node
                 problems = rule.check(rule_conf,
                                       elem.curr,
                                       elem.prev,
@@ -136,8 +156,6 @@ def get_cosmetic_problems(buffer, conf, filepath):
                 for problem in problems:
                     problem.rule = rule.ID
                     problem.level = rule_conf['level']
-                    # build_string_from_stack(elem.stack)
-                    # print(recurse_tokens(elem.stack))
                     cache.append(problem)
         elif isinstance(elem, parser.Comment):
             for rule in comment_rules:

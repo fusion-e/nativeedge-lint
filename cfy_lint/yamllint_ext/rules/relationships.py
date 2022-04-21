@@ -18,6 +18,7 @@ from .. import LintProblem
 
 from . import constants
 from ..utils import recurse_nodes
+from ..generators import CfyNode
 
 VALUES = []
 
@@ -27,28 +28,92 @@ CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
 
-def check(conf, token, prev, next, nextnext, context):
+def check(conf=None, token=None, prev=None, next=None, nextnext=None, context=None):
 
-    if not isinstance(token, yaml.tokens.ScalarToken):
-        return
+    if isinstance(token, CfyNode):
+        line = token.node.start_mark.line + 1
+        if not token.prev or not token.prev.node.value == 'relationships':
+            return
+        yield from relationships_not_list(token.node, line)
+        for list_item in token.node.value:
+            yield from relationship_not_dict(list_item)
+            is_target = False
+            is_type = False
+            for tup in list_item.value:
+                if not len(tup) == 2:
+                    yield LintProblem(
+                        list_item.value.start_mark.line + 1,
+                        None,
+                        "relationship dict must contain two entries, "
+                        "type and target "
+                        "The provided type is {}".format(type(len(tup)))
+                    )
+                if tup[0].value == 'target':
+                    is_target = True
+                    yield from relationship_target_not_exist(
+                        token, tup[1].value, tup[1].start_mark.line)
+                elif tup[0].value == 'type':
+                    is_type = True
+                    yield from deprecated_type(
+                        tup[1].value, tup[1].start_mark.line)
+            yield from no_type(is_type, tup[1].start_mark.line)
+            yield from no_target(is_target, tup[1].start_mark.line)
 
-    if token.value == ID:
-        if not isinstance(nextnext, constants.ACCEPTED_LIST_TYPES):
-            yield LintProblem(
-                token.start_mark.line + 1,
-                token.start_mark.column + 1,
-                "relationship must be a list. "
-                "The provided type was {}.".format(type(nextnext))
-            )
-    elif token.value in constants.deprecated_relationship_types:
-        nodes = recurse_nodes(context.get('node'), token.end_mark.line)
-        print('Line number: {}'.format(token.end_mark.line))
-        print('Nodes: {}'.format(nodes))
+
+def no_type(type_bool, line):
+    if not type_bool:
         yield LintProblem(
-            token.start_mark.line + 1,
-            token.start_mark.column + 1,
+            line,
+            None,
+            "no relationship type provided. "
+        )
+
+
+def no_target(target, line):
+    if not target:
+        yield LintProblem(
+            line,
+            None,
+            "no relationship target provided. "
+        )
+
+
+def deprecated_type(type_name, line):
+    if type_name in constants.deprecated_relationship_types:
+        yield LintProblem(
+            line,
+            None,
             "deprecated relationship type. "
             "Replace usage of {} with {}.".format(
-                token.value,
-                constants.deprecated_relationship_types[token.value])
+                type_name,
+                constants.deprecated_relationship_types[type_name]))
+
+
+def relationships_not_list(node, line):
+    if not isinstance(node, yaml.nodes.SequenceNode):
+        yield LintProblem(
+            line,
+            None,
+            "relationships block must be a list. "
+            "The provided type is {}".format(type(node.value).mro()[0])
+        )
+
+
+def relationship_not_dict(list_item):
+    if not isinstance(list_item, yaml.nodes.MappingNode):
+        yield LintProblem(
+            list_item.start_mark.line,
+            None,
+            "relationship must be a dict. "
+            "The provided type is {}".format(type(list_item).mro()[0])
+        )
+
+
+def relationship_target_not_exist(token, target, line):
+    if target not in token.node_templates:
+        yield LintProblem(
+            line,
+            None,
+            "relationship target node instance does not exist. "
+            "The provided target is {}".format(target)
         )

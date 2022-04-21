@@ -16,6 +16,7 @@
 import yaml
 
 from .constants import (BLUEPRINT_MODEL, NODE_TEMPLATE_MODEL)
+from. cloudify.models import NodeTemplate
 
 context = {}
 
@@ -222,3 +223,28 @@ def recurse_nodes(node, line_no=0):
                 ordered_nodes.append(node)
                 ordered_nodes.extend(recurse_nodes(node.value, line_no))
     return list(dict.fromkeys(ordered_nodes))
+
+
+def setup_node_templates(elem):
+    if 'node_templates' not in context:
+        context['node_templates'] = {}
+    if elem.prev and elem.prev.node.value == 'node_templates':
+        for item in elem.node.value:
+            node_template = setup_node_template(item)
+            if node_template.name not in context:
+                context['node_templates'].update({
+                    node_template.name: node_template
+                })
+    elem.node_templates = context['node_templates']
+
+
+def setup_node_template(list_item):
+    if len(list_item) == 2:
+        if isinstance(list_item[0], yaml.nodes.ScalarNode) and isinstance(list_item[1], yaml.nodes.MappingNode):
+            node_template = NodeTemplate(list_item[0].value)
+            node_template.node_type = setup_node_type(list_item[1].value)
+            return node_template
+
+
+def setup_node_type(value):
+    return value[0][1].value
