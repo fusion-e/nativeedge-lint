@@ -240,7 +240,8 @@ def setup_node_templates(elem):
 
 def setup_node_template(list_item):
     if len(list_item) == 2:
-        if isinstance(list_item[0], yaml.nodes.ScalarNode) and isinstance(list_item[1], yaml.nodes.MappingNode):
+        if isinstance(list_item[0], yaml.nodes.ScalarNode) and \
+                isinstance(list_item[1], yaml.nodes.MappingNode):
             node_template = NodeTemplate(list_item[0].value)
             node_template.node_type = setup_node_type(list_item[1].value)
             return node_template

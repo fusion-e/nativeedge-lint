@@ -49,11 +49,13 @@ rules:
     spaces: 2
     indent-sequences: consistent
   line-length:
+    max: 120
     level: warning
   quoted-strings:
     required: only-when-needed
     extra-allowed: [^http://, ^ftp://, "(?![A-Za-z0-9])"]
   truthy: enable
   relationships: enable
+  dsl_version: enable
   new-line-at-end-of-file: disable
 """
