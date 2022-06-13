@@ -57,5 +57,6 @@ rules:
   truthy: enable
   relationships: enable
   dsl_version: enable
+  node_types: enable
   new-line-at-end-of-file: disable
 """

@@ -19,22 +19,10 @@ from ..generators import CfyNode
 
 VALUES = []
 
-ID = 'dsl_version'
+ID = 'node_types'
 TYPE = 'token'
 CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
-
-LINTING_VERSIONS = ['cloudify_dsl_1_3']
-INVALID_3_1 = [
-    'blueprint_id',
-    'deployment_id',
-    'capability_value',
-    'scaling_group',
-    'secret_key',
-    'node_id',
-    'node_type',
-    'node_instance'
-]
 
 
 def check(conf=None,
@@ -45,27 +33,35 @@ def check(conf=None,
           context=None):
     if isinstance(token, CfyNode):
         line = token.node.start_mark.line + 1
-        if token.prev and token.prev.node.value == 'tosca_definitions_version':
-            context['dsl_version'] = token.node.value
-            yield from validate_supported_dsl_version(token.node.value, line)
-        if token.prev and token.prev.node.value == 'type':
-            yield from validate_dsl_version_31(
-                token.node.value, line, context.get('dsl_version'))
+        if not token.prev or not token.prev.node.value == 'node_types':
+            return
+        for node_type in token.node.value:
+            yield from node_type_follows_naming_conventions(
+                node_type[0].value, line)
 
 
-def validate_supported_dsl_version(value, line):
-    if value not in LINTING_VERSIONS:
+def node_type_follows_naming_conventions(value, line):
+    split_node_type = value.split('.')
+    last_key = split_node_type.pop()
+    if not {'cloudify', 'nodes'} <= set(split_node_type):
         yield LintProblem(
             line,
             None,
-            "dsl_version not supported: {} ".format(value)
-        )
-
-
-def validate_dsl_version_31(value, line, dsl_version):
-    if dsl_version and value in INVALID_3_1:
+            "node types should following naming convention cloudify.nodes.*: "
+            "{}".format(value))
+    if not good_camel_case(last_key, split_node_type):
+        new_value = '.'.join(
+            [k.lower() for k in split_node_type]) + '.{}'.format(last_key)
         yield LintProblem(
             line,
             None,
-            "invalid type for {}: {} ".format(dsl_version, value)
-        )
+            "incorrect camel case {}. Suggested: {} ".format(value, new_value))
+
+
+def good_camel_case(last_key, split_node_type):
+    if not last_key[0].isupper():
+        return False
+    for key in split_node_type:
+        if key[0].isupper():
+            return False
+    return True

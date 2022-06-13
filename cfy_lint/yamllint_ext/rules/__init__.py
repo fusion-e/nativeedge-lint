@@ -15,10 +15,12 @@
 
 from yamllint.rules import _RULES as ruleset
 
+from . import node_types
 from . import dsl_version
 from . import relationships
 
 _CLOUDIFY_RULES = {
+    node_types.ID: node_types,
     dsl_version.ID: dsl_version,
     relationships.ID: relationships
 }
