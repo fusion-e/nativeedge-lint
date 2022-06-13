@@ -36,7 +36,10 @@ def check(conf=None, token=None, prev=None, next=None, nextnext=None, context=No
             return
         yield from relationships_not_list(token.node, line)
         for list_item in token.node.value:
-            yield from relationship_not_dict(list_item)
+            if isinstance(list_item, tuple) or isinstance(
+                    list_item.value, dict):
+                yield from relationship_not_dict(list_item)
+                continue
             is_target = False
             is_type = False
             for tup in list_item.value:
@@ -101,12 +104,20 @@ def relationships_not_list(node, line):
 
 def relationship_not_dict(list_item):
     if not isinstance(list_item, yaml.nodes.MappingNode):
-        yield LintProblem(
-            list_item.start_mark.line,
-            None,
-            "relationship must be a dict. "
-            "The provided type is {}".format(type(list_item).mro()[0])
-        )
+        if isinstance(list_item, tuple):
+            yield LintProblem(
+                list_item[0].start_mark.line,
+                None,
+                "relationship must be a dict. "
+                "The provided type is {}".format(type(list_item).mro()[0])
+            )
+        else:
+            yield LintProblem(
+                list_item.start_mark.line,
+                None,
+                "relationship must be a dict. "
+                "The provided type is {}".format(type(list_item).mro()[0])
+            )
 
 
 def relationship_target_not_exist(token, target, line):
@@ -115,5 +126,7 @@ def relationship_target_not_exist(token, target, line):
             line,
             None,
             "relationship target node instance does not exist. "
-            "The provided target is {}".format(target)
+            "The provided target is {}. Possible options are: {}.".format(
+                target,
+            [k for k in token.node_templates.keys()])
         )

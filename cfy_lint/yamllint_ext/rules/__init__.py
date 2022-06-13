@@ -14,9 +14,12 @@
 # limitations under the License.
 
 from yamllint.rules import _RULES as ruleset
+
+from . import dsl_version
 from . import relationships
 
 _CLOUDIFY_RULES = {
+    dsl_version.ID: dsl_version,
     relationships.ID: relationships
 }
 ruleset.update(_CLOUDIFY_RULES)
