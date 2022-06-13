@@ -17,7 +17,6 @@ import yaml
 from .. import LintProblem
 
 from . import constants
-from ..utils import recurse_nodes
 from ..generators import CfyNode
 
 VALUES = []
