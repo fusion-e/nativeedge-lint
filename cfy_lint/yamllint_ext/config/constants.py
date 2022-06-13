@@ -55,8 +55,9 @@ rules:
     required: only-when-needed
     extra-allowed: [^http://, ^ftp://, "(?![A-Za-z0-9])"]
   truthy: enable
-  relationships: enable
-  dsl_version: enable
-  node_types: enable
   new-line-at-end-of-file: disable
+  node_types: enable
+  dsl_version: enable
+  relationships: enable
+  dsl_definitions: enable
 """

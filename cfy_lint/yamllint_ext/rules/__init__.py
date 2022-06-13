@@ -18,11 +18,13 @@ from yamllint.rules import _RULES as ruleset
 from . import node_types
 from . import dsl_version
 from . import relationships
+from . import dsl_definitions
 
 _CLOUDIFY_RULES = {
     node_types.ID: node_types,
     dsl_version.ID: dsl_version,
-    relationships.ID: relationships
+    relationships.ID: relationships,
+    dsl_definitions.ID: dsl_definitions
 }
 ruleset.update(_CLOUDIFY_RULES)
 
@@ -30,5 +32,4 @@ ruleset.update(_CLOUDIFY_RULES)
 def get(_id):
     if _id not in ruleset:
         raise ValueError('no such rule: "%s"' % _id)
-
     return ruleset[_id]
