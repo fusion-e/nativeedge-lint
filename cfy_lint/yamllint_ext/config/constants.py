@@ -57,6 +57,7 @@ rules:
   truthy: enable
   new-line-at-end-of-file: disable
   inputs: enable
+  imports: enable
   node_types: enable
   dsl_version: enable
   relationships: enable
