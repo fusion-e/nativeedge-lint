@@ -56,6 +56,7 @@ rules:
     extra-allowed: [^http://, ^ftp://, "(?![A-Za-z0-9])"]
   truthy: enable
   new-line-at-end-of-file: disable
+  inputs: enable
   node_types: enable
   dsl_version: enable
   relationships: enable
