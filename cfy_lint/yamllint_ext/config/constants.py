@@ -61,5 +61,6 @@ rules:
   node_types: enable
   dsl_version: enable
   relationships: enable
+  node_templates: enable
   dsl_definitions: enable
 """

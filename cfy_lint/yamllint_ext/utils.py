@@ -15,8 +15,11 @@
 
 import yaml
 
+from .cloudify.models import NodeTemplate
 from .constants import (BLUEPRINT_MODEL, NODE_TEMPLATE_MODEL)
-from. cloudify.models import NodeTemplate
+
+INTRINSIC_FNS = [
+    'get_input', 'get_capability', 'get_attribute', 'get_property']
 
 context = {}
 
@@ -98,7 +101,6 @@ def token_to_string(token):
             yaml.tokens.FlowMappingStartToken,
             yaml.tokens.BlockEntryToken)):
         return str(token)
-    return
     if isinstance(token, yaml.tokens.KeyToken):
         return '\n'
     elif isinstance(token, yaml.tokens.ValueToken):
@@ -249,3 +251,56 @@ def setup_node_template(list_item):
 
 def setup_node_type(value):
     return value[0][1].value
+
+
+def recurse_mapping(mapping):
+    if isinstance(mapping, dict):
+        new_dict = {}
+        for k, v in mapping.items():
+            new_dict[k] = recurse_mapping(v)
+        return new_dict
+    elif isinstance(mapping, (list, tuple)):
+        new_list = []
+        if len(mapping) == 2 and not isinstance(mapping[0], tuple) and mapping[0].value in INTRINSIC_FNS:
+            return recurse_mapping({mapping[0].value: mapping[1].value})
+        if len(mapping) == 1 and isinstance(mapping[0], tuple):
+            if len(mapping[0]) == 2 and mapping[0][0].value in INTRINSIC_FNS:
+                return recurse_mapping(
+                    {
+                        mapping[0][0].value: mapping[0][1].value
+                    }
+                )
+        if len(mapping) == 1 and isinstance(mapping[0],
+                                            yaml.nodes.MappingNode):
+            if len(mapping[0].value) == 2 and \
+                    mapping[0].value[0].value in INTRINSIC_FNS:
+                return recurse_mapping(
+                    {
+                        mapping[0].value[0].value: mapping[0].value[1].value
+                    }
+                )
+        for item in mapping:
+            new_list.append(recurse_mapping(item))
+        return new_list
+    elif not isinstance(mapping, yaml.nodes.Node):
+        return mapping
+    elif isinstance(mapping, yaml.nodes.ScalarNode):
+        return mapping.value
+    elif isinstance(mapping, yaml.nodes.SequenceNode):
+        new_list = []
+        for item in mapping.value:
+            new_list.append(recurse_mapping(item))
+        return new_list
+    elif isinstance(mapping, yaml.nodes.MappingNode):
+        new_dict = {}
+        new_list = []
+        for item in mapping.value:
+            if isinstance(item, (list, tuple)) and len(item) == 2:
+                key = item[0].value
+                value = recurse_mapping(item[1].value)
+                new_dict[key] = value
+            else:
+                new_list.append(item)
+        if new_dict:
+            return new_dict
+        return new_list

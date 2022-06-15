@@ -17,6 +17,7 @@ import yaml
 
 from .. import LintProblem
 from ..generators import CfyNode
+from ..utils import INTRINSIC_FNS, recurse_mapping, context as ctx
 
 VALUES = []
 
@@ -24,8 +25,6 @@ ID = 'inputs'
 TYPE = 'token'
 CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
-INTRINSIC_FNS = [
-    'get_input', 'get_capability', 'get_attribute', 'get_property']
 
 
 def check(conf=None,
@@ -34,8 +33,8 @@ def check(conf=None,
           next=None,
           nextnext=None,
           context=None):
-    if 'inputs' not in context:
-        context['inputs'] = {}
+    if 'inputs' not in ctx:
+        ctx['inputs'] = {}
     if isinstance(token, CfyNode):
         line = token.node.start_mark.line + 1
         if token.prev and token.prev.node.value == 'inputs':
@@ -43,10 +42,10 @@ def check(conf=None,
                 input_obj = CfyInput(item)
                 if input_obj.not_input():
                     continue
-                context['inputs'].update(input_obj.__dict__())
+                ctx['inputs'].update(input_obj.__dict__())
                 yield from validate_inputs(input_obj, line)
         if token.prev and token.prev.node.value == 'get_input':
-            if token.node.value not in context['inputs']:
+            if token.node.value not in ctx['inputs']:
                 yield LintProblem(
                     line,
                     None,
@@ -140,42 +139,3 @@ def get_mapping_value(name, value):
         return recurse_mapping(value)
 
 
-def recurse_mapping(mapping):
-    if isinstance(mapping, dict):
-        new_dict = {}
-        for k, v in mapping.items():
-            new_dict[k] = recurse_mapping(v)
-        return new_dict
-    elif isinstance(mapping, (list, tuple)):
-        new_list = []
-        if len(mapping) == 2 and mapping[0].value in INTRINSIC_FNS:
-            return recurse_mapping({mapping[0].value: mapping[1].value})
-        if len(mapping) == 1 and \
-                len(mapping[0]) == 2 and \
-                mapping[0][0].value in INTRINSIC_FNS:
-            return recurse_mapping({mapping[0][0].value: mapping[0][1].value})
-        for item in mapping:
-            new_list.append(recurse_mapping(item))
-        return new_list
-    elif not isinstance(mapping, yaml.nodes.Node):
-        return mapping
-    elif isinstance(mapping, yaml.nodes.ScalarNode):
-        return mapping.value
-    elif isinstance(mapping, yaml.nodes.SequenceNode):
-        new_list = []
-        for item in mapping.value:
-            new_list.append(recurse_mapping(item))
-        return new_list
-    elif isinstance(mapping, yaml.nodes.MappingNode):
-        new_dict = {}
-        new_list = []
-        for item in mapping.value:
-            if isinstance(item, (list, tuple)) and len(item) == 2:
-                key = item[0].value
-                value = recurse_mapping(item[1].value)
-                new_dict[key] = value
-            else:
-                new_list.append(item)
-        if new_dict:
-            return new_dict
-        return new_list

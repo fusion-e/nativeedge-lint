@@ -79,6 +79,27 @@ class NodeTemplate(object):
     def relationships(self, value):
         self._relationships = value
 
+    def set_values(self, values):
+        if 'type' in values:
+            self.node_type = values['type']
+        if 'properties' in values:
+            self.properties = values['properties']
+        if 'interfaces' in values:
+            self.interfaces = values['interfaces']
+        if 'relationships' in values:
+            self.relationships = values['relationships']
+
+    @property
+    def dict(self):
+        return {
+            self.name: {
+                'type': self.node_type,
+                'properties': self.properties,
+                'interfaces': self.interfaces,
+                'relationships': self.relationships
+            }
+        }
+
 
 class RelationshipsList(CloudifyDSLObject):
 
