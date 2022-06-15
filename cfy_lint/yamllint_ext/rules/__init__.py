@@ -20,6 +20,7 @@ from . import imports
 from . import node_types
 from . import dsl_version
 from . import relationships
+from . import node_templates
 from . import dsl_definitions
 
 _CLOUDIFY_RULES = {
@@ -28,6 +29,7 @@ _CLOUDIFY_RULES = {
     node_types.ID: node_types,
     dsl_version.ID: dsl_version,
     relationships.ID: relationships,
+    node_templates.ID: node_templates,
     dsl_definitions.ID: dsl_definitions
 }
 ruleset.update(_CLOUDIFY_RULES)
