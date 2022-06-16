@@ -33,6 +33,11 @@ def check(conf=None, token=None, prev=None, next=None, nextnext=None, context=No
         line = token.node.start_mark.line + 1
         if not token.prev or not token.prev.node.value == 'relationships':
             return
+        elif token.prev_prev:
+            print('this {} {}'.format(vars(token), vars(token.prev_prev)))
+        if CfyRelationshipType(token.node).is_relationship_type:
+            yield from check_relationship_types()
+            return
         yield from relationships_not_list(token.node, line)
         for list_item in token.node.value:
             if isinstance(list_item, tuple) or isinstance(
@@ -129,3 +134,19 @@ def relationship_target_not_exist(token, target, line):
                 target,
             [k for k in token.node_templates.keys()])
         )
+
+
+class CfyRelationshipType(object):
+    def __init__(self, node):
+        self.is_relationship_type = False
+        if isinstance(node, yaml.nodes.MappingNode) and isinstance(
+                node.value, list) and len(node.value) == 1:
+            if isinstance(node.value[0], tuple) and len(node.value[0]) == 2:
+                if isinstance(node.value[0][0], yaml.nodes.ScalarNode) and \
+                        isinstance(node.value[0][1], yaml.nodes.MappingNode):
+                    if node.value[0][0].value == 'derived_from':
+                        self.is_relationship_type = True
+
+
+def check_relationship_types():
+    pass
