@@ -18,6 +18,7 @@ from .. import LintProblem
 
 from . import constants
 from ..generators import CfyNode
+from .node_templates import recurse_node_template
 
 VALUES = []
 
@@ -25,7 +26,8 @@ ID = 'relationships'
 TYPE = 'token'
 CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
-
+LIFECYCLE_OPS = {'preconfigure', 'postconfigure', 'establish', 'unlink'}
+OP_KEYS = {'implementation', 'inputs'}
 
 def check(conf=None, token=None, prev=None, next=None, nextnext=None, context=None):
 
@@ -33,10 +35,13 @@ def check(conf=None, token=None, prev=None, next=None, nextnext=None, context=No
         line = token.node.start_mark.line + 1
         if not token.prev or not token.prev.node.value == 'relationships':
             return
-        elif token.prev_prev:
-            print('this {} {}'.format(vars(token), vars(token.prev_prev)))
-        if CfyRelationshipType(token.node).is_relationship_type:
-            yield from check_relationship_types()
+        relationship_type = CfyRelationshipType(token.node)
+        if relationship_type.is_relationship_type:
+            print(relationship_type.derived_from)
+            print(relationship_type.connection_type)
+            print(relationship_type.target_interfaces)
+            print(relationship_type.source_interfaces)
+            yield from check_relationship_types(relationship_type, line)
             return
         yield from relationships_not_list(token.node, line)
         for list_item in token.node.value:
@@ -137,16 +142,88 @@ def relationship_target_not_exist(token, target, line):
 
 
 class CfyRelationshipType(object):
+
     def __init__(self, node):
-        self.is_relationship_type = False
-        if isinstance(node, yaml.nodes.MappingNode) and isinstance(
-                node.value, list) and len(node.value) == 1:
-            if isinstance(node.value[0], tuple) and len(node.value[0]) == 2:
-                if isinstance(node.value[0][0], yaml.nodes.ScalarNode) and \
-                        isinstance(node.value[0][1], yaml.nodes.MappingNode):
-                    if node.value[0][0].value == 'derived_from':
-                        self.is_relationship_type = True
+        self._node = node
+        self._is_relationship_type = None
+        self._name = None
+        self.parsed = recurse_node_template(self._node)
+
+        try:
+            for k, v in self.parsed.items():
+                self.name = k
+                self.definition = v or {}
+                break
+        except (AttributeError, ValueError, KeyError):
+            self.is_relationship_type = False
+        else:
+            self.is_relationship_type = True
+            self.derived_from = self.definition.get('derived_from')
+            self.connection_type = self.definition.get('connection_type')
+            self.source_interfaces = self.definition.get('source_interfaces')
+            self.target_interfaces = self.definition.get('target_interfaces')
+
+    @property
+    def interfaces(self):
+        return [CfyRelationshipInterface(self.source_interfaces),
+                CfyRelationshipInterface(self.target_interfaces)]
 
 
-def check_relationship_types():
-    pass
+class CfyRelationshipInterfaces(object):
+    def __init__(self, source, target):
+        self.source = CfyRelationshipInterface(source)
+        self.target = CfyRelationshipInterface(target)
+
+
+class CfyRelationshipInterface(object):
+
+    def __init__(self, data):
+        self._data = data
+
+    @property
+    def lifecycle(self):
+        return self._data.get('cloudify.interfaces.relationship_lifecycle')
+
+
+def check_relationship_types(relationship_type, line):
+    if not relationship_type.name.startswith('cloudify.relationships.'):
+        yield LintProblem(
+            line,
+            None,
+            'relationship type name "{}" should '
+            'start with "cloudify.relationships."'.format(
+                relationship_type.name)
+        )
+    for interface in relationship_type.interfaces:
+        if interface.lifecycle:
+            keys = interface.lifecycle.keys()
+            if not set(keys).issubset(LIFECYCLE_OPS):
+                unexpected = set(keys) - LIFECYCLE_OPS
+                yield LintProblem(
+                    line,
+                    None,
+                    'unexpected {} in cloudify.interfaces.lifecycle: '
+                    '{}'.format(
+                        'operation' if len(unexpected) == 1 else 'operations',
+                        unexpected
+                    )
+                )
+            for op in LIFECYCLE_OPS:
+                keys = interface.lifecycle.get(op, {}).keys()
+                if not set(keys).issubset(OP_KEYS):
+                    unexpected = set(keys) - OP_KEYS
+                    yield LintProblem(
+                        line,
+                        None,
+                        'unexpected key in {} operation definition: {}'.format(
+                            op, unexpected
+                        )
+                    )
+                elif op in interface.lifecycle.keys() and \
+                        'implementation' not in keys:
+                    yield LintProblem(
+                        line,
+                        None,
+                        '{} operation definition does not declare '
+                        'required implementation'.format(op)
+                    )
