@@ -57,6 +57,8 @@ class CfyNode(object):
         """
         self.node = node
         self._prev = prev
+        self._prev_prev = None
+        self._next = None
         self._node_templates = None
 
     @property
@@ -66,6 +68,22 @@ class CfyNode(object):
     @prev.setter
     def prev(self, value):
         self._prev = value
+
+    @property
+    def prev_prev(self):
+        return self._prev_prev
+
+    @prev_prev.setter
+    def prev_prev(self, value):
+        self._prev_prev = value
+
+    @property
+    def next_token(self):
+        return self._next
+
+    @next_token.setter
+    def next_token(self, value):
+        self._next = value
 
     @property
     def node_templates(self):
@@ -149,6 +167,8 @@ def token_or_comment_or_line_generator(buffer):
     line = next(line_gen, None)
     node = CfyNode(next(node_gen, None))
 
+    prev_node = None
+
     while any([g for g in [tok_or_com, line, node.node] if g is not None]):
         if (tok_or_com is None or (line is not None and tok_or_com.line_no > line.line_no)) or (node.node is None or (node is not None and node.node.start_mark.line > line.line_no)):
             yield line
@@ -163,8 +183,10 @@ def token_or_comment_or_line_generator(buffer):
             tok_or_com = next(tok_or_com_gen, None)
         else:
             yield node
+            prev_prev_node = prev_node
             prev_node = node
             node = CfyNode(next(node_gen, None), prev_node)
+            node.prev_prev = prev_prev_node
 
 
 def token_in_node(node, line_no):
