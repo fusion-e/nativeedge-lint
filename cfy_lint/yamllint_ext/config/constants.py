@@ -60,6 +60,7 @@ rules:
   imports: enable
   node_types: enable
   dsl_version: enable
+  capabilities: enable
   relationships: enable
   node_templates: enable
   dsl_definitions: enable
