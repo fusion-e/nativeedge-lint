@@ -19,6 +19,7 @@ from . import inputs
 from . import imports
 from . import node_types
 from . import dsl_version
+from . import capabilities
 from . import relationships
 from . import node_templates
 from . import dsl_definitions
@@ -28,6 +29,7 @@ _CLOUDIFY_RULES = {
     imports.ID: imports,
     node_types.ID: node_types,
     dsl_version.ID: dsl_version,
+    capabilities.ID: capabilities,
     relationships.ID: relationships,
     node_templates.ID: node_templates,
     dsl_definitions.ID: dsl_definitions
