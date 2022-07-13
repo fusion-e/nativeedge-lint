@@ -116,27 +116,7 @@ def get_cosmetic_problems(buffer, conf, filepath):
     disabled_for_next_line = DisableLineDirective()
 
     for elem in token_or_comment_or_line_generator(buffer):
-        if isinstance(elem, CfyNode):
-            setup_node_templates(elem)
-            for rule in token_rules:
-                if hasattr(rule, 'LintProblem'):
-                    rule.LintProblem = LintProblem
-                if hasattr(rule, 'spaces_before'):
-                    rule.spaces_before = spaces_before
-                if hasattr(rule, 'spaces_after'):
-                    rule.spaces_after = spaces_after
-                rule_conf = conf.rules[rule.ID]
-                try:
-                    problems = rule.check(conf=rule_conf,
-                                          token=elem,
-                                          context=context[rule.ID])
-                except TypeError:
-                    continue
-                else:
-                    for problem in problems:
-                        problem.rule = rule.ID
-                        problem.level = rule_conf['level']
-                        cache.append(problem)
+
         if isinstance(elem, CfyToken):
             update_model(elem)
             for rule in token_rules:
@@ -157,6 +137,30 @@ def get_cosmetic_problems(buffer, conf, filepath):
                     problem.rule = rule.ID
                     problem.level = rule_conf['level']
                     cache.append(problem)
+
+        elif isinstance(elem, CfyNode):
+            setup_node_templates(elem)
+            for rule in token_rules:
+                if hasattr(rule, 'LintProblem'):
+                    rule.LintProblem = LintProblem
+                if hasattr(rule, 'spaces_before'):
+                    rule.spaces_before = spaces_before
+                if hasattr(rule, 'spaces_after'):
+                    rule.spaces_after = spaces_after
+                rule_conf = conf.rules[rule.ID]
+                try:
+                    problems = rule.check(conf=rule_conf,
+                                          token=elem,
+                                          context=context[rule.ID])
+                except TypeError:
+                    continue
+                else:
+                    for problem in problems:
+                        problem.rule = rule.ID
+                        problem.level = rule_conf['level']
+                        cache.append(problem)
+
+
         elif isinstance(elem, parser.Comment):
             for rule in comment_rules:
                 if hasattr(rule, 'LintProblem'):
