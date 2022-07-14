@@ -50,6 +50,7 @@ def check(conf=None,
                     None,
                     'invalid import. {}'.format(url)
                 )
+
             elif url.scheme in ['https', 'https'] and not url.path.endswith('.yaml'):
                 yield LintProblem(
                     line,

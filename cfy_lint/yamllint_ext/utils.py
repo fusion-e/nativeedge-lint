@@ -21,7 +21,9 @@ from .constants import (BLUEPRINT_MODEL, NODE_TEMPLATE_MODEL)
 INTRINSIC_FNS = [
     'get_input', 'get_capability', 'get_attribute', 'get_property']
 
-context = {}
+context = {
+    'current_tokens_line': 0
+}
 
 
 def assign_current_top_level(elem):
@@ -52,6 +54,8 @@ def update_model(_elem):
     :param _elem:
     :return:
     """
+    # print(vars(_elem))
+    context['current_tokens_line'] = _elem.line_no
     if stop_document(_elem):
         # The document is finished.
         return

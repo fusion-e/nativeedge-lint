@@ -67,7 +67,7 @@ def check(conf=None, token=None, prev=None, next=None, nextnext=None, context=No
                 elif tup[0].value == 'type':
                     is_type = True
                     yield from deprecated_type(
-                        tup[1].value, tup[1].start_mark.line)
+                        tup[1].value, tup[1].end_mark.line)
             yield from no_type(is_type, tup[1].start_mark.line)
             yield from no_target(is_target, tup[1].start_mark.line)
 

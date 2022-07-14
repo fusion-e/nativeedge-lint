@@ -43,7 +43,7 @@ def check(conf=None,
                 if input_obj.not_input():
                     continue
                 ctx['inputs'].update(input_obj.__dict__())
-                yield from validate_inputs(input_obj, line)
+                yield from validate_inputs(input_obj, input_obj.line or line)
         if token.prev and token.prev.node.value == 'get_input':
             if token.node.value not in ctx['inputs']:
                 yield LintProblem(
@@ -73,7 +73,8 @@ def validate_inputs(input_obj, line):
 
 class CfyInput(object):
     def __init__(self, nodes):
-        self.name, self.mapping = get_input(nodes)
+        self._line = None
+        self.name, self.mapping = self.get_input(nodes)
         for key in list(self.mapping.keys()):
             if key not in ['type', 'default', 'description', 'constraints']:
                 del self.mapping[key]
@@ -90,6 +91,10 @@ class CfyInput(object):
     def default(self, value):
         self._default = value
 
+    @property
+    def line(self):
+        return self._line
+
     def not_input(self):
         return all([not k for k in self.mapping.values()])
 
@@ -98,44 +103,39 @@ class CfyInput(object):
             self.name: self.mapping
         }
 
+    def get_input(self, nodes):
+        if len(nodes) != 2:
+            name = None
+            mapping = None
+        else:
+            name = self.get_input_name(nodes[0])
+            mapping = self.get_input_mapping(nodes[1])
+        return name, mapping
 
-def get_input(nodes):
-    if len(nodes) != 2:
-        name = None
-        mapping = None
-    else:
-        name = get_input_name(nodes[0])
-        mapping = get_input_mapping(nodes[1])
-    return name, mapping
+    def get_input_name(self, node):
+        if isinstance(node, yaml.nodes.ScalarNode):
+            self._line = node.end_mark.line + 1
+            return node.value
 
+    def get_input_mapping(self, node):
+        mapping = {
+            'type': None,
+            'default': None,
+            'description': None,
+            'constraints': None,
+        }
+        valid_keys = mapping.keys()
+        if isinstance(node, yaml.nodes.MappingNode):
+            for tup in node.value:
+                if not len(tup) == 2:
+                    continue
+                mapping_name = tup[0].value
+                mapping_value = self.get_mapping_value(mapping_name, tup[1].value)
+                mapping[mapping_name] = mapping_value
+        return mapping
 
-def get_input_name(node):
-    if isinstance(node, yaml.nodes.ScalarNode):
-        return node.value
-
-
-def get_input_mapping(node):
-    mapping = {
-        'type': None,
-        'default': None,
-        'description': None,
-        'constraints': None,
-    }
-    valid_keys = mapping.keys()
-    if isinstance(node, yaml.nodes.MappingNode):
-        for tup in node.value:
-            if not len(tup) == 2:
-                continue
-            mapping_name = tup[0].value
-            mapping_value = get_mapping_value(mapping_name, tup[1].value)
-            mapping[mapping_name] = mapping_value
-    return mapping
-
-
-def get_mapping_value(name, value):
-    if name not in ['default', 'constraints']:
-        return value
-    else:
-        return recurse_mapping(value)
-
-
+    def get_mapping_value(self, name, value):
+        if name not in ['default', 'constraints']:
+            return value
+        else:
+            return recurse_mapping(value)

@@ -46,6 +46,7 @@ class NodeTemplate(object):
         self._properties = None
         self._interfaces = None
         self._relationships = None
+        self._line = None
 
     @property
     def node_type(self):
@@ -99,6 +100,14 @@ class NodeTemplate(object):
                 'relationships': self.relationships
             }
         }
+
+    @property
+    def line(self):
+        return self._line
+
+    @line.setter
+    def line(self, value):
+        self._line = value
 
 
 class RelationshipsList(CloudifyDSLObject):
