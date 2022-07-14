@@ -16,6 +16,7 @@
 from .. import LintProblem
 
 from ..generators import CfyNode
+from ..utils import process_relevant_tokens
 
 VALUES = []
 
@@ -25,19 +26,11 @@ CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
 
-def check(conf=None,
-          token=None,
-          prev=None,
-          next=None,
-          nextnext=None,
-          context=None):
-    if isinstance(token, CfyNode):
-        line = token.node.start_mark.line + 1
-        if not token.prev or not token.prev.node.value == 'node_types':
-            return
-        for node_type in token.node.value:
-            yield from node_type_follows_naming_conventions(
-                node_type[0].value, line)
+@process_relevant_tokens(CfyNode, 'node_types')
+def check(token=None, **_):
+    for node_type in token.node.value:
+        yield from node_type_follows_naming_conventions(
+            node_type[0].value, token.line)
 
 
 def node_type_follows_naming_conventions(value, line):

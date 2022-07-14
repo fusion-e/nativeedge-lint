@@ -61,6 +61,11 @@ class CfyNode(object):
         self._next = None
         self._node_templates = None
 
+        try:
+            self._line = node.start_mark.line + 1
+        except AttributeError:
+            self._line = None
+
     @property
     def prev(self):
         return self._prev
@@ -92,6 +97,14 @@ class CfyNode(object):
     @node_templates.setter
     def node_templates(self, value):
         self._node_templates = value
+
+    @property
+    def line(self):
+        return self._line
+
+    @line.setter
+    def line(self, value):
+        self._line = value
 
 
 class SafeLineLoader(yaml.SafeLoader):

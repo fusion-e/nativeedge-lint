@@ -17,7 +17,7 @@ import yaml
 
 from .. import LintProblem
 from ..generators import CfyNode
-from ..utils import INTRINSIC_FNS, recurse_mapping, context as ctx
+from ..utils import process_relevant_tokens, recurse_mapping, context as ctx
 
 VALUES = []
 
@@ -27,44 +27,33 @@ CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
 
-def check(conf=None,
-          token=None,
-          prev=None,
-          next=None,
-          nextnext=None,
-          context=None):
-    if 'capabilities' not in ctx:
-        ctx['capabilities'] = {}
-    if 'outputs' not in ctx:
-        ctx['outputs'] = {}
-    if isinstance(token, CfyNode):
-        line = token.node.start_mark.line + 1
-        if token.prev and token.prev.node.value in ['outputs', 'capabilities']:
-            for item in token.node.value:
-                if token.prev.node.value == 'outputs':
-                    output_obj = CfyOutput(item)
-                else:
-                    output_obj = CfyCapability(item)
-                if output_obj.not_output():
-                    continue
-                if isinstance(output_obj, CfyOutput):
-                    ctx['outputs'].update(output_obj.__dict__())
-                else:
-                    ctx['capabilities'].update(output_obj.__dict__())
-                desig = 'output' if token.prev.node.value == 'outputs' \
-                    else 'capability'
-                if not output_obj.value:
-                    yield LintProblem(
-                        line, None,
-                        '{} {} does not provide a value.'.format(
-                            desig, output_obj.name)
-                    )
-                if not output_obj.description:
-                    yield LintProblem(
-                        line, None,
-                        '{} {} does not provide a description.'.format(
-                            desig, output_obj.name)
-                    )
+@process_relevant_tokens(CfyNode, ['outputs', 'capabilities'])
+def check(token=None, **_):
+    for item in token.node.value:
+        if token.prev.node.value == 'outputs':
+            output_obj = CfyOutput(item)
+        else:
+            output_obj = CfyCapability(item)
+        if output_obj.not_output():
+            continue
+        if isinstance(output_obj, CfyOutput):
+            ctx['outputs'].update(output_obj.__dict__())
+        else:
+            ctx['capabilities'].update(output_obj.__dict__())
+        desig = 'output' if token.prev.node.value == 'outputs' \
+            else 'capability'
+        if not output_obj.value:
+            yield LintProblem(
+                token.line, None,
+                '{} {} does not provide a value.'.format(
+                    desig, output_obj.name)
+            )
+        if not output_obj.description:
+            yield LintProblem(
+                token.line, None,
+                '{} {} does not provide a description.'.format(
+                    desig, output_obj.name)
+            )
 
 
 class CfyOutput(object):

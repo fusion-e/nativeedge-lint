@@ -17,8 +17,8 @@ import yaml
 
 from .. import LintProblem
 from ..generators import CfyNode
-from ..utils import recurse_mapping, INTRINSIC_FNS, context as ctx
-from .constants import deprecated_node_types
+from ..utils import process_relevant_tokens, INTRINSIC_FNS, context as ctx
+from .constants import deprecated_node_types, GCP_TYPES
 
 VALUES = []
 
@@ -28,27 +28,22 @@ CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
 
-def check(conf=None,
-          token=None,
-          prev=None,
-          next=None,
-          nextnext=None,
-          context=None):
-    if isinstance(token, CfyNode):
-        if not token.prev or not token.prev.node.value == 'node_templates':
-            return
-        for node_template in token.node.value:
-            line = token.node.start_mark.line + 1
-            if not len(node_template) == 2:
-                continue
-            parsed_node_template = parse_node_template(
-                node_template[1], context.get(node_template[0].value))
-            yield from check_deprecated_node_type(
-                parsed_node_template,
-                parsed_node_template.line or line)
-            yield from check_intrinsic_functions(
-                parsed_node_template.dict,
-                parsed_node_template.line or line)
+@process_relevant_tokens(CfyNode, 'node_templates')
+def check(token=None, context=None, **_):
+    for node_template in token.node.value:
+        if not len(node_template) == 2:
+            continue
+        parsed_node_template = parse_node_template(
+            node_template[1], context.get(node_template[0].value))
+        yield from check_deprecated_node_type(
+            parsed_node_template,
+            parsed_node_template.line or token.line)
+        yield from check_intrinsic_functions(
+            parsed_node_template.dict,
+            parsed_node_template.line or token.line)
+        yield from check_client_config(
+            parsed_node_template,
+            parsed_node_template.line or token.line)
 
 
 def parse_node_template(node_template_mapping, node_template_model):
@@ -127,3 +122,35 @@ def recurse_node_template(mapping):
         for item in mapping.value:
             new_list.append(recurse_node_template(item))
         return new_list
+
+
+def check_client_config(model, line):
+    if model.node_type in GCP_TYPES:
+        yield from check_gcp_config(model, line)
+
+
+def check_gcp_config(model, line):
+    if 'gcp_config' in model.properties:
+        yield LintProblem(
+            line,
+            None,
+            'The node template "{}" has deprecated property "gcp_config". '
+            'please use "client_config".'.format(model.name)
+        )
+    elif not 'client_config' in model.properties:
+        yield LintProblem(
+            line,
+            None,
+            'The node template "{}" '
+            'does not provide required property "client_config".'.format(
+                model.name)
+        )
+    elif all(x in ['auth', 'zone'] for x in model.properties['client_config']):
+        yield LintProblem(
+            line,
+            None,
+            'The node template "{}" '
+            'does not provide required client config values '
+            '["auth", "zone"].'.format(
+                model.name)
+        )

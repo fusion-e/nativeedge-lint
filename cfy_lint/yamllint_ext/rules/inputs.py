@@ -17,7 +17,7 @@ import yaml
 
 from .. import LintProblem
 from ..generators import CfyNode
-from ..utils import INTRINSIC_FNS, recurse_mapping, context as ctx
+from ..utils import INTRINSIC_FNS, recurse_mapping, context as ctx, process_relevant_tokens
 
 VALUES = []
 
@@ -27,29 +27,22 @@ CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
 
-def check(conf=None,
-          token=None,
-          prev=None,
-          next=None,
-          nextnext=None,
-          context=None):
-    if 'inputs' not in ctx:
-        ctx['inputs'] = {}
-    if isinstance(token, CfyNode):
-        line = token.node.start_mark.line + 1
-        if token.prev and token.prev.node.value == 'inputs':
-            for item in token.node.value:
-                input_obj = CfyInput(item)
-                if input_obj.not_input():
-                    continue
-                ctx['inputs'].update(input_obj.__dict__())
-                yield from validate_inputs(input_obj, input_obj.line or line)
-        if token.prev and token.prev.node.value == 'get_input':
-            if token.node.value not in ctx['inputs']:
-                yield LintProblem(
-                    line,
-                    None,
-                    'undefined input "{}"'.format(token.node.value))
+@process_relevant_tokens(CfyNode, ['inputs', 'get_input'])
+def check(token=None, **_):
+    if token.prev.node.value == 'inputs':
+        for item in token.node.value:
+            input_obj = CfyInput(item)
+            if input_obj.not_input():
+                continue
+            ctx['inputs'].update(input_obj.__dict__())
+            yield from validate_inputs(input_obj, input_obj.line or token.line)
+
+    if token.prev.node.value == 'get_input':
+        if token.node.value not in ctx['inputs']:
+            yield LintProblem(
+                token.line,
+                None,
+                'undefined input "{}"'.format(token.node.value))
 
 
 def validate_inputs(input_obj, line):
