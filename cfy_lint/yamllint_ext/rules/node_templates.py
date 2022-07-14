@@ -43,14 +43,18 @@ def check(conf=None,
                 continue
             parsed_node_template = parse_node_template(
                 node_template[1], context.get(node_template[0].value))
-            yield from check_deprecated_node_type(parsed_node_template, line)
+            yield from check_deprecated_node_type(
+                parsed_node_template,
+                parsed_node_template.line or line)
             yield from check_intrinsic_functions(
-                parsed_node_template.dict, line)
+                parsed_node_template.dict,
+                parsed_node_template.line or line)
 
 
 def parse_node_template(node_template_mapping, node_template_model):
     node_template_model.set_values(
         recurse_node_template(node_template_mapping))
+    node_template_model.line = node_template_mapping.start_mark.line + 1
     return node_template_model
 
 

@@ -54,7 +54,7 @@ def check(conf=None,
 
 def validate_inputs(input_obj, line):
     if not input_obj.input_type:
-        message = '{} input "{}" does not specify a type. '.format(ctx['current_tokens_line'], input_obj.name)
+        message = 'input "{}" does not specify a type. '.format(input_obj.name)
         if input_obj.default:
             if isinstance(input_obj.default, dict):
                 for key in input_obj.default.keys():
@@ -114,7 +114,7 @@ class CfyInput(object):
 
     def get_input_name(self, node):
         if isinstance(node, yaml.nodes.ScalarNode):
-            self._line = node.start_mark.line
+            self._line = node.end_mark.line + 1
             return node.value
 
     def get_input_mapping(self, node):

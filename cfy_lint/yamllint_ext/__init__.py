@@ -117,28 +117,7 @@ def get_cosmetic_problems(buffer, conf, filepath):
 
     for elem in token_or_comment_or_line_generator(buffer):
 
-        if isinstance(elem, CfyToken):
-            update_model(elem)
-            for rule in token_rules:
-                if hasattr(rule, 'LintProblem'):
-                    rule.LintProblem = LintProblem
-                if hasattr(rule, 'spaces_before'):
-                    rule.spaces_before = spaces_before
-                if hasattr(rule, 'spaces_after'):
-                    rule.spaces_after = spaces_after
-                rule_conf = conf.rules[rule.ID]
-                problems = rule.check(rule_conf,
-                                      elem.curr,
-                                      elem.prev,
-                                      elem.after,
-                                      elem.nextnext,
-                                      context[rule.ID])
-                for problem in problems:
-                    problem.rule = rule.ID
-                    problem.level = rule_conf['level']
-                    cache.append(problem)
-
-        elif isinstance(elem, CfyNode):
+        if isinstance(elem, CfyNode):
             setup_node_templates(elem)
             for rule in token_rules:
                 if hasattr(rule, 'LintProblem'):
@@ -160,6 +139,26 @@ def get_cosmetic_problems(buffer, conf, filepath):
                         problem.level = rule_conf['level']
                         cache.append(problem)
 
+        elif isinstance(elem, CfyToken):
+            update_model(elem)
+            for rule in token_rules:
+                if hasattr(rule, 'LintProblem'):
+                    rule.LintProblem = LintProblem
+                if hasattr(rule, 'spaces_before'):
+                    rule.spaces_before = spaces_before
+                if hasattr(rule, 'spaces_after'):
+                    rule.spaces_after = spaces_after
+                rule_conf = conf.rules[rule.ID]
+                problems = rule.check(rule_conf,
+                                      elem.curr,
+                                      elem.prev,
+                                      elem.after,
+                                      elem.nextnext,
+                                      context[rule.ID])
+                for problem in problems:
+                    problem.rule = rule.ID
+                    problem.level = rule_conf['level']
+                    cache.append(problem)
 
         elif isinstance(elem, parser.Comment):
             for rule in comment_rules:
@@ -180,6 +179,7 @@ def get_cosmetic_problems(buffer, conf, filepath):
                 disabled_for_line.process_comment(elem)
             else:
                 disabled_for_next_line.process_comment(elem)
+
         elif isinstance(elem, parser.Line):
             for rule in line_rules:
                 if hasattr(rule, 'LintProblem'):
@@ -194,16 +194,16 @@ def get_cosmetic_problems(buffer, conf, filepath):
                     problem.level = rule_conf['level']
                     cache.append(problem)
 
-            # This is the last token/comment/line of this line, let's flush the
-            # problems found (but filter them according to the directives)
-            for problem in cache:
-                if not (disabled_for_line.is_disabled_by_directive(problem) or
-                        disabled.is_disabled_by_directive(problem)):
-                    yield problem
+        # This is the last token/comment/line of this line, let's flush the
+        # problems found (but filter them according to the directives)
+        for problem in cache:
+            if not (disabled_for_line.is_disabled_by_directive(problem) or
+                    disabled.is_disabled_by_directive(problem)):
+                yield problem
 
-            disabled_for_line = disabled_for_next_line
-            disabled_for_next_line = DisableLineDirective()
-            cache = []
+        disabled_for_line = disabled_for_next_line
+        disabled_for_next_line = DisableLineDirective()
+        cache = []
 
 
 def _run(buffer, conf, filepath):
@@ -218,7 +218,9 @@ def _run(buffer, conf, filepath):
     # right line
     syntax_error = get_syntax_error(buffer)
 
-    for problem in get_cosmetic_problems(buffer, conf, filepath):
+    problems = list(get_cosmetic_problems(buffer, conf, filepath))
+
+    for problem in sorted(problems, key=lambda x: x.line):
         # Insert the syntax error (if any) at the right place...
         if (syntax_error and syntax_error.line <= problem.line and
                 syntax_error.column <= problem.column):
