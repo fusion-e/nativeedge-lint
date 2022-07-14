@@ -19,6 +19,7 @@ from .. import LintProblem
 from . import constants
 from ..generators import CfyNode
 from .node_templates import recurse_node_template
+from ..utils import process_relevant_tokens
 
 VALUES = []
 
@@ -29,47 +30,44 @@ DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 LIFECYCLE_OPS = {'preconfigure', 'postconfigure', 'establish', 'unlink'}
 OP_KEYS = {'implementation', 'inputs'}
 
-def check(conf=None, token=None, prev=None, next=None, nextnext=None, context=None):
 
-    if isinstance(token, CfyNode):
-        line = token.node.start_mark.line + 1
-        if not token.prev or not token.prev.node.value == 'relationships':
-            return
-        relationship_type = CfyRelationshipType(token.node)
-        if relationship_type.is_relationship_type:
-            print(relationship_type.derived_from)
-            print(relationship_type.connection_type)
-            print(relationship_type.target_interfaces)
-            print(relationship_type.source_interfaces)
-            yield from check_relationship_types(relationship_type, line)
-            return
-        yield from relationships_not_list(token.node, line)
-        for list_item in token.node.value:
-            if isinstance(list_item, tuple) or isinstance(
-                    list_item.value, dict):
-                yield from relationship_not_dict(list_item)
-                continue
-            is_target = False
-            is_type = False
-            for tup in list_item.value:
-                if not len(tup) == 2:
-                    yield LintProblem(
-                        list_item.value.start_mark.line + 1,
-                        None,
-                        "relationship dict must contain two entries, "
-                        "type and target "
-                        "The provided type is {}".format(type(len(tup)))
-                    )
-                if tup[0].value == 'target':
-                    is_target = True
-                    yield from relationship_target_not_exist(
-                        token, tup[1].value, tup[1].start_mark.line)
-                elif tup[0].value == 'type':
-                    is_type = True
-                    yield from deprecated_type(
-                        tup[1].value, tup[1].end_mark.line)
-            yield from no_type(is_type, tup[1].start_mark.line)
-            yield from no_target(is_target, tup[1].start_mark.line)
+@process_relevant_tokens(CfyNode, 'relationships')
+def check(token=None, **_):
+    relationship_type = CfyRelationshipType(token.node)
+    if relationship_type.is_relationship_type:
+        print(relationship_type.derived_from)
+        print(relationship_type.connection_type)
+        print(relationship_type.target_interfaces)
+        print(relationship_type.source_interfaces)
+        yield from check_relationship_types(relationship_type, token.line)
+        return
+    yield from relationships_not_list(token.node, token.line)
+    for list_item in token.node.value:
+        if isinstance(list_item, tuple) or isinstance(
+                list_item.value, dict):
+            yield from relationship_not_dict(list_item)
+            continue
+        is_target = False
+        is_type = False
+        for tup in list_item.value:
+            if not len(tup) == 2:
+                yield LintProblem(
+                    list_item.value.start_mark.line + 1,
+                    None,
+                    "relationship dict must contain two entries, "
+                    "type and target "
+                    "The provided type is {}".format(type(len(tup)))
+                )
+            if tup[0].value == 'target':
+                is_target = True
+                yield from relationship_target_not_exist(
+                    token, tup[1].value, tup[1].start_mark.line)
+            elif tup[0].value == 'type':
+                is_type = True
+                yield from deprecated_type(
+                    tup[1].value, tup[1].end_mark.line)
+        yield from no_type(is_type, tup[1].start_mark.line)
+        yield from no_target(is_target, tup[1].start_mark.line)
 
 
 def no_type(type_bool, line):

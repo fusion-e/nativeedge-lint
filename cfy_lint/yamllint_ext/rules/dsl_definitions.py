@@ -18,6 +18,7 @@ import yaml
 from .. import LintProblem
 
 from ..generators import CfyNode
+from ..utils import process_relevant_tokens
 
 VALUES = []
 
@@ -27,31 +28,23 @@ CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
 
-def check(conf=None,
-          token=None,
-          prev=None,
-          next=None,
-          nextnext=None,
-          context=None):
-    if isinstance(token, CfyNode):
-        line = token.node.start_mark.line + 1
-        if not token.prev or not token.prev.node.value == 'dsl_definitions':
-            return
-        for dsl_definition in token.node.value:
-            if not isinstance(dsl_definition[0].value, str) or \
-                    dsl_definition[0].value.isdigit():
-                yield LintProblem(
-                    line,
-                    None,
-                    'dsl definition should be a string and '
-                    'should not start with a numeric character: {}'
-                    .format(dsl_definition[0].value)
-                )
-            if not isinstance(dsl_definition[1], yaml.nodes.MappingNode):
-                yield LintProblem(
-                    line,
-                    None,
-                    'dsl definition {} content must be a dict: {}'
-                    .format(dsl_definition[0].value,
-                            type(dsl_definition[1].value))
-                )
+@process_relevant_tokens(CfyNode, ['dsl_definitions'])
+def check(token=None, **_):
+    for dsl_definition in token.node.value:
+        if not isinstance(dsl_definition[0].value,
+                          str) or dsl_definition[0].value.isdigit():
+            yield LintProblem(
+                token.line,
+                None,
+                'dsl definition should be a string and '
+                'should not start with a numeric character: {}'
+                .format(dsl_definition[0].value)
+            )
+        if not isinstance(dsl_definition[1], yaml.nodes.MappingNode):
+            yield LintProblem(
+                token.line,
+                None,
+                'dsl definition {} content must be a dict: {}'
+                .format(dsl_definition[0].value,
+                        type(dsl_definition[1].value))
+            )

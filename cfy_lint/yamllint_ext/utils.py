@@ -22,6 +22,11 @@ INTRINSIC_FNS = [
     'get_input', 'get_capability', 'get_attribute', 'get_property']
 
 context = {
+    'imports': [],
+    'dsl_version': None,
+    'inputs': {},
+    'capabilities': {},
+    'outputs': {},
     'current_tokens_line': 0
 }
 
@@ -308,3 +313,18 @@ def recurse_mapping(mapping):
         if new_dict:
             return new_dict
         return new_list
+
+
+def process_relevant_tokens(model, keyword):
+    def wrapper_outer(function):
+        def wrapper_inner(*args, **kwargs):
+            token = kwargs.get('token')
+            if isinstance(token, model):
+                if isinstance(keyword, str):
+                    if token.prev and token.prev.node.value == keyword:
+                        yield from function(*args, **kwargs)
+                if isinstance(keyword, list):
+                    if token.prev and token.prev.node.value in keyword:
+                        yield from function(*args, **kwargs)
+        return wrapper_inner
+    return wrapper_outer

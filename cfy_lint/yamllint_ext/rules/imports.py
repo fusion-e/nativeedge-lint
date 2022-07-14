@@ -19,6 +19,7 @@ from urllib.parse import urlparse
 from .. import LintProblem
 
 from ..generators import CfyNode
+from ..utils import process_relevant_tokens
 
 VALUES = []
 
@@ -28,32 +29,34 @@ CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
 
-def check(conf=None,
-          token=None,
-          prev=None,
-          next=None,
-          nextnext=None,
-          context=None):
-    if isinstance(token, CfyNode):
-        line = token.node.start_mark.line + 1
-        if not token.prev or not token.prev.node.value == 'imports':
-            return
-        for import_item in token.node.value:
-            if not isinstance(import_item, yaml.nodes.ScalarNode):
-                yield LintProblem(line, None, 'import is not a string.')
-            url = urlparse(import_item.value)
-            if url.scheme not in ['http', 'https', 'plugin']:
-                if not url.scheme and url.path.split('/')[-1].endswith('.yaml'):
-                    continue
-                yield LintProblem(
-                    line,
-                    None,
-                    'invalid import. {}'.format(url)
-                )
+@process_relevant_tokens(CfyNode, 'imports')
+def check(token=None, **_):
+    for import_item in token.node.value:
+        yield from validate_string(import_item, token.line)
+        yield from validate_import_items(import_item, token.line)
 
-            elif url.scheme in ['https', 'https'] and not url.path.endswith('.yaml'):
-                yield LintProblem(
-                    line,
-                    None,
-                    'invalid import. {}'.format(url)
-                )
+
+def validate_import_items(item, line):
+
+    url = urlparse(item.value)
+
+    if url.scheme not in ['http', 'https', 'plugin']:
+        if not url.scheme and url.path.split('/')[-1].endswith('.yaml'):
+            yield
+        yield LintProblem(
+            line,
+            None,
+            'invalid import. {}'.format(url)
+        )
+
+    elif url.scheme in ['https', 'https'] and not url.path.endswith('.yaml'):
+        yield LintProblem(
+            line,
+            None,
+            'invalid import. {}'.format(url)
+        )
+
+
+def validate_string(item, line):
+    if not isinstance(item, yaml.nodes.ScalarNode):
+        yield LintProblem(line, None, 'import is not a string.')

@@ -16,6 +16,7 @@
 from .. import LintProblem
 
 from ..generators import CfyNode
+from ..utils import process_relevant_tokens, context
 
 VALUES = []
 
@@ -37,20 +38,14 @@ INVALID_3_1 = [
 ]
 
 
-def check(conf=None,
-          token=None,
-          prev=None,
-          next=None,
-          nextnext=None,
-          context=None):
-    if isinstance(token, CfyNode):
-        line = token.node.start_mark.line + 1
-        if token.prev and token.prev.node.value == 'tosca_definitions_version':
-            context['dsl_version'] = token.node.value
-            yield from validate_supported_dsl_version(token.node.value, line)
-        if token.prev and token.prev.node.value == 'type':
-            yield from validate_dsl_version_31(
-                token.node.value, line, context.get('dsl_version'))
+@process_relevant_tokens(CfyNode, ['tosca_definitions_version', 'type'])
+def check(token=None, **_):
+    if token.prev and token.prev.node.value == 'tosca_definitions_version':
+        context['dsl_version'] = token.node.value
+        yield from validate_supported_dsl_version(token.node.value, token.line)
+    if token.prev and token.prev.node.value == 'type':
+        yield from validate_dsl_version_31(
+            token.node.value, token.line, context.get('dsl_version'))
 
 
 def validate_supported_dsl_version(value, line):
