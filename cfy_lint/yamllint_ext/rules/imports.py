@@ -53,13 +53,16 @@ def validate_import_items(item, line):
     if url.scheme in ['plugin'] and url.path in ['cloudify-openstack-plugin']:
         version_openstack = url.query.split(',')[0]
         version_openstack = re.findall('(\\d+.\\d+.\\d+)', version_openstack)[0]
-        if version.parse(version_openstack) < version.parse('3.0.0'):
+        if version.parse(version_openstack) > version.parse('3.0.0'):
             yield LintProblem(
                 line, None,
                 'Cloudify Openstack Plugin version {} is deprecated.'
                 ' Please update to Openstack version 3 or higher. '
-                'Below are suggested node type changes.'.format(
-                    version_openstack))
+                'Below are suggested node type changes.'
+                ' For more information on conversion to Openstack Plugin v3, '
+                'Please click on this link - https://docs.cloudify.co/latest/'
+                'working_with/official_plugins/infrastructure/openstackv3/'
+                .format(version_openstack))
 
     elif url.scheme in ['https', 'https'] and not url.path.endswith('.yaml'):
         yield LintProblem(
