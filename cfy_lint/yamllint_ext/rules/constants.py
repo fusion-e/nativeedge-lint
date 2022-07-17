@@ -106,6 +106,8 @@ deprecated_node_types = {
         'cloudify.nodes.openstack.HostAggregate',
     'cloudify.openstack.nodes.ServerGroup':
         'cloudify.nodes.openstack.ServerGroup',
+    'cloudify.openstack.nodes.Routes':
+        'cloudify.nodes.openstack.Router'
 }
 
 deprecated_relationship_types = {
@@ -153,13 +155,36 @@ deprecated_relationship_types = {
         'cloudify.relationships.azure.vm_connected_to_datadisk',
     'cloudify.azure.relationships.connected_to_aks_cluster':
         'cloudify.relationships.azure.connected_to_aks_cluster',
+    'cloudify.openstack.server_connected_to_server_group':
+        'cloudify.relationships.openstack.server_connected_to_server_group',
+    'cloudify.openstack.server_connected_to_keypair':
+        'cloudify.relationships.openstack.server_connected_to_keypair',
+    'cloudify.openstack.server_connected_to_port':
+        'cloudify.relationships.openstack.server_connected_to_port',
+    ' cloudify.openstack.server_connected_to_floating_ip':
+        'cloudify.relationships.openstack.server_connected_to_floating_ip',
+    'cloudify.openstack.server_connected_to_security_group':
+        'cloudify.relationships.openstack.server_connected_to_security_group',
+    'cloudify.openstack.port_connected_to_security_group':
+        'cloudify.relationships.openstack.port_connected_to_security_group',
+    'cloudify.openstack.port_connected_to_floating_ip':
+        'cloudify.relationships.openstack.port_connected_to_floating_ip',
+    'cloudify.openstack.port_connected_to_subnet':
+        'cloudify.relationships.openstack.port_connected_to_subnet',
+    'cloudify.openstack.subnet_connected_to_router':
+        'cloudify.relationships.openstack.subnet_connected_to_router',
+    'cloudify.openstack.volume_attached_to_server':
+        'cloudify.relationships.openstack.volume_attached_to_server',
+    'cloudify.openstack.route_connected_to_router':
+        'cloudify.relationships.openstack.route_connected_to_router',
+    'cloudify.openstack.rbac_policy_applied_to':
+        'cloudify.relationships.openstack.rbac_policy_applied_to'
 }
 
 ACCEPTED_LIST_TYPES = (
     yaml.tokens.BlockEntryToken,
     yaml.tokens.FlowSequenceStartToken
 )
-
 
 GCP_TYPES = [
     'cloudify.gcp.project',
