@@ -25,6 +25,8 @@ context = {
     'imports': [],
     'dsl_version': None,
     'inputs': {},
+    'node_templates': {},
+    'node_types': {},
     'capabilities': {},
     'outputs': {},
     'current_tokens_line': 0

@@ -120,12 +120,6 @@ def get_cosmetic_problems(buffer, conf, filepath):
         if isinstance(elem, CfyNode):
             setup_node_templates(elem)
             for rule in token_rules:
-                if hasattr(rule, 'LintProblem'):
-                    rule.LintProblem = LintProblem
-                if hasattr(rule, 'spaces_before'):
-                    rule.spaces_before = spaces_before
-                if hasattr(rule, 'spaces_after'):
-                    rule.spaces_after = spaces_after
                 rule_conf = conf.rules[rule.ID]
                 try:
                     problems = rule.check(conf=rule_conf,
