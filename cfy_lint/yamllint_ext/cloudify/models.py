@@ -45,8 +45,11 @@ class NodeTemplate(object):
         self._type = None
         self._properties = None
         self._interfaces = None
-        self._relationships = None
+        self._relationships = []
         self._line = None
+        self._required_relationships = {}
+        self._relationships_mapping = {}
+        self._unsatisfied_relationships = {}
 
     @property
     def node_type(self):
@@ -108,6 +111,38 @@ class NodeTemplate(object):
     @line.setter
     def line(self, value):
         self._line = value
+
+    @property
+    def required_relationships(self):
+        return self._required_relationships or {}
+
+    @required_relationships.setter
+    def required_relationships(self, value):
+        self._required_relationships = value
+
+    def required_relationships_not_met(self, node_templates=None):
+        node_templates = node_templates or {}
+        if not self._relationships_mapping:
+            for relationship in self.relationships:
+                rel_type = relationship.get('type')
+                rel_target_name = relationship.get('target')
+                rel_target = node_templates.get(rel_target_name)
+                self._relationships_mapping[rel_target.node_type] = rel_type
+        for k, v in self.required_relationships.items():
+            if k not in self._relationships_mapping or v != \
+                    self._relationships_mapping[k]:
+                self._unsatisfied_relationships[k] = v
+        return self._unsatisfied_relationships.items()
+
+    @property
+    def required_relationships_message(self):
+        messages = []
+        for k, v in self.required_relationships_not_met():
+            messages.append(
+                'relationship type {} to a node type {}'.format(v, k))
+        return 'The node template {} has unsatisfied required relationships' \
+               ', which have not been provided: {}.'.format(
+                   self.name, ', '.join(messages))
 
 
 class RelationshipsList(CloudifyDSLObject):

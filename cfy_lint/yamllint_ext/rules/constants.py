@@ -188,3 +188,12 @@ GCP_TYPES = [
     'cloudify.gcp.nodes.IAM.Role',
     'cloudify.nodes.gcp.Gcp'
 ]
+
+
+REQUIRED_RELATIONSHIPS = {
+  'cloudify.nodes.aws.ec2.Interface': {
+      'cloudify.nodes.aws.ec2.Subnet': 'cloudify.relationships.depends_on',
+      'cloudify.nodes.aws.ec2.SecurityGroup':
+          'cloudify.relationships.depends_on',
+  }
+}

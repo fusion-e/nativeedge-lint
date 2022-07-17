@@ -18,7 +18,7 @@ import yaml
 from .. import LintProblem
 from ..generators import CfyNode
 from ..utils import process_relevant_tokens, INTRINSIC_FNS, context as ctx
-from .constants import deprecated_node_types, GCP_TYPES
+from .constants import deprecated_node_types, GCP_TYPES, REQUIRED_RELATIONSHIPS
 
 VALUES = []
 
@@ -44,6 +44,10 @@ def check(token=None, context=None, **_):
         yield from check_client_config(
             parsed_node_template,
             parsed_node_template.line or token.line)
+        yield from check_dependent_types(
+            parsed_node_template,
+            parsed_node_template.line or token.line)
+
 
 
 def parse_node_template(node_template_mapping, node_template_model):
@@ -153,4 +157,16 @@ def check_gcp_config(model, line):
             'does not provide required client config values '
             '["auth", "zone"].'.format(
                 model.name)
+        )
+
+
+def check_dependent_types(model, line):
+    required_relationship_types = REQUIRED_RELATIONSHIPS.get(
+        model.node_type, {})
+    model.required_relationships = required_relationship_types
+    if model.required_relationships_not_met(ctx['node_templates']):
+        yield LintProblem(
+            line,
+            None,
+            model.required_relationships_message
         )
