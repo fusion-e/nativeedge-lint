@@ -191,9 +191,40 @@ GCP_TYPES = [
 
 
 REQUIRED_RELATIONSHIPS = {
-  'cloudify.nodes.aws.ec2.Interface': {
-      'cloudify.nodes.aws.ec2.Subnet': 'cloudify.relationships.depends_on',
-      'cloudify.nodes.aws.ec2.SecurityGroup':
-          'cloudify.relationships.depends_on',
-  }
+    'cloudify.nodes.aws.ec2.Subnet': {
+        'cloudify.nodes.aws.ed2.Vpc': 'cloudify.relationships.depends_on',
+    },
+    'cloudify.nodes.aws.ec2.SecurityGroup': {
+        'cloudify.nodes.aws.ed2.Vpc': 'cloudify.relationships.depends_on',
+    },
+    'cloudify.nodes.aws.ec2.InternetGateway': {
+        'cloudify.nodes.aws.ed2.Vpc': 'cloudify.relationships.depends_on',
+    },
+    'cloudify.nodes.aws.ec2.RouteTable': {
+        'cloudify.nodes.aws.ed2.Vpc': 'cloudify.relationships.contained_in',
+        'cloudify.nodes.aws.ec2.Subnet': 'cloudify.relationships.depends_on',
+    },
+    'cloudify.nodes.aws.ec2.Route': {
+        'cloudify.nodes.aws.ec2.RouteTable':
+            'cloudify.relationships.contained_in',
+    },
+    'cloudify.nodes.aws.ec2.SecurityGroupRuleIngress': {
+        'cloudify.nodes.aws.ec2.SecurityGroup':
+            'cloudify.relationships.contained_in',
+    },
+    'cloudify.nodes.aws.ec2.Interface': {
+        'cloudify.nodes.aws.ec2.Subnet': 'cloudify.relationships.depends_on',
+        'cloudify.nodes.aws.ec2.SecurityGroup':
+            'cloudify.relationships.depends_on',
+    },
+    'cloudify.nodes.aws.ec2.ElasticIP': {
+        'cloudify.nodes.aws.ec2.Interface':
+            'cloudify.relationships.depends_on',
+    },
+    'cloudify.nodes.aws.ec2.Instances': {
+        'cloudify.nodes.aws.ec2.Image':
+            'cloudify.relationships.depends_on',
+        'cloudify.nodes.aws.ec2.Interface':
+            'cloudify.relationships.depends_on',
+    },
 }
