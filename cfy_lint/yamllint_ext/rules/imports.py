@@ -13,7 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 import yaml
+from packaging import version
 from urllib.parse import urlparse
 
 from .. import LintProblem
@@ -48,6 +50,16 @@ def validate_import_items(item, line):
             None,
             'invalid import. {}'.format(url)
         )
+    if url.scheme in ['plugin'] and url.path in ['cloudify-openstack-plugin']:
+        version_openstack = url.query.split(',')[0]
+        version_openstack = re.findall('(\\d+.\\d+.\\d+)', version_openstack)[0]
+        if version.parse(version_openstack) < version.parse('3.0.0'):
+            yield LintProblem(
+                line, None,
+                'Cloudify Openstack Plugin version {} is deprecated.'
+                ' Please update to Openstack version 3 or higher. '
+                'Below are suggested node type changes.'.format(
+                    version_openstack))
 
     elif url.scheme in ['https', 'https'] and not url.path.endswith('.yaml'):
         yield LintProblem(

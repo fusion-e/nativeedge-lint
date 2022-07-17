@@ -68,6 +68,44 @@ deprecated_node_types = {
         'cloudify.nodes.azure.storage.ManagedCluster',
     'cloudify.azure.nodes.storage.Azure':
         'cloudify.nodes.azure.storage.Azure',
+    'cloudify.openstack.nodes.Server':
+        'cloudify.nodes.openstack.Server',
+    'cloudify.openstack.nodes.WindowsServer':
+        'cloudify.nodes.openstack.WindowsServer',
+    'cloudify.openstack.nodes.KeyPair':
+        'cloudify.nodes.openstack.KeyPair',
+    'cloudify.openstack.nodes.Subnet':
+        'cloudify.nodes.openstack.Subnet',
+    'cloudify.openstack.nodes.SecurityGroup':
+        'cloudify.nodes.openstack.SecurityGroup',
+    'cloudify.openstack.nodes.Router':
+        'cloudify.nodes.openstack.Router',
+    'cloudify.openstack.nodes.Port':
+        'cloudify.nodes.openstack.Port',
+    'cloudify.openstack.nodes.Network':
+        'cloudify.nodes.openstack.Network',
+    'cloudify.openstack.nodes.FloatingIP':
+        'cloudify.nodes.openstack.FloatingIP',
+    'cloudify.openstack.nodes.RBACPolicy':
+        'cloudify.nodes.openstack.RBACPolicy',
+    'cloudify.openstack.nodes.Volume':
+        'cloudify.nodes.openstack.Volume',
+    'cloudify.openstack.nova_net.nodes.FloatingIP':
+        'cloudify.nodes.openstack.FloatingIP',
+    'cloudify.openstack.nova_net.nodes.SecurityGroup':
+        'cloudify.nodes.openstack.SecurityGroup',
+    'cloudify.openstack.nodes.Flavor':
+        'cloudify.nodes.openstack.Flavor',
+    'cloudify.openstack.nodes.Image':
+        'cloudify.nodes.openstack.Image',
+    'cloudify.openstack.nodes.Project':
+        'cloudify.nodes.openstack.Project',
+    'cloudify.openstack.nodes.User':
+        'cloudify.nodes.openstack.User',
+    'cloudify.openstack.nodes.HostAggregate':
+        'cloudify.nodes.openstack.HostAggregate',
+    'cloudify.openstack.nodes.ServerGroup':
+        'cloudify.nodes.openstack.ServerGroup',
 }
 
 deprecated_relationship_types = {
@@ -121,6 +159,7 @@ ACCEPTED_LIST_TYPES = (
     yaml.tokens.BlockEntryToken,
     yaml.tokens.FlowSequenceStartToken
 )
+
 
 GCP_TYPES = [
     'cloudify.gcp.project',
