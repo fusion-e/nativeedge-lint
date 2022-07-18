@@ -53,7 +53,7 @@ rules:
     level: warning
   quoted-strings:
     required: only-when-needed
-    extra-allowed: [^http://, ^ftp://, "(?![A-Za-z0-9])"]
+    extra-allowed: ["^http://", "^ftp://", "(?![A-Za-z0-9])"]
   truthy: enable
   new-line-at-end-of-file: disable
   inputs: enable

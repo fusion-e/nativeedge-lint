@@ -189,6 +189,67 @@ GCP_TYPES = [
     'cloudify.nodes.gcp.Gcp'
 ]
 
+AZURE_TYPES = [
+    'cloudify.azure.nodes.ResourceGroup',
+    'cloudify.azure.nodes.storage.StorageAccount'
+    'cloudify.azure.nodes.storage.DataDisk'
+    'cloudify.azure.nodes.storage.FileShare'
+    'cloudify.azure.nodes.network.VirtualNetwork'
+    'cloudify.azure.nodes.network.NetworkSecurityGroup'
+    'cloudify.azure.nodes.network.NetworkSecurityRule'
+    'cloudify.azure.nodes.network.Subnet'
+    'cloudify.azure.nodes.network.RouteTable'
+    'cloudify.azure.nodes.network.Route'
+    'cloudify.azure.nodes.network.NetworkInterfaceCard'
+    'cloudify.azure.nodes.network.IPConfiguration'
+    'cloudify.azure.nodes.network.PublicIPAddress'
+    'cloudify.azure.nodes.compute.AvailabilitySet'
+    'cloudify.azure.nodes.compute.VirtualMachine'
+    'cloudify.azure.nodes.compute.WindowsVirtualMachine'
+    'cloudify.azure.nodes.compute.VirtualMachineExtension'
+    'cloudify.azure.nodes.network.LoadBalancer'
+    'cloudify.azure.nodes.network.LoadBalancer.BackendAddressPool'
+    'cloudify.azure.nodes.network.LoadBalancer.Probe'
+    'cloudify.azure.nodes.network.LoadBalancer.IncomingNATRule'
+    'cloudify.azure.nodes.network.LoadBalancer.Rule'
+    'cloudify.azure.Deployment'
+    'cloudify.azure.nodes.compute.ContainerService'
+    'cloudify.azure.nodes.Plan'
+    'cloudify.azure.nodes.WebApp'
+    'cloudify.azure.nodes.PublishingUser'
+    'cloudify.azure.nodes.compute.ManagedCluster'
+    'cloudify.nodes.azure.ResourceGroup'
+    'cloudify.nodes.azure.storage.StorageAccount'
+    'cloudify.nodes.azure.storage.DataDisk'
+    'cloudify.nodes.azure.storage.FileShare'
+    'cloudify.nodes.azure.network.VirtualNetwork'
+    'cloudify.nodes.azure.network.NetworkSecurityGroup'
+    'cloudify.nodes.azure.network.NetworkSecurityRule'
+    'cloudify.nodes.azure.network.Subnet'
+    'cloudify.nodes.azure.network.RouteTable'
+    'cloudify.nodes.azure.network.Route'
+    'cloudify.nodes.azure.network.NetworkInterfaceCard'
+    'cloudify.nodes.azure.network.IPConfiguration'
+    'cloudify.nodes.azure.network.PublicIPAddress'
+    'cloudify.nodes.azure.compute.AvailabilitySet'
+    'cloudify.nodes.azure.compute.VirtualMachine'
+    'cloudify.nodes.azure.compute.WindowsVirtualMachine'
+    'cloudify.nodes.azure.compute.VirtualMachineExtension'
+    'cloudify.nodes.azure.network.LoadBalancer'
+    'cloudify.nodes.azure.network.LoadBalancer.BackendAddressPool'
+    'cloudify.nodes.azure.network.LoadBalancer.Probe'
+    'cloudify.nodes.azure.network.LoadBalancer.IncomingNATRule'
+    'cloudify.nodes.azure.network.LoadBalancer.Rule'
+    'cloudify.nodes.azure.compute.ContainerService'
+    'cloudify.nodes.azure.Plan'
+    'cloudify.nodes.azure.WebApp'
+    'cloudify.nodes.azure.PublishingUser'
+    'cloudify.nodes.azure.compute.ManagedCluster'
+    'cloudify.nodes.azure.resources.Azure'
+    'cloudify.azure.nodes.resources.Azure'
+    'cloudify.nodes.azure.CustomTypes'
+]
+
 
 REQUIRED_RELATIONSHIPS = {
     'cloudify.nodes.aws.ec2.Subnet': {
@@ -228,3 +289,6 @@ REQUIRED_RELATIONSHIPS = {
             'cloudify.relationships.depends_on',
     },
 }
+
+
+AZURE_VALID_KEY = ['subscription_id', 'tenant_id', 'client_id', 'client_secret']

@@ -18,7 +18,11 @@ import yaml
 from .. import LintProblem
 from ..generators import CfyNode
 from ..utils import process_relevant_tokens, INTRINSIC_FNS, context as ctx
-from .constants import deprecated_node_types, GCP_TYPES, REQUIRED_RELATIONSHIPS
+from .constants import (deprecated_node_types,
+                        GCP_TYPES,
+                        REQUIRED_RELATIONSHIPS,
+                        AZURE_TYPES,
+                        AZURE_VALID_KEY)
 
 VALUES = []
 
@@ -131,6 +135,8 @@ def recurse_node_template(mapping):
 def check_client_config(model, line):
     if model.node_type in GCP_TYPES:
         yield from check_gcp_config(model, line)
+    if model.node_type in AZURE_TYPES:
+        yield from check_azure_config(model, line)
 
 
 def check_gcp_config(model, line):
@@ -158,6 +164,23 @@ def check_gcp_config(model, line):
             '["auth", "zone"].'.format(
                 model.name)
         )
+
+
+def check_azure_config(model, line):
+    print(model.properties)
+    if not 'azure_config' in model.properties:
+        yield LintProblem(
+            line,
+            None,
+            'The node template "{}" '
+            'does not provide required property "azure_config".'.format(
+                model.name))
+    azure_config = model.properties.get('azure_config')
+    if not all(x in AZURE_VALID_KEY for x in azure_config.keys()):
+        yield LintProblem(line,
+                          None,
+                          'Invalid parameters provided for azure config . '
+                          'Valid parameters are {}'.format(AZURE_VALID_KEY))
 
 
 def check_dependent_types(model, line):
