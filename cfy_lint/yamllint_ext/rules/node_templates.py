@@ -18,7 +18,10 @@ import yaml
 from .. import LintProblem
 from ..generators import CfyNode
 from ..utils import process_relevant_tokens, INTRINSIC_FNS, context as ctx
-from .constants import deprecated_node_types, GCP_TYPES, REQUIRED_RELATIONSHIPS
+from .constants import (deprecated_node_types,
+                        GCP_TYPES,
+                        REQUIRED_RELATIONSHIPS,
+                        security_group_validation_aws)
 
 VALUES = []
 
@@ -47,7 +50,9 @@ def check(token=None, context=None, **_):
         yield from check_dependent_types(
             parsed_node_template,
             parsed_node_template.line or token.line)
-
+        yield from check_security_group(
+            parsed_node_template,
+            parsed_node_template.line or token.line)
 
 
 def parse_node_template(node_template_mapping, node_template_model):
@@ -170,3 +175,39 @@ def check_dependent_types(model, line):
             None,
             model.required_relationships_message
         )
+
+
+def check_security_group(model, line):
+    if model.node_type in security_group_validation_aws:
+        yield from check_security_group_validation_aws(model, line)
+
+
+def check_security_group_validation_aws(model, line):
+    resource_config_keys = ['GroupName', 'Description', 'VpcId', 'IpPermissions']
+    client_config_keys = ['aws_access_key_id', 'aws_secret_access_key', 'region_name']
+
+    ntype_name = model.dict.keys()
+    print(ntype_name)
+
+    for node in ntype_name:
+        print(node)
+
+    for key in model.dict[node]['properties']['resource_config'].keys():
+        if key not in resource_config_keys:
+            yield LintProblem(
+                line,
+                None,
+                "Invalid security group node type. "
+                "Valid security group are {}.".format(
+                    model.dict[node]['properties']['resource_config'],
+                    resource_config_keys))
+
+    for key in model.dict[node]['properties']['client_config'].keys():
+        if key not in client_config_keys:
+            yield LintProblem(
+                line,
+                None,
+                "Invalid security group node type. "
+                "Valid security group are {}.".format(
+                    model.dict[node]['properties']['client_config'],
+                    client_config_keys))

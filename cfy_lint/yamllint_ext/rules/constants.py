@@ -228,3 +228,10 @@ REQUIRED_RELATIONSHIPS = {
             'cloudify.relationships.depends_on',
     },
 }
+
+
+security_group_validation_aws = [
+    'cloudify.nodes.aws.ec2.SecurityGroupRuleEgress',
+    'cloudify.nodes.aws.ec2.SecurityGroupRuleIngress',
+    'cloudify.nodes.aws.ec2.SecurityGroup'
+]
