@@ -55,7 +55,7 @@ rules:
     required: only-when-needed
     extra-allowed: ["^http://", "^ftp://", "(?![A-Za-z0-9])"]
   truthy: enable
-  new-line-at-end-of-file: enable
+  new-line-at-end-of-file: disable
   inputs: enable
   imports: enable
   node_types: enable
