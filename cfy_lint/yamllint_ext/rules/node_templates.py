@@ -167,19 +167,18 @@ def check_gcp_config(model, line):
 
 
 def check_azure_config(model, line):
-    print(model.properties)
-    if not 'azure_config' in model.properties:
+    if not 'client_config' in model.properties:
         yield LintProblem(
             line,
             None,
             'The node template "{}" '
-            'does not provide required property "azure_config".'.format(
+            'does not provide required property "client_config".'.format(
                 model.name))
-    azure_config = model.properties.get('azure_config')
-    if not all(x in AZURE_VALID_KEY for x in azure_config.keys()):
+    client_config = model.properties.get('client_config')
+    if not all(x in AZURE_VALID_KEY for x in client_config.keys()):
         yield LintProblem(line,
                           None,
-                          'Invalid parameters provided for azure config . '
+                          'Invalid parameters provided for client config . '
                           'Valid parameters are {}'.format(AZURE_VALID_KEY))
 
 
