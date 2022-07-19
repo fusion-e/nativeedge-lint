@@ -18,7 +18,10 @@ import yaml
 from .. import LintProblem
 from ..generators import CfyNode
 from ..utils import process_relevant_tokens, INTRINSIC_FNS, context as ctx
-from .constants import deprecated_node_types, GCP_TYPES, REQUIRED_RELATIONSHIPS
+from .constants import (deprecated_node_types,
+                        GCP_TYPES,
+                        REQUIRED_RELATIONSHIPS,
+                        security_group_validation_azure)
 
 VALUES = []
 
@@ -47,7 +50,9 @@ def check(token=None, context=None, **_):
         yield from check_dependent_types(
             parsed_node_template,
             parsed_node_template.line or token.line)
-
+        yield from check_security_group(
+             parsed_node_template,
+             parsed_node_template.line or token.line)
 
 
 def parse_node_template(node_template_mapping, node_template_model):
@@ -170,3 +175,22 @@ def check_dependent_types(model, line):
             None,
             model.required_relationships_message
         )
+
+
+def check_security_group(model, line):
+    if model.node_type in security_group_validation_azure:
+        yield from check_security_group_validation_azure(model, line)
+
+
+def check_security_group_validation_azure(model, line):
+    resource_config = model.properties.get('resource_config', {})
+    security_rules = resource_config.get('securityRules', {})
+    for item in security_rules:
+        source_port_range = item['properties'].get('sourcePortRange', {})
+        destination_port_range = item['properties'].get('destinationPortRange', {})
+        if source_port_range == '*' or destination_port_range == '*':
+            yield LintProblem(
+                line,
+                None,
+                "The node template security not used properly, Invalid set "
+                "sourcePortRange or destinationPortRange at value *")

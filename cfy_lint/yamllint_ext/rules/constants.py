@@ -292,3 +292,8 @@ REQUIRED_RELATIONSHIPS = {
             'cloudify.relationships.depends_on',
     },
 }
+
+
+security_group_validation_azure = [
+    'cloudify.azure.nodes.network.NetworkSecurityGroup',
+    'cloudify.azure.nodes.network.NetworkSecurityRule']
