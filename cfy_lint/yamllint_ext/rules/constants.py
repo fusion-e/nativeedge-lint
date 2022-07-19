@@ -331,4 +331,7 @@ REQUIRED_RELATIONSHIPS = {
 }
 
 
-AWS_VALID_KEY = ['aws_access_key_id', 'aws_secret_access_key', 'region_name']
+AWS_VALID_KEY = ['aws_access_key_id',
+                 'aws_secret_access_key',
+                 'region_name',
+                 'aws_session_token']
