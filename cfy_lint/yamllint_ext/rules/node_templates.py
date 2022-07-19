@@ -184,30 +184,19 @@ def check_security_group(model, line):
 
 def check_security_group_validation_aws(model, line):
     resource_config_keys = ['GroupName', 'Description', 'VpcId', 'IpPermissions']
-    client_config_keys = ['aws_access_key_id', 'aws_secret_access_key', 'region_name']
 
-    ntype_name = model.dict.keys()
-    print(ntype_name)
+    ntype = model.properties.get('resource_config', {})
 
-    for node in ntype_name:
-        print(node)
+    print(ntype)
+    for item in ntype:
+        print(item)
 
-    for key in model.dict[node]['properties']['resource_config'].keys():
-        if key not in resource_config_keys:
-            yield LintProblem(
-                line,
-                None,
-                "Invalid security group node type. "
-                "Valid security group are {}.".format(
-                    model.dict[node]['properties']['resource_config'],
-                    resource_config_keys))
-
-    for key in model.dict[node]['properties']['client_config'].keys():
-        if key not in client_config_keys:
-            yield LintProblem(
-                line,
-                None,
-                "Invalid security group node type. "
-                "Valid security group are {}.".format(
-                    model.dict[node]['properties']['client_config'],
-                    client_config_keys))
+    # for key in model.dict[node]['properties']['resource_config'].keys():
+    if False:
+        yield LintProblem(
+            line,
+            None,
+            "Invalid security group node type. "
+            "Valid security group are {}.".format(
+                model.dict[node]['properties']['resource_config'],
+                resource_config_keys))
