@@ -183,20 +183,14 @@ def check_security_group(model, line):
 
 
 def check_security_group_validation_aws(model, line):
-    resource_config_keys = ['GroupName', 'Description', 'VpcId', 'IpPermissions']
-
-    ntype = model.properties.get('resource_config', {})
-
-    print(ntype)
-    for item in ntype:
-        print(item)
-
-    # for key in model.dict[node]['properties']['resource_config'].keys():
-    if False:
-        yield LintProblem(
-            line,
-            None,
-            "Invalid security group node type. "
-            "Valid security group are {}.".format(
-                model.dict[node]['properties']['resource_config'],
-                resource_config_keys))
+    resource_config = model.properties.get('resource_config', {})
+    ip_permissions = resource_config.get('IpPermissions', {})
+    for item in ip_permissions:
+        from_port = item.get('FromPort', {})
+        to_port = item.get('ToPort', {})
+        if from_port == '-1' or to_port == '-1':
+            yield LintProblem(
+                line,
+                None,
+                "The node template security not used properly,"
+                " Invalid set port at value -1. {}".format(item))
