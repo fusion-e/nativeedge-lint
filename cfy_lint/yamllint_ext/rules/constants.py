@@ -68,6 +68,46 @@ deprecated_node_types = {
         'cloudify.nodes.azure.storage.ManagedCluster',
     'cloudify.azure.nodes.storage.Azure':
         'cloudify.nodes.azure.storage.Azure',
+    'cloudify.openstack.nodes.Server':
+        'cloudify.nodes.openstack.Server',
+    'cloudify.openstack.nodes.WindowsServer':
+        'cloudify.nodes.openstack.WindowsServer',
+    'cloudify.openstack.nodes.KeyPair':
+        'cloudify.nodes.openstack.KeyPair',
+    'cloudify.openstack.nodes.Subnet':
+        'cloudify.nodes.openstack.Subnet',
+    'cloudify.openstack.nodes.SecurityGroup':
+        'cloudify.nodes.openstack.SecurityGroup',
+    'cloudify.openstack.nodes.Router':
+        'cloudify.nodes.openstack.Router',
+    'cloudify.openstack.nodes.Port':
+        'cloudify.nodes.openstack.Port',
+    'cloudify.openstack.nodes.Network':
+        'cloudify.nodes.openstack.Network',
+    'cloudify.openstack.nodes.FloatingIP':
+        'cloudify.nodes.openstack.FloatingIP',
+    'cloudify.openstack.nodes.RBACPolicy':
+        'cloudify.nodes.openstack.RBACPolicy',
+    'cloudify.openstack.nodes.Volume':
+        'cloudify.nodes.openstack.Volume',
+    'cloudify.openstack.nova_net.nodes.FloatingIP':
+        'cloudify.nodes.openstack.FloatingIP',
+    'cloudify.openstack.nova_net.nodes.SecurityGroup':
+        'cloudify.nodes.openstack.SecurityGroup',
+    'cloudify.openstack.nodes.Flavor':
+        'cloudify.nodes.openstack.Flavor',
+    'cloudify.openstack.nodes.Image':
+        'cloudify.nodes.openstack.Image',
+    'cloudify.openstack.nodes.Project':
+        'cloudify.nodes.openstack.Project',
+    'cloudify.openstack.nodes.User':
+        'cloudify.nodes.openstack.User',
+    'cloudify.openstack.nodes.HostAggregate':
+        'cloudify.nodes.openstack.HostAggregate',
+    'cloudify.openstack.nodes.ServerGroup':
+        'cloudify.nodes.openstack.ServerGroup',
+    'cloudify.openstack.nodes.Routes':
+        'cloudify.nodes.openstack.Router'
 }
 
 deprecated_relationship_types = {
@@ -115,6 +155,30 @@ deprecated_relationship_types = {
         'cloudify.relationships.azure.vm_connected_to_datadisk',
     'cloudify.azure.relationships.connected_to_aks_cluster':
         'cloudify.relationships.azure.connected_to_aks_cluster',
+    'cloudify.openstack.server_connected_to_server_group':
+        'cloudify.relationships.openstack.server_connected_to_server_group',
+    'cloudify.openstack.server_connected_to_keypair':
+        'cloudify.relationships.openstack.server_connected_to_keypair',
+    'cloudify.openstack.server_connected_to_port':
+        'cloudify.relationships.openstack.server_connected_to_port',
+    ' cloudify.openstack.server_connected_to_floating_ip':
+        'cloudify.relationships.openstack.server_connected_to_floating_ip',
+    'cloudify.openstack.server_connected_to_security_group':
+        'cloudify.relationships.openstack.server_connected_to_security_group',
+    'cloudify.openstack.port_connected_to_security_group':
+        'cloudify.relationships.openstack.port_connected_to_security_group',
+    'cloudify.openstack.port_connected_to_floating_ip':
+        'cloudify.relationships.openstack.port_connected_to_floating_ip',
+    'cloudify.openstack.port_connected_to_subnet':
+        'cloudify.relationships.openstack.port_connected_to_subnet',
+    'cloudify.openstack.subnet_connected_to_router':
+        'cloudify.relationships.openstack.subnet_connected_to_router',
+    'cloudify.openstack.volume_attached_to_server':
+        'cloudify.relationships.openstack.volume_attached_to_server',
+    'cloudify.openstack.route_connected_to_router':
+        'cloudify.relationships.openstack.route_connected_to_router',
+    'cloudify.openstack.rbac_policy_applied_to':
+        'cloudify.relationships.openstack.rbac_policy_applied_to'
 }
 
 ACCEPTED_LIST_TYPES = (
