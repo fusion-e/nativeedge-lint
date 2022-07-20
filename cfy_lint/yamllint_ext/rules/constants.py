@@ -186,6 +186,107 @@ ACCEPTED_LIST_TYPES = (
     yaml.tokens.FlowSequenceStartToken
 )
 
+AWS_TYPES = [
+    'cloudify.nodes.aws.dynamodb.Table',
+    'cloudify.nodes.aws.iam.Group',
+    'cloudify.nodes.aws.iam.AccessKey',
+    'cloudify.nodes.aws.iam.LoginProfile',
+    'cloudify.nodes.aws.iam.User',
+    'cloudify.nodes.aws.iam.Role',
+    'cloudify.nodes.aws.iam.RolePolicy',
+    'cloudify.nodes.aws.iam.InstanceProfile',
+    'cloudify.nodes.aws.iam.Policy',
+    'cloudify.nodes.aws.lambda.Function',
+    'cloudify.nodes.aws.lambda.Invoke',
+    'cloudify.nodes.aws.lambda.Permission',
+    'cloudify.nodes.aws.rds.Instance',
+    'cloudify.nodes.aws.rds.InstanceReadReplica',
+    'cloudify.nodes.aws.rds.SubnetGroup',
+    'cloudify.nodes.aws.rds.OptionGroup',
+    'cloudify.nodes.aws.rds.Option',
+    'cloudify.nodes.aws.rds.ParameterGroup',
+    'cloudify.nodes.aws.rds.Parameter',
+    'cloudify.nodes.aws.route53.HostedZone',
+    'cloudify.nodes.aws.route53.RecordSet',
+    'cloudify.nodes.aws.SQS.Queue',
+    'cloudify.nodes.aws.SNS.Topic',
+    'cloudify.nodes.aws.SNS.Subscription',
+    'cloudify.nodes.aws.elb.LoadBalancer',
+    'cloudify.nodes.aws.elb.Classic.LoadBalancer',
+    'cloudify.nodes.aws.elb.Classic.HealthCheck',
+    'cloudify.nodes.aws.elb.Listener',
+    'cloudify.nodes.aws.elb.Classic.Listener',
+    'cloudify.nodes.aws.elb.Rule',
+    'cloudify.nodes.aws.elb.TargetGroup',
+    'cloudify.nodes.aws.elb.Classic.Policy',
+    'cloudify.nodes.aws.elb.Classic.Policy.Stickiness',
+    'cloudify.nodes.aws.s3.BaseBucket',
+    'cloudify.nodes.aws.s3.BaseBucketObject',
+    'cloudify.nodes.aws.s3.Bucket',
+    'cloudify.nodes.aws.s3.BucketPolicy',
+    'cloudify.nodes.aws.s3.BucketLifecycleConfiguration',
+    'cloudify.nodes.aws.s3.BucketTagging',
+    'cloudify.nodes.aws.s3.BucketObject',
+    'cloudify.nodes.aws.ec2.BaseType',
+    'cloudify.nodes.aws.ec2.Vpc',
+    'cloudify.nodes.aws.ec2.VpcPeering',
+    'cloudify.nodes.aws.ec2.VpcPeeringRequest',
+    'cloudify.nodes.aws.ec2.VpcPeeringAcceptRequest',
+    'cloudify.nodes.aws.ec2.VpcPeeringRejectRequest',
+    'cloudify.nodes.aws.ec2.Subnet',
+    'cloudify.nodes.aws.ec2.SecurityGroup',
+    'cloudify.nodes.aws.ec2.SecurityGroupRuleIngress',
+    'cloudify.nodes.aws.ec2.SecurityGroupRuleEgress',
+    'cloudify.nodes.aws.ec2.NATGateway',
+    'cloudify.nodes.aws.ec2.Interface',
+    'cloudify.nodes.aws.ec2.Instances',
+    'cloudify.nodes.aws.ec2.SpotInstances',
+    'cloudify.nodes.aws.ec2.SpotFleetRequest',
+    'cloudify.nodes.aws.ec2.Keypair',
+    'cloudify.nodes.aws.ec2.ElasticIP',
+    'cloudify.nodes.aws.ec2.NetworkACL',
+    'cloudify.nodes.aws.ec2.NetworkAclEntry',
+    'cloudify.nodes.aws.ec2.DHCPOptions',
+    'cloudify.nodes.aws.ec2.VPNGateway',
+    'cloudify.nodes.aws.ec2.VPNConnection',
+    'cloudify.nodes.aws.ec2.VPNConnectionRoute',
+    'cloudify.nodes.aws.ec2.CustomerGateway',
+    'cloudify.nodes.aws.ec2.InternetGateway',
+    'cloudify.nodes.aws.ec2.TransitGateway',
+    'cloudify.nodes.aws.ec2.TransitGatewayRouteTable',
+    'cloudify.nodes.aws.ec2.TransitGatewayRoute',
+    'cloudify.nodes.aws.ec2.RouteTable',
+    'cloudify.nodes.aws.ec2.Route',
+    'cloudify.nodes.aws.ec2.Image',
+    'cloudify.nodes.aws.ec2.Tags',
+    'cloudify.nodes.aws.ec2.EBSVolume',
+    'cloudify.nodes.aws.ec2.EBSAttachment',
+    'cloudify.nodes.aws.autoscaling.Group',
+    'cloudify.nodes.aws.autoscaling.LaunchConfiguration',
+    'cloudify.nodes.aws.autoscaling.Policy',
+    'cloudify.nodes.aws.autoscaling.LifecycleHook',
+    'cloudify.nodes.aws.autoscaling.NotificationConfiguration',
+    'cloudify.nodes.aws.cloudwatch.Alarm',
+    'cloudify.nodes.aws.cloudwatch.Rule',
+    'cloudify.nodes.aws.cloudwatch.Event',
+    'cloudify.nodes.aws.cloudwatch.Target',
+    'cloudify.nodes.aws.efs.FileSystem',
+    'cloudify.nodes.aws.efs.MountTarget',
+    'cloudify.nodes.aws.efs.FileSystemTags',
+    'cloudify.nodes.aws.kms.CustomerMasterKey',
+    'cloudify.nodes.aws.kms.Alias',
+    'cloudify.nodes.aws.kms.Grant',
+    'cloudify.nodes.aws.CloudFormation.Stack',
+    'cloudify.nodes.aws.ecs.Cluster',
+    'cloudify.nodes.aws.ecs.Service',
+    'cloudify.nodes.aws.ecs.TaskDefinition',
+    'cloudify.nodes.swift.s3.Bucket',
+    'cloudify.nodes.swift.s3.BucketObject',
+    'cloudify.nodes.aws.eks.Cluster',
+    'cloudify.nodes.aws.eks.NodeGroup',
+    'cloudify.nodes.aws.codepipeline.Pipeline',
+    'cloudify.nodes.resources.AmazonWebServices']
+
 GCP_TYPES = [
     'cloudify.gcp.project',
     'cloudify.nodes.gcp.PolicyBinding',
@@ -253,6 +354,67 @@ GCP_TYPES = [
     'cloudify.nodes.gcp.Gcp'
 ]
 
+AZURE_TYPES = [
+    'cloudify.azure.nodes.ResourceGroup',
+    'cloudify.azure.nodes.storage.StorageAccount'
+    'cloudify.azure.nodes.storage.DataDisk'
+    'cloudify.azure.nodes.storage.FileShare'
+    'cloudify.azure.nodes.network.VirtualNetwork'
+    'cloudify.azure.nodes.network.NetworkSecurityGroup'
+    'cloudify.azure.nodes.network.NetworkSecurityRule'
+    'cloudify.azure.nodes.network.Subnet'
+    'cloudify.azure.nodes.network.RouteTable'
+    'cloudify.azure.nodes.network.Route'
+    'cloudify.azure.nodes.network.NetworkInterfaceCard'
+    'cloudify.azure.nodes.network.IPConfiguration'
+    'cloudify.azure.nodes.network.PublicIPAddress'
+    'cloudify.azure.nodes.compute.AvailabilitySet'
+    'cloudify.azure.nodes.compute.VirtualMachine'
+    'cloudify.azure.nodes.compute.WindowsVirtualMachine'
+    'cloudify.azure.nodes.compute.VirtualMachineExtension'
+    'cloudify.azure.nodes.network.LoadBalancer'
+    'cloudify.azure.nodes.network.LoadBalancer.BackendAddressPool'
+    'cloudify.azure.nodes.network.LoadBalancer.Probe'
+    'cloudify.azure.nodes.network.LoadBalancer.IncomingNATRule'
+    'cloudify.azure.nodes.network.LoadBalancer.Rule'
+    'cloudify.azure.Deployment'
+    'cloudify.azure.nodes.compute.ContainerService'
+    'cloudify.azure.nodes.Plan'
+    'cloudify.azure.nodes.WebApp'
+    'cloudify.azure.nodes.PublishingUser'
+    'cloudify.azure.nodes.compute.ManagedCluster'
+    'cloudify.nodes.azure.ResourceGroup'
+    'cloudify.nodes.azure.storage.StorageAccount'
+    'cloudify.nodes.azure.storage.DataDisk'
+    'cloudify.nodes.azure.storage.FileShare'
+    'cloudify.nodes.azure.network.VirtualNetwork'
+    'cloudify.nodes.azure.network.NetworkSecurityGroup'
+    'cloudify.nodes.azure.network.NetworkSecurityRule'
+    'cloudify.nodes.azure.network.Subnet'
+    'cloudify.nodes.azure.network.RouteTable'
+    'cloudify.nodes.azure.network.Route'
+    'cloudify.nodes.azure.network.NetworkInterfaceCard'
+    'cloudify.nodes.azure.network.IPConfiguration'
+    'cloudify.nodes.azure.network.PublicIPAddress'
+    'cloudify.nodes.azure.compute.AvailabilitySet'
+    'cloudify.nodes.azure.compute.VirtualMachine'
+    'cloudify.nodes.azure.compute.WindowsVirtualMachine'
+    'cloudify.nodes.azure.compute.VirtualMachineExtension'
+    'cloudify.nodes.azure.network.LoadBalancer'
+    'cloudify.nodes.azure.network.LoadBalancer.BackendAddressPool'
+    'cloudify.nodes.azure.network.LoadBalancer.Probe'
+    'cloudify.nodes.azure.network.LoadBalancer.IncomingNATRule'
+    'cloudify.nodes.azure.network.LoadBalancer.Rule'
+    'cloudify.nodes.azure.compute.ContainerService'
+    'cloudify.nodes.azure.Plan'
+    'cloudify.nodes.azure.WebApp'
+    'cloudify.nodes.azure.PublishingUser'
+    'cloudify.nodes.azure.compute.ManagedCluster'
+    'cloudify.nodes.azure.resources.Azure'
+    'cloudify.azure.nodes.resources.Azure'
+    'cloudify.nodes.azure.CustomTypes'
+]
+
 
 REQUIRED_RELATIONSHIPS = {
     'cloudify.nodes.aws.ec2.Subnet': {
@@ -297,3 +459,10 @@ REQUIRED_RELATIONSHIPS = {
 security_group_validation_azure = [
     'cloudify.azure.nodes.network.NetworkSecurityGroup',
     'cloudify.azure.nodes.network.NetworkSecurityRule']
+
+AZURE_VALID_KEY = ['subscription_id', 'tenant_id', 'client_id', 'client_secret']
+AWS_VALID_KEY = ['aws_access_key_id',
+                 'aws_secret_access_key',
+                 'region_name',
+                 'aws_session_token']
+
