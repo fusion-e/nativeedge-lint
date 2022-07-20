@@ -18,11 +18,13 @@ import yaml
 from .. import LintProblem
 from ..generators import CfyNode
 from ..utils import process_relevant_tokens, INTRINSIC_FNS, context as ctx
-from .constants import (deprecated_node_types,
-                        GCP_TYPES,
-                        REQUIRED_RELATIONSHIPS,
+from .constants import (GCP_TYPES,
+                        AWS_TYPES,
                         AZURE_TYPES,
-                        AZURE_VALID_KEY)
+                        AWS_VALID_KEY,
+                        AZURE_VALID_KEY,
+                        deprecated_node_types,
+                        REQUIRED_RELATIONSHIPS)
 
 VALUES = []
 
@@ -137,6 +139,8 @@ def check_client_config(model, line):
         yield from check_gcp_config(model, line)
     if model.node_type in AZURE_TYPES:
         yield from check_azure_config(model, line)
+    if model.node_type in AWS_TYPES:
+        yield from check_aws_config(model, line)
 
 
 def check_gcp_config(model, line):
@@ -180,6 +184,21 @@ def check_azure_config(model, line):
                           None,
                           'Invalid parameters provided for client config . '
                           'Valid parameters are {}'.format(AZURE_VALID_KEY))
+
+def check_aws_config(model, line):
+    if not 'client_config' in model.properties:
+        yield LintProblem(
+            line,
+            None,
+            'The node template "{}" '
+            'does not provide required property "client_config".'.format(
+                model.name))
+    client_config = model.properties.get('client_config')
+    if not all(x in AWS_VALID_KEY for x in client_config.keys()):
+        yield LintProblem(line,
+                          None,
+                          'Invalid parameters provided for client config. '
+                          'Valid parameters are {}'.format(AWS_VALID_KEY))
 
 
 def check_dependent_types(model, line):

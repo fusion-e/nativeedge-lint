@@ -13,7 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 import yaml
+from packaging import version
 from urllib.parse import urlparse
 
 from .. import LintProblem
@@ -48,7 +50,8 @@ def validate_import_items(item, line):
             None,
             'invalid import. {}'.format(url)
         )
-
+    if url.scheme in ['plugin'] and url.path in ['cloudify-openstack-plugin']:
+        yield from check_openstack_plugin_version(url, line)
     elif url.scheme in ['https', 'https'] and not url.path.endswith('.yaml'):
         yield LintProblem(
             line,
@@ -60,3 +63,23 @@ def validate_import_items(item, line):
 def validate_string(item, line):
     if not isinstance(item, yaml.nodes.ScalarNode):
         yield LintProblem(line, None, 'import is not a string.')
+
+
+def check_openstack_plugin_version(url, line):
+    version_openstack = url.query.split(',')
+    print(version_openstack)
+    for str_version in version_openstack:
+        only_version = re.findall('(\\d+.\\d+.\\d+)', str_version)
+        if version.parse(only_version[0]) >= version.parse('3.0.0') and \
+                "=" in str_version:
+            return
+
+    yield LintProblem(
+        line, None,
+        'Cloudify Openstack Plugin version {} is deprecated.'
+        ' Please update to Openstack version 3 or higher. '
+        'Below are suggested node type changes.'
+        ' For more information on conversion to Openstack Plugin v3, '
+        'Please click on this link - https://docs.cloudify.co/latest/'
+        'working_with/official_plugins/infrastructure/openstackv3/'
+        .format(version_openstack))
