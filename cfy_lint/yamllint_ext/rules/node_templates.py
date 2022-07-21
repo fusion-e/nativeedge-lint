@@ -188,9 +188,8 @@ def check_security_group_validation_openstack(model, line):
         port_range_min = item.get('port_range_min', {})
         port_range_max = item.get('port_range_max', {})
         # need to change the value here
-        if port_range_max == '-1' or port_range_min == '-1':
+        if int(port_range_max) - int(port_range_min) < 0:
             yield LintProblem(
                 line,
                 None,
-                "The node template security not used properly, Invalid set."
-                " {}".format(item))
+                "Security group The port range is invalid. {}".format(item))
