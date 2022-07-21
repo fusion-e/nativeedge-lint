@@ -188,6 +188,7 @@ def check_azure_config(model, line):
                           'Invalid parameters provided for client config . '
                           'Valid parameters are {}'.format(AZURE_VALID_KEY))
 
+
 def check_aws_config(model, line):
     if not 'client_config' in model.properties:
         yield LintProblem(
