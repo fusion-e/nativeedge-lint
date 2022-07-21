@@ -231,5 +231,4 @@ def check_security_group_validation_azure(model, line):
             yield LintProblem(
                 line,
                 None,
-                "The node template security not used properly, Invalid set "
-                "sourcePortRange or destinationPortRange at value *")
+                "Security group rule too open. {}".format(item))
