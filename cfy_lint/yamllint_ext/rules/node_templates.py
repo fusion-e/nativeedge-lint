@@ -233,3 +233,8 @@ def check_security_group_validation_aws(model, line):
                 line,
                 None,
                 "Security group rule too open. {}".format(item))
+        if int(to_port) - int(from_port) < 0:
+            yield LintProblem(
+                line,
+                None,
+                "Security group The port is invalid. {}".format(item))
