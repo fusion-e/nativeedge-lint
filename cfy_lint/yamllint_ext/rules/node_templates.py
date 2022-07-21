@@ -24,7 +24,8 @@ from .constants import (GCP_TYPES,
                         AWS_VALID_KEY,
                         AZURE_VALID_KEY,
                         deprecated_node_types,
-                        REQUIRED_RELATIONSHIPS)
+                        REQUIRED_RELATIONSHIPS,
+                        firewall_rule_gcp)
 
 VALUES = []
 
@@ -53,7 +54,25 @@ def check(token=None, context=None, **_):
         yield from check_dependent_types(
             parsed_node_template,
             parsed_node_template.line or token.line)
+        yield from check_firewall_rule(
+            parsed_node_template,
+            parsed_node_template.line or token.line)
 
+
+def check_firewall_rule(model, line):
+    if model.node_type in firewall_rule_gcp:
+        yield from check_firewall_rule_gcp_gcp(model, line)
+
+
+def check_firewall_rule_gcp_gcp(model, line):
+    allowed = model.properties.get('allowed', {})
+    print(allowed)
+    for item in allowed['tcp']:
+        if item == '-1':
+            yield LintProblem(
+                line,
+                None,
+                "Security group rule too open. {}".format(item))
 
 
 def parse_node_template(node_template_mapping, node_template_model):
@@ -184,6 +203,7 @@ def check_azure_config(model, line):
                           None,
                           'Invalid parameters provided for client config . '
                           'Valid parameters are {}'.format(AZURE_VALID_KEY))
+
 
 def check_aws_config(model, line):
     if not 'client_config' in model.properties:
