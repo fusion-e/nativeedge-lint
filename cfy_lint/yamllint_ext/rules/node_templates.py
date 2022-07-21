@@ -18,7 +18,10 @@ import yaml
 from .. import LintProblem
 from ..generators import CfyNode
 from ..utils import process_relevant_tokens, INTRINSIC_FNS, context as ctx
-from .constants import deprecated_node_types, GCP_TYPES, REQUIRED_RELATIONSHIPS
+from .constants import (deprecated_node_types,
+                        GCP_TYPES,
+                        REQUIRED_RELATIONSHIPS,
+                        security_group_validation_openstack)
 
 VALUES = []
 
@@ -47,7 +50,9 @@ def check(token=None, context=None, **_):
         yield from check_dependent_types(
             parsed_node_template,
             parsed_node_template.line or token.line)
-
+        yield from check_security_group(
+             parsed_node_template,
+             parsed_node_template.line or token.line)
 
 
 def parse_node_template(node_template_mapping, node_template_model):
@@ -170,3 +175,22 @@ def check_dependent_types(model, line):
             None,
             model.required_relationships_message
         )
+
+
+def check_security_group(model, line):
+    if model.node_type in security_group_validation_openstack:
+        yield from check_security_group_validation_openstack(model, line)
+
+
+def check_security_group_validation_openstack(model, line):
+    security_group_rules = model.properties.get('security_group_rules', {})
+    for item in security_group_rules:
+        port_range_min = item.get('port_range_min', {})
+        port_range_max = item.get('port_range_max', {})
+        # need to change the value here
+        if port_range_max == '-1' or port_range_min == '-1':
+            yield LintProblem(
+                line,
+                None,
+                "The node template security not used properly, Invalid set."
+                " {}".format(item))

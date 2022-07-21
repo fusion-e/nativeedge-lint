@@ -292,3 +292,7 @@ REQUIRED_RELATIONSHIPS = {
             'cloudify.relationships.depends_on',
     },
 }
+
+
+security_group_validation_openstack = [
+    'cloudify.nodes.openstack.SecurityGroup']
