@@ -192,5 +192,4 @@ def check_security_group_validation_aws(model, line):
             yield LintProblem(
                 line,
                 None,
-                "The node template security not used properly,"
-                " Invalid set port at value -1. {}".format(item))
+                "Security group rule too open. {}".format(item))
