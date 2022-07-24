@@ -456,6 +456,9 @@ REQUIRED_RELATIONSHIPS = {
 }
 
 
+security_group_validation_openstack = [
+    'cloudify.nodes.openstack.SecurityGroup']
+
 AZURE_VALID_KEY = ['subscription_id', 'tenant_id', 'client_id', 'client_secret']
 AWS_VALID_KEY = ['aws_access_key_id',
                  'aws_secret_access_key',
