@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 import yaml
 
 from .. import LintProblem
@@ -54,25 +55,27 @@ def check(token=None, context=None, **_):
         yield from check_dependent_types(
             parsed_node_template,
             parsed_node_template.line or token.line)
-        yield from check_firewall_rule(
-            parsed_node_template,
-            parsed_node_template.line or token.line)
+        yield from check_security_group(
+              parsed_node_template,
+              parsed_node_template.line or token.line)
 
 
-def check_firewall_rule(model, line):
+def check_security_group(model, line):
     if model.node_type in firewall_rule_gcp:
-        yield from check_firewall_rule_gcp_gcp(model, line)
+        yield from check_firewall_rule_gcp(model, line)
 
 
-def check_firewall_rule_gcp_gcp(model, line):
+def check_firewall_rule_gcp(model, line):
     allowed = model.properties.get('allowed', {})
     print(allowed)
     for item in allowed['tcp']:
-        if item == '-1':
-            yield LintProblem(
-                line,
-                None,
-                "Security group rule too open. {}".format(item))
+        if '-' in str(item):  # 12345-12349
+            ports = re.split('-', item)
+            if int(ports[0]) > int(ports[1]):
+                yield LintProblem(
+                    line,
+                    None,
+                    "Security group The port range is invalid. {}".format(item))
 
 
 def parse_node_template(node_template_mapping, node_template_model):
