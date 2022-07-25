@@ -26,7 +26,8 @@ from .constants import (GCP_TYPES,
                         AZURE_VALID_KEY,
                         deprecated_node_types,
                         REQUIRED_RELATIONSHIPS,
-                        firewall_rule_gcp)
+                        firewall_rule_gcp,
+                        security_group_validation_openstack)
 
 VALUES = []
 
@@ -58,24 +59,6 @@ def check(token=None, context=None, **_):
         yield from check_security_group(
               parsed_node_template,
               parsed_node_template.line or token.line)
-
-
-def check_security_group(model, line):
-    if model.node_type in firewall_rule_gcp:
-        yield from check_firewall_rule_gcp(model, line)
-
-
-def check_firewall_rule_gcp(model, line):
-    allowed = model.properties.get('allowed', {})
-    print(allowed)
-    for item in allowed['tcp']:
-        if '-' in str(item):  # 12345-12349
-            ports = re.split('-', item)
-            if int(ports[0]) > int(ports[1]):
-                yield LintProblem(
-                    line,
-                    None,
-                    "Security group The port range is invalid. {}".format(item))
 
 
 def parse_node_template(node_template_mapping, node_template_model):
@@ -234,3 +217,36 @@ def check_dependent_types(model, line):
             None,
             model.required_relationships_message
         )
+
+
+def check_security_group(model, line):
+    if model.node_type in security_group_validation_openstack:
+        yield from check_security_group_validation_openstack(model, line)
+    if model.node_type in firewall_rule_gcp:
+        yield from check_firewall_rule_gcp(model, line)
+
+
+def check_security_group_validation_openstack(model, line):
+    security_group_rules = model.properties.get('security_group_rules', {})
+    for item in security_group_rules:
+        port_range_min = item.get('port_range_min', {})
+        port_range_max = item.get('port_range_max', {})
+        if int(port_range_max) - int(port_range_min) < 0:
+            yield LintProblem(
+                line,
+                None,
+                "Security group The port range is invalid. {}".format(item))
+
+
+def check_firewall_rule_gcp(model, line):
+    allowed = model.properties.get('allowed', {})
+    print(allowed)
+    for item in allowed['tcp']:
+        if '-' in str(item):  # 12345-12349
+            ports = re.split('-', item)
+            if int(ports[0]) > int(ports[1]):
+                yield LintProblem(
+                    line,
+                    None,
+                    "Security group The port range is invalid. "
+                    "{}".format(item))
