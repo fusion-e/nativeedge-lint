@@ -547,11 +547,24 @@ REQUIRED_RELATIONSHIPS = {
     }
 }
 
+security_group_validation_aws = [
+    'cloudify.nodes.aws.ec2.SecurityGroupRuleEgress',
+    'cloudify.nodes.aws.ec2.SecurityGroupRuleIngress',
+    'cloudify.nodes.aws.ec2.SecurityGroup'
+]
+
+security_group_validation_azure = [
+    'cloudify.azure.nodes.network.NetworkSecurityGroup',
+    'cloudify.azure.nodes.network.NetworkSecurityRule'
+]
+    
 security_group_validation_openstack = [
-    'cloudify.nodes.openstack.SecurityGroup']
+    'cloudify.nodes.openstack.SecurityGroup'
+]
 
 AZURE_VALID_KEY = ['subscription_id', 'tenant_id', 'client_id', 'client_secret']
 AWS_VALID_KEY = ['aws_access_key_id',
                  'aws_secret_access_key',
                  'region_name',
                  'aws_session_token']
+
