@@ -25,7 +25,8 @@ from .constants import (GCP_TYPES,
                         AZURE_VALID_KEY,
                         deprecated_node_types,
                         REQUIRED_RELATIONSHIPS,
-                        security_group_validation_azure)
+                        security_group_validation_azure,
+                        security_group_validation_openstack)
 
 VALUES = []
 
@@ -219,6 +220,8 @@ def check_dependent_types(model, line):
 def check_security_group(model, line):
     if model.node_type in security_group_validation_azure:
         yield from check_security_group_validation_azure(model, line)
+    if model.node_type in security_group_validation_openstack:
+        yield from check_security_group_validation_openstack(model, line)
 
 
 def check_security_group_validation_azure(model, line):
@@ -232,3 +235,15 @@ def check_security_group_validation_azure(model, line):
                 line,
                 None,
                 "Security group rule too open. {}".format(item))
+
+
+def check_security_group_validation_openstack(model, line):
+    security_group_rules = model.properties.get('security_group_rules', {})
+    for item in security_group_rules:
+        port_range_min = item.get('port_range_min', {})
+        port_range_max = item.get('port_range_max', {})
+        if int(port_range_max) - int(port_range_min) < 0:
+            yield LintProblem(
+                line,
+                None,
+                "Security group The port range is invalid. {}".format(item))
