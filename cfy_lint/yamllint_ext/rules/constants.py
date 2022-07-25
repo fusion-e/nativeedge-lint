@@ -455,80 +455,82 @@ REQUIRED_RELATIONSHIPS = {
             'cloudify.relationships.depends_on',
     },
     # azure
-    'cloudify.azure.nodes.compute.VirtualMachine': {
-        'cloudify.azure.nodes.ResourceGroup':
-            'cloudify.azure.relationships.contained_in_resource_group',
-        'cloudify.azure.nodes.storage.StorageAccount':
-            'cloudify.azure.relationships.connected_to_storage_account',
-        'cloudify.azure.nodes.network.NetworkInterfaceCard':
-            'cloudify.azure.relationships.connected_to_nic',
-        'cloudify.keys.nodes.RSAKey': 'cloudify.relationships.depends_on'
+    'cloudify.nodes.azure.compute.VirtualMachine': {
+        'cloudify.nodes.azure.ResourceGroup':
+            'cloudify.relationships.azure.contained_in_resource_group',
+        'cloudify.nodes.azure.storage.StorageAccount':
+            'cloudify.relationships.azure.connected_to_storage_account',
+        'cloudify.nodes.azure.network.NetworkInterfaceCard':
+            'cloudify.relationships.azure.connected_to_nic',
+        'cloudify.keys.nodes.RSAKey': 'cloudify.relationships.azure.depends_on'
     },
-    'cloudify.azure.nodes.network.NetworkInterfaceCard': {
-        'cloudify.azure.nodes.ResourceGroup':
-            'cloudify.azure.relationships.contained_in_resource_group',
-        'cloudify.azure.nodes.network.NetworkSecurityGroup':
-            'cloudify.azure.relationships.'
+    'cloudify.nodes.azure.network.NetworkInterfaceCard': {
+        'cloudify.nodes.azure.ResourceGroup':
+            'cloudify.relationships.azure.contained_in_resource_group',
+        'cloudify.nodes.azure.network.NetworkSecurityGroup':
+            'cloudify.relationships.azure.'
             'nic_connected_to_network_security_group',
-        'cloudify.azure.nodes.network.IPConfiguration':
-            'cloudify.azure.relationships.nic_connected_to_ip_configuration'
+        'cloudify.nodes.azure.network.IPConfiguration':
+            'cloudify.relationships.azure.nic_connected_to_ip_configuration'
     },
-    'cloudify.azure.nodes.network.IPConfiguration': {
-        'cloudify.azure.nodes.network.Subnet':
-            'cloudify.azure.relationships.ip_configuration_connected_to_subnet',
-        'cloudify.azure.nodes.network.PublicIPAddress':
-            'cloudify.azure.relationships.ip_configuration_connected_to_public_ip'
+    'cloudify.nodes.azure.network.IPConfiguration': {
+        'cloudify.nodes.azure.network.Subnet':
+            'cloudify.relationships.azure.ip_configuration_connected_to_subnet',
+        'cloudify.nodes.azure.network.PublicIPAddress':
+            'cloudify.relationships.azure.ip_configuration_connected_to_public_ip'
     },
-    'cloudify.azure.nodes.network.NetworkSecurityGroup': {
-        'cloudify.azure.nodes.ResourceGroup':
-            'cloudify.azure.relationships.contained_in_resource_group'
+    'cloudify.nodes.azure.network.NetworkSecurityGroup': {
+        'cloudify.nodes.azure.ResourceGroup':
+            'cloudify.relationships.azure.contained_in_resource_group'
     },
-    'cloudify.azure.nodes.network.PublicIPAddress': {
-        'cloudify.azure.nodes.ResourceGroup':
-            'cloudify.azure.relationships.contained_in_resource_group'
+    'cloudify.nodes.azure.network.PublicIPAddress': {
+        'cloudify.nodes.azure.ResourceGroup':
+            'cloudify.relationships.azure.contained_in_resource_group'
     },
-    'cloudify.azure.nodes.network.Subnet': {
-        'cloudify.azure.nodes.network.VirtualNetwork':
-            'cloudify.azure.relationships.contained_in_virtual_network'
+    'cloudify.nodes.azure.network.Subnet': {
+        'cloudify.nodes.azure.network.VirtualNetwork':
+            'cloudify.relationships.azure.contained_in_virtual_network'
     },
-    'cloudify.azure.nodes.network.VirtualNetwork': {
-        'cloudify.azure.nodes.ResourceGroup':
-            'cloudify.azure.relationships.contained_in_resource_group'
+    'cloudify.nodes.azure.network.VirtualNetwork': {
+        'cloudify.nodes.azure.ResourceGroup':
+            'cloudify.relationships.azure.contained_in_resource_group'
     },
     # gcp
-    'cloudify.gcp.nodes.Instance': {
-        'cloudify.gcp.nodes.FirewallRule':
-            'cloudify.relationships.connected_to',
-        'cloudify.gcp.nodes.SubNetwork': 'cloudify.relationships.depends_on',
-        'cloudify.keys.nodes.RSAKey': 'cloudify.relationships.depends_on',
-        'cloudify.gcp.nodes.Volume': 'cloudify.relationships.depends_on'
+    'cloudify.nodes.gcp.Instance': {
+        'cloudify.nodes.gcp.FirewallRule':
+            'cloudify.relationships.gcp.connected_to',
+        'cloudify.nodes.gcp.SubNetwork':
+            'cloudify.relationships.gcp.depends_on',
+        'cloudify.keys.nodes.RSAKey': 'cloudify.relationships.gcp.depends_on',
+        'cloudify.nodes.gcp.Volume': 'cloudify.relationships.gcp.depends_on'
     },
-    'cloudify.gcp.nodes.FirewallRule': {
-        'cloudify.gcp.nodes.Network': 'cloudify.relationships.connected_to'
+    'cloudify.nodes.gcp.FirewallRule': {
+        'cloudify.nodes.gcp.Network': 'cloudify.relationships.gcp.connected_to'
     },
-    'cloudify.gcp.nodes.SubNetwork': {
-        'cloudify.gcp.nodes.Network':
-            'cloudify.gcp.relationships.contained_in_network'
+    'cloudify.nodes.gcp.SubNetwork': {
+        'cloudify.nodes.gcp.Network':
+            'cloudify.relationships.gcp.contained_in_network'
     },
     # openstack
     'cloudify.nodes.openstack.Server': {
         'cloudify.nodes.openstack.Port':
             'cloudify.relationships.openstack.server_connected_to_port',
         'cloudify.nodes.CloudInit.CloudConfig':
-            'cloudify.relationships.depends_on'
+            'cloudify.relationships.openstack.depends_on'
     },
     'cloudify.nodes.openstack.Subnet': {
         'cloudify.nodes.openstack.Network':
-            'cloudify.relationships.contained_in',
+            'cloudify.relationships.openstack.contained_in',
         'cloudify.nodes.openstack.Router':
             'cloudify.relationships.openstack.subnet_connected_to_router'
     },
     'cloudify.nodes.openstack.FloatingIP': {
         'cloudify.nodes.openstack.Network':
-            'cloudify.relationships.connected_to'
+            'cloudify.relationships.openstack.connected_to'
     },
-    'cloudify.nodes.CloudInit.CloudConfig': {
-        'cloudify.keys.nodes.RSAKey': 'cloudify.relationships.depends_on'
+    'cloudify.nodes.CloudInit.CloudConfig': {  # ??
+        'cloudify.keys.nodes.RSAKey':
+            'cloudify.relationships.openstack.depends_on'
     },
     'cloudify.nodes.openstack.Port': {
         'cloudify.nodes.openstack.Subnet':
@@ -541,8 +543,7 @@ REQUIRED_RELATIONSHIPS = {
     # terraform
     'cloudify.nodes.terraform.Module': {
         'cloudify.nodes.terraform':
-            'cloudify.terraform.relationships.run_on_host',
-        'cloudify.keys.nodes.RSAKey': 'cloudify.relationships.depends_on'
+            'cloudify.relationships.terraform.run_on_host',
     }
 }
 
