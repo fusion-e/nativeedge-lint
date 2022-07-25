@@ -456,6 +456,9 @@ REQUIRED_RELATIONSHIPS = {
 }
 
 
+security_group_validation_azure = [
+    'cloudify.azure.nodes.network.NetworkSecurityGroup',
+    'cloudify.azure.nodes.network.NetworkSecurityRule']
 security_group_validation_openstack = [
     'cloudify.nodes.openstack.SecurityGroup']
 
@@ -464,3 +467,4 @@ AWS_VALID_KEY = ['aws_access_key_id',
                  'aws_secret_access_key',
                  'region_name',
                  'aws_session_token']
+
