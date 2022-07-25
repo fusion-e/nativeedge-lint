@@ -476,3 +476,4 @@ AWS_VALID_KEY = ['aws_access_key_id',
                  'region_name',
                  'aws_session_token']
 
+firewall_rule_gcp = ['cloudify.gcp.nodes.FirewallRule']
