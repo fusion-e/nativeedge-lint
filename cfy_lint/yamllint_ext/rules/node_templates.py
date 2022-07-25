@@ -25,6 +25,7 @@ from .constants import (GCP_TYPES,
                         AZURE_VALID_KEY,
                         deprecated_node_types,
                         REQUIRED_RELATIONSHIPS,
+                        security_group_validation_aws,
                         security_group_validation_azure,
                         security_group_validation_openstack)
 
@@ -56,8 +57,8 @@ def check(token=None, context=None, **_):
             parsed_node_template,
             parsed_node_template.line or token.line)
         yield from check_security_group(
-             parsed_node_template,
-             parsed_node_template.line or token.line)
+            parsed_node_template,
+            parsed_node_template.line or token.line)
 
 
 def parse_node_template(node_template_mapping, node_template_model):
@@ -189,6 +190,7 @@ def check_azure_config(model, line):
                           'Invalid parameters provided for client config . '
                           'Valid parameters are {}'.format(AZURE_VALID_KEY))
 
+
 def check_aws_config(model, line):
     if not 'client_config' in model.properties:
         yield LintProblem(
@@ -218,10 +220,30 @@ def check_dependent_types(model, line):
 
 
 def check_security_group(model, line):
+    if model.node_type in security_group_validation_aws:
+        yield from check_security_group_validation_aws(model, line)
     if model.node_type in security_group_validation_azure:
         yield from check_security_group_validation_azure(model, line)
     if model.node_type in security_group_validation_openstack:
         yield from check_security_group_validation_openstack(model, line)
+
+
+def check_security_group_validation_aws(model, line):
+    resource_config = model.properties.get('resource_config', {})
+    ip_permissions = resource_config.get('IpPermissions', {})
+    for item in ip_permissions:
+        from_port = item.get('FromPort', {})
+        to_port = item.get('ToPort', {})
+        if from_port == '-1' or to_port == '-1':
+            yield LintProblem(
+                line,
+                None,
+                "Security group rule too open. {}".format(item))
+        if int(to_port) - int(from_port) < 0:
+            yield LintProblem(
+                line,
+                None,
+                "Security group The port is invalid. {}".format(item))
 
 
 def check_security_group_validation_azure(model, line):
