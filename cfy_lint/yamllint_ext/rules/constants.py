@@ -546,7 +546,6 @@ REQUIRED_RELATIONSHIPS = {
     }
 }
 
-
 security_group_validation_openstack = [
     'cloudify.nodes.openstack.SecurityGroup']
 
