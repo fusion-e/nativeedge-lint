@@ -1,0 +1,61 @@
+tosca_definitions_version: cloudify_dsl_1_4
+
+description: >
+  Test blueprint.
+
+imports:
+  - https://cloudify.co/spec/cloudify/6.4.0/types.yaml
+  - plugin:cloudify-foo-plugin
+  - local.yaml
+
+inputs:
+  foo:
+    type: string
+
+  bar:
+    type: list
+    default:
+      - bar1
+      - bar2
+      - bar3:
+          bar4: bar5
+
+  baz:
+    type: dict
+
+  waldo:
+    description: waldo input
+
+dsl_definitions:
+  qux: &qux_anchor
+    quxx: { get_secret: quxx_secret }
+    quuz: { get_input: foo }
+
+node_types:
+
+  foo_type:
+    derived_from: cloudify.nodes.Foo
+    properties:
+      foo_prop:
+        description: foo property
+
+node_template:
+
+  foo_template:
+    type: foo_type
+    properties:
+      resource_config:
+        baz: { get_property: [ taco, sauce] }
+        foo: { get_input: bar }
+        qux:
+          quux: { get_attribute: [ taco, topping ] }
+          quuz: corge
+    relationships:
+    - target: taco
+      type: cloudify.relationships.depends_on
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+          implementation: foo.bar
+          inputs:
+            grault: { get_input: waldo }
