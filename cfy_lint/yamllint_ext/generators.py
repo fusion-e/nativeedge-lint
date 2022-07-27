@@ -21,8 +21,6 @@ from yamllint.parser import (
     line_generator,
     comments_between_tokens)
 
-from .cloudify import NodeTemplate
-
 
 class CfyToken(Token):
     def __init__(self, line_no, curr, prev, after, nextnext, stack):
@@ -159,19 +157,9 @@ def token_or_comment_generator(buffer):
         pass
 
 
-def generate_node_templates(node_templates):
-    for key, value in node_templates.items():
-        yield NodeTemplate(key, value)
-
-
-def cloudify_dsl_generator(buffer):
-    yaml_loader = yaml.SafeLoader(buffer)
-    data = yaml_loader.get_single_data()
-    yield generate_node_templates(data.get('node_templates'))
-
-
 def token_or_comment_or_line_generator(buffer):
     """Generator that mixes tokens and lines, ordering them by line number"""
+
     tok_or_com_gen = token_or_comment_generator(buffer)
     line_gen = line_generator(buffer)
     node_gen = node_generator(buffer)
@@ -183,10 +171,17 @@ def token_or_comment_or_line_generator(buffer):
     prev_node = None
 
     while any([g for g in [tok_or_com, line, node.node] if g is not None]):
-        if (tok_or_com is None or (line is not None and tok_or_com.line_no > line.line_no)) or (node.node is None or (node is not None and node.node.start_mark.line > line.line_no)):
+        if (tok_or_com is None or (
+                line is not None and tok_or_com.line_no > line.line_no)
+        ) or (node.node is None or (
+                node is not None and node.node.start_mark.line > line.line_no)
+        ):
             yield line
             line = next(line_gen, None)
-        if node.node is None or (tok_or_com is not None and node.node.start_mark.line > tok_or_com.line_no):
+        if node.node is None or (
+                tok_or_com is not None and
+                node.node.start_mark.line > tok_or_com.line_no
+        ):
             # while token_in_node(node, tok_or_com.line_no) is False:
             #     # We want to find a node that the token is contained in.
             #     node = next(node_gen, None)

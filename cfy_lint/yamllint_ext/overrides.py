@@ -50,7 +50,7 @@ class LintProblem(object):
         #: Line on which the problem was found (starting at 1)
         self.line = line
         #: Column on which the problem was found (starting at 1)
-        self.column = column
+        self.column = column or 0
         #: Human-readable description of the problem
         self.desc = desc
         #: Identifier of the rule that detected the problem

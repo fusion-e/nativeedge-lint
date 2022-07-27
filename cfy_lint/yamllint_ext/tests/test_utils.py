@@ -1,21 +1,9 @@
 
-import os
-import io
 import yaml
 from mock import Mock, call, patch
 
+from . import get_gen
 from .. import utils
-from .. import generators
-
-
-def get_buffer(file_path='resources/blueprint.yaml'):
-    pp = os.path.join(os.path.dirname(__file__), file_path)
-    return io.open(pp, newline='')
-
-
-def get_gen(file_path='resources/blueprint.yaml', gen=generators.node_generator):
-    buffer = get_buffer(file_path)
-    return gen(buffer)
 
 
 def test_process_relevant_tokens():
