@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import yamllint.rules
+from ..utils import update_dict_values_recursive
 from yamllint.config import YamlLintConfig
 from yamllint.config import (
     validate_rule_conf,
@@ -24,9 +25,10 @@ from .constants import DEFAULT_CLOUDIFY_YAMLLINT_CONFIG
 
 class YamlLintConfigExt(YamlLintConfig):
     def __init__(self, content=None, file=None, yamllint_rules=None):
-        content = content or DEFAULT_CLOUDIFY_YAMLLINT_CONFIG
+        if content:
+            update_dict_values_recursive(DEFAULT_CLOUDIFY_YAMLLINT_CONFIG, content)
         self._yamllint_rules = yamllint_rules or yamllint.rules
-        super().__init__(content, file)
+        super().__init__(DEFAULT_CLOUDIFY_YAMLLINT_CONFIG, file)
 
     @property
     def yamllint_rules(self):

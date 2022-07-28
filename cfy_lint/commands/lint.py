@@ -25,8 +25,10 @@ from .. import cli
 
 @cli.command()
 @cli.options.blueprint_path
-def lint(blueprint_path):
-    yaml_config = YamlLintConfigExt(yamllint_rules=rules)
+@cli.options.config
+def lint(blueprint_path, config):
+    yaml_config = YamlLintConfigExt(content=config, yamllint_rules=rules)
+
     report = create_report_for_file(blueprint_path, yaml_config)
     cnt = 0
     for item in report:
