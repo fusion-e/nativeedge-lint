@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
 import yaml
 
 from .cloudify.models import NodeTemplate
@@ -330,3 +331,21 @@ def process_relevant_tokens(model, keyword):
                         yield from function(*args, **kwargs)
         return wrapper_inner
     return wrapper_outer
+
+
+def update_dict_values_recursive(default_dict, name_file_config):
+    with io.open(name_file_config):
+        f = open("config.yaml", "r")
+        user_dict = f.read()
+
+    default_dict = yaml.load(default_dict)
+    user_dict = yaml.load(user_dict)
+
+    if user_dict and default_dict:
+        for key, value in user_dict.items():
+            if value is dict:
+                update_dict_values_recursive(default_dict[key], value)
+            if value:
+                default_dict[key] = value
+    return default_dict
+
