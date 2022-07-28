@@ -348,4 +348,3 @@ def update_dict_values_recursive(default_dict, name_file_config):
             if value:
                 default_dict[key] = value
     return default_dict
-
