@@ -33,6 +33,7 @@ OP_KEYS = {'implementation', 'inputs'}
 
 @process_relevant_tokens(CfyNode, 'relationships')
 def check(token=None, **_):
+    # raise Exception(token.node)
     relationship_type = CfyRelationshipType(token.node)
     if relationship_type.is_relationship_type:
         print(relationship_type.derived_from)

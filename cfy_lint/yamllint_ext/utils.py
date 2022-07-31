@@ -55,7 +55,6 @@ def assign_nested_node_template_level(elem):
                                   yaml.tokens.BlockEntryToken)):
         return elem.curr.value
 
-
 def update_model(_elem):
     """Tracking a Cloudify Model inside YAMLLINT context.
 
@@ -103,142 +102,6 @@ def skip_inputs_in_node_templates(top_level):
            top_level == 'inputs'
 
 
-def token_to_string(token):
-    if isinstance(token, (
-            yaml.tokens.ValueToken,
-            yaml.tokens.ScalarToken,
-            yaml.tokens.FlowEntryToken,
-            yaml.tokens.FlowMappingEndToken,
-            yaml.tokens.FlowMappingEndToken,
-            yaml.tokens.FlowMappingStartToken,
-            yaml.tokens.BlockEntryToken)):
-        return str(token)
-    if isinstance(token, yaml.tokens.KeyToken):
-        return '\n'
-    elif isinstance(token, yaml.tokens.ValueToken):
-        return ': '
-    elif isinstance(token, yaml.tokens.ScalarToken):
-        return token.value
-    elif isinstance(token, yaml.tokens.FlowEntryToken):
-        return ', '
-    elif isinstance(token, yaml.tokens.FlowMappingEndToken):
-        return '} '
-    elif isinstance(token, yaml.tokens.FlowMappingStartToken):
-        return ' {'
-    # elif isinstance(token, yaml.tokens.BlockMappingStartToken):
-    #     string = ' {' + string
-    # elif isinstance(token, yaml.tokens.BlockSequenceStartToken):
-    #     string = ' ' + string
-    elif isinstance(token, yaml.tokens.BlockEntryToken):
-        return '-'
-    # elif isinstance(token, yaml.tokens.BlockEndToken):
-    #     string = '] ' + string
-
-
-def build_string_from_stack(stack):
-    string = ''
-    index = 0
-    while True:
-        if index > len(stack):
-            break
-        token = stack[index]
-        if isinstance(token, yaml.tokens.KeyToken):
-            inner_index = 0
-            while True:
-                inner_index += 1
-                inner_token = stack[index + inner_index]
-                if isinstance(inner_token, yaml.tokens.BlockEndToken):
-                    break
-            for skipping_index in range(index, index + inner_index):
-                converted_token = token_to_string(stack[skipping_index])
-                if converted_token:
-                    string = converted_token + string
-                else:
-                    continue
-            index = index + inner_index
-            continue
-        index += 1
-        converted_token = token_to_string(token)
-        if converted_token:
-            string = converted_token + string
-        else:
-            break
-    # print(string)
-
-
-def recurse_tokens(stack, index=0, recurse_until=None):
-    new_stack = []
-    while True:
-
-        try:
-            token = stack[index]
-            index += 1
-        except IndexError:
-            return new_stack, index
-
-        if not isinstance(token, (yaml.tokens.FlowMappingStartToken,
-                                  yaml.tokens.FlowMappingEndToken,
-                                  yaml.tokens.BlockMappingStartToken,
-                                  yaml.tokens.BlockSequenceStartToken,
-                                  yaml.tokens.BlockEndToken)):
-            new_stack.append(token)
-
-        elif isinstance(token, yaml.tokens.BlockSequenceStartToken):
-            # Seems to be indentation.
-            inner_stack, index = recurse_tokens(
-                stack, index, yaml.tokens.BlockEndToken)
-            inner_stack.insert(0, token)
-            new_stack.append(inner_stack)
-            continue
-
-
-        elif isinstance(token, yaml.tokens.BlockMappingStartToken):
-            # Seems to be indentation.
-            inner_stack, index = recurse_tokens(
-                stack, index, yaml.tokens.BlockEndToken)
-            inner_stack.insert(0, token)
-            new_stack.append(inner_stack)
-            continue
-
-        elif isinstance(token, yaml.tokens.FlowMappingStartToken):
-            # These get dicts.
-            inner_stack, index = recurse_tokens(
-                stack, index, yaml.tokens.FlowMappingEndToken)
-            inner_stack.insert(0, token)
-            new_stack.append(inner_stack)
-            continue
-
-        elif isinstance(token, yaml.tokens.FlowSequenceStartToken):
-            # These get lists.
-            inner_stack, index = recurse_tokens(
-                stack, index, yaml.tokens.FlowSequenceEndToken)
-            inner_stack.insert(0, token)
-            new_stack.append(inner_stack)
-            continue
-
-        elif recurse_until and isinstance(token, recurse_until):
-            return new_stack, index
-
-    return new_stack, index
-
-
-def recurse_nodes(node, line_no=0):
-    ordered_nodes = []
-    if not node:
-        return
-    elif isinstance(node, (list, tuple)):
-        for sub in node:
-            ordered_nodes.extend(recurse_nodes(sub, line_no))
-    elif isinstance(node, yaml.nodes.Node):
-        if node.start_mark.line <= line_no <= node.end_mark.line:
-            ordered_nodes.append(node)
-        if isinstance(node, yaml.nodes.CollectionNode):
-            if node.start_mark.line <= line_no <= node.end_mark.line:
-                ordered_nodes.append(node)
-                ordered_nodes.extend(recurse_nodes(node.value, line_no))
-    return list(dict.fromkeys(ordered_nodes))
-
-
 def setup_node_templates(elem):
     if 'node_templates' not in context:
         context['node_templates'] = {}
@@ -265,6 +128,32 @@ def setup_node_type(value):
     return value[0][1].value
 
 
+def mapping_is_two_length_intrinsic_function(mapping):
+    if len(mapping) == 2 and not isinstance(mapping[0], tuple):
+        try:
+            if mapping[0].value in INTRINSIC_FNS:
+                return True
+        except AttributeError:
+            return False
+
+
+def mapping_is_one_length_intrinsic_function_tuple(mapping):
+    if len(mapping) == 1 and isinstance(mapping[0], tuple):
+        if len(mapping[0]) == 2 and mapping[0][0].value in INTRINSIC_FNS:
+            return True
+
+
+def mapping_is_one_length_intrisic_function_mapping_node(mapping):
+    if len(mapping) == 1 and isinstance(mapping[0],
+                                        yaml.nodes.MappingNode):
+        try:
+            if len(mapping[0].value) == 2 and \
+                   mapping[0].value[0].value in INTRINSIC_FNS:
+                return True
+        except AttributeError:
+            return False
+
+
 def recurse_mapping(mapping):
     if isinstance(mapping, dict):
         new_dict = {}
@@ -273,24 +162,20 @@ def recurse_mapping(mapping):
         return new_dict
     elif isinstance(mapping, (list, tuple)):
         new_list = []
-        if len(mapping) == 2 and not isinstance(mapping[0], tuple) and mapping[0].value in INTRINSIC_FNS:
+        if mapping_is_two_length_intrinsic_function(mapping):
             return recurse_mapping({mapping[0].value: mapping[1].value})
-        if len(mapping) == 1 and isinstance(mapping[0], tuple):
-            if len(mapping[0]) == 2 and mapping[0][0].value in INTRINSIC_FNS:
-                return recurse_mapping(
-                    {
-                        mapping[0][0].value: mapping[0][1].value
-                    }
-                )
-        if len(mapping) == 1 and isinstance(mapping[0],
-                                            yaml.nodes.MappingNode):
-            if len(mapping[0].value) == 2 and \
-                    mapping[0].value[0].value in INTRINSIC_FNS:
-                return recurse_mapping(
-                    {
-                        mapping[0].value[0].value: mapping[0].value[1].value
-                    }
-                )
+        if mapping_is_one_length_intrinsic_function_tuple(mapping):
+            return recurse_mapping(
+                {
+                    mapping[0][0].value: mapping[0][1].value
+                }
+            )
+        if mapping_is_one_length_intrisic_function_mapping_node(mapping):
+            return recurse_mapping(
+                {
+                    mapping[0].value[0].value: mapping[0].value[1].value
+                }
+            )
         for item in mapping:
             new_list.append(recurse_mapping(item))
         return new_list

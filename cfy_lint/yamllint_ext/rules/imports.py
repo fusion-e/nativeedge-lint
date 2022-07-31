@@ -48,7 +48,7 @@ def validate_import_items(item, line):
         yield LintProblem(
             line,
             None,
-            'invalid import. {}'.format(url)
+            'invalid import. {} scheme not accepted'.format(url.scheme)
         )
     if url.scheme in ['plugin'] and url.path in ['cloudify-openstack-plugin']:
         yield from check_openstack_plugin_version(url, line)
@@ -67,11 +67,10 @@ def validate_string(item, line):
 
 def check_openstack_plugin_version(url, line):
     version_openstack = url.query.split(',')
-    print(version_openstack)
     for str_version in version_openstack:
         only_version = re.findall('(\\d+.\\d+.\\d+)', str_version)
         if version.parse(only_version[0]) >= version.parse('3.0.0') and \
-                "=" in str_version:
+                "<=" not in str_version:
             return
 
     yield LintProblem(
