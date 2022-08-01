@@ -22,8 +22,10 @@ from ..utils import process_relevant_tokens, INTRINSIC_FNS, context as ctx
 from .constants import (GCP_TYPES,
                         AWS_TYPES,
                         AZURE_TYPES,
+                        TERRAFORM_TYPES,
                         AWS_VALID_KEY,
                         AZURE_VALID_KEY,
+                        TFLINT_SUPPORTED_CONFIGS,
                         deprecated_node_types,
                         REQUIRED_RELATIONSHIPS,
                         firewall_rule_gcp,
@@ -61,6 +63,9 @@ def check(token=None, context=None, **_):
         yield from check_security_group(
               parsed_node_template,
               parsed_node_template.line or token.line)
+        yield from check_terraform(
+            parsed_node_template,
+            parsed_node_template.line or token.line)
 
 
 def parse_node_template(node_template_mapping, node_template_model):
@@ -287,3 +292,83 @@ def check_firewall_rule_gcp(model, line):
                     None,
                     "Security group The port range is invalid. "
                     "{}".format(item))
+
+
+def check_terraform(model, line):
+    if model.node_type in TERRAFORM_TYPES:
+        tflint_config = model.properties.get('tflint_config', {})
+        tfsec_config = model.properties.get('tfsec_config', {})
+        terratag_config = model.properties.get('terratag_config', {})
+        if tflint_config:
+            yield from check_tflint(model, line)
+        if tfsec_config:
+            yield from check_tfsec(model, line)
+
+
+def check_tfsec(model, line):
+    tfsec_config = model.properties.get('tfsec_config', {})
+    enable = tfsec_config.get('enable', {})
+    if enable and enable == 'false':
+        yield LintProblem(
+            line,
+            None,
+            'To use tfsec, it is necessary to write "enable: true"'
+            .format(model.name))
+    config = tfsec_config.get('config', {})
+    include = config.get('include', None)
+    exclude = config.get('exclude', None)
+    if exclude and not isinstance(exclude, list) or \
+            include and not isinstance(include, list):
+        yield LintProblem(
+            line,
+            None,
+            'In the config, "include" and "exclude" should be a list ')
+    flags_override = tfsec_config.get('flags_override', {})
+    for flag in flags_override:
+        if 'color' == flag:
+            yield LintProblem(
+                line,
+                None,
+                'Color flag cannot be used in flags_override')
+
+
+def check_tflint(model, line):
+    tflint_config = model.properties.get('tflint_config', {})
+    enable = tflint_config.get('enable', {})
+    if enable and enable == 'false':
+        yield LintProblem(
+            line,
+            None,
+            'To use tflint, it is necessary to write "enable: true" '
+            'under tflint_config.'.format(model.name))
+    config = tflint_config.get('config', {})
+    for item in config:
+        type_name = item.get('type_name', {})
+        if type_name not in TFLINT_SUPPORTED_CONFIGS:
+            yield LintProblem(
+                line,
+                None,
+                'To use tflint It is necessary to use type_name from this '
+                'list: {}.'.format(TFLINT_SUPPORTED_CONFIGS))
+        option_name = item.get('option_name', {})
+        if type_name == 'plugin' and not option_name:
+            yield LintProblem(
+                line,
+                None,
+                'To use tflint with type_name: plugin, it is necessary to '
+                'write option_name.'.format(model.name))
+        elif type_name == 'config':
+            option_value = item.get('option_value', {})
+            if not option_value:
+                yield LintProblem(
+                    line,
+                    None,
+                    'To use tflint with type_name: config, it is necessary to '
+                    'write option_value '.format(model.name))
+    flags_override = tflint_config.get('flags_override', {})
+    for flag in flags_override:
+        if 'color' == flag:
+            yield LintProblem(
+                line,
+                None,
+                'Color flag cannot be used in flags_override')
