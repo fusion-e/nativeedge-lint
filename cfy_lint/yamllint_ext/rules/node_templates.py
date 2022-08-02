@@ -296,6 +296,7 @@ def check_firewall_rule_gcp(model, line):
 
 
 def check_terraform(model, line):
+    print(model)
     if model.node_type in TERRAFORM_TYPES:
         tflint_config = model.properties.get('tflint_config', {})
         tfsec_config = model.properties.get('tfsec_config', {})
