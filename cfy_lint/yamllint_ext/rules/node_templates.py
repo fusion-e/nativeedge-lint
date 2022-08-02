@@ -35,12 +35,20 @@ VALUES = []
 
 ID = 'node_templates'
 TYPE = 'token'
-CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
-DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
+CONF = {
+    'allowed-values': list(VALUES),
+    'check-keys': bool,
+    'check-node-types': bool
+}
+DEFAULT = {
+    'allowed-values': ['true', 'false'],
+    'check-keys': True,
+    'check-node-types': True
+}
 
 
 @process_relevant_tokens(CfyNode, 'node_templates')
-def check(token=None, context=None, **_):
+def check(token=None, context=None, node_types=None, **_):
     for node_template in token.node.value:
         if not len(node_template) == 2:
             continue
@@ -61,6 +69,10 @@ def check(token=None, context=None, **_):
         yield from check_security_group(
               parsed_node_template,
               parsed_node_template.line or token.line)
+        yield from check_node_type_imported(
+            node_types,
+            parsed_node_template,
+            parsed_node_template.line or token.line)
 
 
 def parse_node_template(node_template_mapping, node_template_model):
@@ -68,6 +80,15 @@ def parse_node_template(node_template_mapping, node_template_model):
         recurse_node_template(node_template_mapping))
     node_template_model.line = node_template_mapping.start_mark.line + 1
     return node_template_model
+
+
+def check_node_type_imported(node_types, model, line):
+    node_types = node_types or {}
+    if model.node_type not in node_types:
+        yield LintProblem(
+            line,
+            None,
+            "unimported node type: {}".format(model.node_type))
 
 
 def check_deprecated_node_type(model, line):
