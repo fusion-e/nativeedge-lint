@@ -26,6 +26,7 @@ from .constants import (GCP_TYPES,
                         AWS_VALID_KEY,
                         AZURE_VALID_KEY,
                         TFLINT_SUPPORTED_CONFIGS,
+                        TERRATAG_SUPPORTED_FLAGS,
                         deprecated_node_types,
                         REQUIRED_RELATIONSHIPS,
                         firewall_rule_gcp,
@@ -260,7 +261,8 @@ def check_security_group_validation_azure(model, line):
     security_rules = resource_config.get('securityRules', {})
     for item in security_rules:
         source_port_range = item['properties'].get('sourcePortRange', {})
-        destination_port_range = item['properties'].get('destinationPortRange', {})
+        destination_port_range = item['properties'].get('destinationPortRange'
+                                                        , {})
         if source_port_range == '*' or destination_port_range == '*':
             yield LintProblem(
                 line,
@@ -290,8 +292,7 @@ def check_firewall_rule_gcp(model, line):
                 yield LintProblem(
                     line,
                     None,
-                    "Security group The port range is invalid. "
-                    "{}".format(item))
+                    "Security group The port range is invalid.{}".format(item))
 
 
 def check_terraform(model, line):
@@ -303,6 +304,8 @@ def check_terraform(model, line):
             yield from check_tflint(model, line)
         if tfsec_config:
             yield from check_tfsec(model, line)
+        if terratag_config:
+            yield from check_terratag(model, line)
 
 
 def check_tfsec(model, line):
@@ -312,8 +315,7 @@ def check_tfsec(model, line):
         yield LintProblem(
             line,
             None,
-            'To use tfsec, it is necessary to write "enable: true"'
-            .format(model.name))
+            'tfsec_config will have no effect if "enable: false".')
     config = tfsec_config.get('config', {})
     include = config.get('include', None)
     exclude = config.get('exclude', None)
@@ -322,7 +324,8 @@ def check_tfsec(model, line):
         yield LintProblem(
             line,
             None,
-            'In the config, "include" and "exclude" should be a list ')
+            'tfsec_config.config '
+            'parameters "include" and "exclude" should be a list')
     flags_override = tfsec_config.get('flags_override', {})
     for flag in flags_override:
         if 'color' == flag:
@@ -339,8 +342,7 @@ def check_tflint(model, line):
         yield LintProblem(
             line,
             None,
-            'To use tflint, it is necessary to write "enable: true" '
-            'under tflint_config.'.format(model.name))
+            'tflint_config will have no effect if "enable: false".')
     config = tflint_config.get('config', {})
     for item in config:
         type_name = item.get('type_name', {})
@@ -348,15 +350,15 @@ def check_tflint(model, line):
             yield LintProblem(
                 line,
                 None,
-                'To use tflint It is necessary to use type_name from this '
-                'list: {}.'.format(TFLINT_SUPPORTED_CONFIGS))
+                'unsupported key {} in tflint_config.'
+                .format(TFLINT_SUPPORTED_CONFIGS))
         option_name = item.get('option_name', {})
         if type_name == 'plugin' and not option_name:
             yield LintProblem(
                 line,
                 None,
-                'To use tflint with type_name: plugin, it is necessary to '
-                'write option_name.'.format(model.name))
+                'tflint_config "type_name" key must also provide '
+                '"option_name", which is the plugin name.')
         elif type_name == 'config':
             option_value = item.get('option_value', {})
             if not option_value:
@@ -364,11 +366,52 @@ def check_tflint(model, line):
                     line,
                     None,
                     'To use tflint with type_name: config, it is necessary to '
-                    'write option_value '.format(model.name))
+                    'write option_value ')
     flags_override = tflint_config.get('flags_override', {})
     for flag in flags_override:
         if 'color' == flag:
             yield LintProblem(
                 line,
                 None,
-                'Color flag cannot be used in flags_override')
+                'color flag is not supported in flags_override')
+
+
+def check_terratag(model, line):
+    terratag_config = model.properties.get('terratag_config', {})
+    enable = terratag_config.get('enable', {})
+    if enable and enable == 'false':
+        yield LintProblem(
+            line,
+            None,
+            'terratag_config will have no effect if "enable: false".')
+    tags = terratag_config.get('tags', {})
+    if not tags or not isinstance(tags, dict):
+        yield LintProblem(
+            line,
+            None,
+            'tags should be a dict')
+    flags_override = terratag_config.get('flags_override', {})
+    if not isinstance(flags_override, list):
+        yield LintProblem(
+            line,
+            None,
+            'flags_override should be a list')
+    print(flags_override)
+    for flag in flags_override:
+        if not isinstance(flag, dict):
+            yield LintProblem(
+                line,
+                None,
+                'The flags inside flags_override should be a dict')
+        key = flag.keys()
+        for key in key:
+            if '-' in key:
+                yield LintProblem(
+                    line,
+                    None,
+                    'The flags should be without a "-" sign, {}'.format(key))
+            if key not in TERRATAG_SUPPORTED_FLAGS:
+                yield LintProblem(
+                    line,
+                    None,
+                    'unsupported flag, {}'.format(TERRATAG_SUPPORTED_FLAGS))

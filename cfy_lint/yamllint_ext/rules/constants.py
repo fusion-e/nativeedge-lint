@@ -495,3 +495,10 @@ TFLINT_SUPPORTED_CONFIGS = [
     'module',
     'plugin_dir'
 ]
+
+TERRATAG_SUPPORTED_FLAGS = [
+    'dir',
+    'skipTerratagFiles',
+    'verbose',
+    'filter'
+]
