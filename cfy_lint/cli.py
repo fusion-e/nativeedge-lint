@@ -42,5 +42,12 @@ class Options(object):
             show_default='blueprint.yaml',
             help='Path to the blueprint file that you want to lint.')
 
+        self.config = click.option(
+            '-c',
+            '--config',
+            default=None,
+            type=click.Path(),
+            multiple=False,
+            help='ability to use configuration file or options.')
 
 options = Options()
