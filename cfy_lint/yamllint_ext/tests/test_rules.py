@@ -201,119 +201,115 @@ def test_relationships():
 def test_tflint():
     node_templates_content = """
     node_templates:
-        cloud_resources:
-            type: cloudify.nodes.terraform.Module
-            properties:
-              tflint_config:
-                config:
-                - type_name: configinvalid
-                - type_name: config
-                  option_value_invalid:
-                    module: 'true'                
-                - type_name: plugin
-                  option_name_invalid: aws
-                  option_value:
-                    enabled: 'false'
-                flags_override:
-                  - loglevel: info
-                  - color
-                enable: false
+      cloud_resources:
+        type: cloudify.nodes.terraform.Module
+        properties:
+          tflint_config:
+            config:
+            - type_name: configinvalid
+            - type_name: config
+              option_value_invalid:
+                module: 'true'                
+            - type_name: plugin
+              option_name_invalid: aws
+              option_value:
+                enabled: 'false'
+            flags_override:
+              - loglevel: info
+              - color
+            enable: false
     """
 
     elem = get_mock_cfy_node(node_templates_content, 'node_templates')
     context = {
         'cloud_resources': models.NodeTemplate('cloud_resources'),
     }
+
     with patch('cfy_lint.yamllint_ext.rules.node_templates.ctx') as ctx:
         ctx['inputs'] = {}
         result = get_gen_as_list(rules.node_templates.check,
                                  {'token': elem, 'context': context})
+        result.pop(0)
         assert isinstance(result[0], LintProblem)
-        assert 'The node template cloud_resources has unsatisfied required ' \
-               'relationships, which have not been provided: relationship ' \
-               'type cloudify.relationships.terraform.run_on_host to a node ' \
-               'type cloudify.nodes.terraform.' in result[0].message
-        assert isinstance(result[1], LintProblem)
         assert 'tflint_config will have no effect if "enable: false".' \
-               in result[1].message
-        assert isinstance(result[2], LintProblem)
+               in result[0].message
+        assert isinstance(result[1], LintProblem)
         assert 'unsupported key {} in tflint_config.'\
-            .format(TFLINT_SUPPORTED_CONFIGS) in result[2].message
-        assert isinstance(result[3], LintProblem)
+            .format(TFLINT_SUPPORTED_CONFIGS) in result[1].message
+        assert isinstance(result[2], LintProblem)
         assert 'To use tflint with type_name: config, it is necessary to ' \
-               'write option_value' in result[3].message
-        assert isinstance(result[4], LintProblem)
+               'write option_value' in result[2].message
+        assert isinstance(result[3], LintProblem)
         assert 'tflint_config "type_name" key must also provide ' \
-               '"option_name", which is the plugin name.' in result[4].message
-        assert isinstance(result[5], LintProblem)
+               '"option_name", which is the plugin name.' in result[3].message
+        assert isinstance(result[4], LintProblem)
         assert 'color flag is not supported in flags_override'\
-               in result[5].message
+               in result[4].message
 
 
 def test_tfsec():
     node_templates_content = """
     node_templates:
-        cloud_resources:
-            type: cloudify.nodes.terraform.Module
-            properties:
-                tfsec_config:
-                        config: 
-                            "exclude" : 'invalid'
-                        flags_override: [color]
-                        enable: false
+      cloud_resources:
+        type: cloudify.nodes.terraform.Module
+        properties:
+          tfsec_config:
+            config: 
+              "exclude" : 'invalid'
+            flags_override: [color]
+            enable: false
     """
+
     elem = get_mock_cfy_node(node_templates_content, 'node_templates')
     context = {
         'cloud_resources': models.NodeTemplate('cloud_resources'),
     }
+
     with patch('cfy_lint.yamllint_ext.rules.node_templates.ctx') as ctx:
         ctx['inputs'] = {}
         result = get_gen_as_list(rules.node_templates.check,
                                  {'token': elem, 'context': context})
+        result.pop(0)
         assert isinstance(result[0], LintProblem)
-        assert 'The node template cloud_resources has unsatisfied required ' \
-               'relationships' in result[0].message
-        assert isinstance(result[1], LintProblem)
         assert 'tfsec_config will have no effect if "enable: false".' \
-               in result[1].message
-        assert isinstance(result[2], LintProblem)
+               in result[0].message
+        assert isinstance(result[1], LintProblem)
         assert 'tfsec_config.config parameters "include" and "exclude" ' \
-               'should be a list' in result[2].message
-        assert isinstance(result[3], LintProblem)
+               'should be a list' in result[1].message
+        assert isinstance(result[2], LintProblem)
         assert 'Color flag cannot be used in flags_override' \
-               in result[3].message
+               in result[2].message
 
 
 def test_terratag():
     node_templates_content = """
     node_templates:
-        cloud_resources:
-            type: cloudify.nodes.terraform.Module
-            properties:
-              terratag_config:
-                tags: { 'name_company': 'cloudify' }
-                flags_override:
-                  - -verbose: True
-                  - abc: 'abc'
-        
+      cloud_resources:
+        type: cloudify.nodes.terraform.Module
+        properties:
+          terratag_config:
+            tags: { 'name_company': 'cloudify' }
+            flags_override:
+              - -verbose: True
+              - abc: 'abc'
     """
+
     elem = get_mock_cfy_node(node_templates_content, 'node_templates')
     context = {
         'cloud_resources': models.NodeTemplate('cloud_resources'),
     }
+
     with patch('cfy_lint.yamllint_ext.rules.node_templates.ctx') as ctx:
         ctx['inputs'] = {}
         result = get_gen_as_list(rules.node_templates.check,
                                  {'token': elem, 'context': context})
+        result.pop(0)
         assert isinstance(result[0], LintProblem)
-        assert 'The node template cloud_resources has unsatisfied required ' \
-               'relationships' in result[0].message
-        assert isinstance(result[1], LintProblem)
         assert 'The flags should be without a "-" sign, -verbose' \
-               in result[1].message
-        assert isinstance(result[2], LintProblem)
+               in result[0].message
+        assert isinstance(result[1], LintProblem)
         assert "unsupported flag, ['dir', 'skipTerratagFiles', 'verbose'," \
-               " 'filter']" in result[2].message
-        assert isinstance(result[3], LintProblem)
+               " 'filter']" in result[1].message
+        assert isinstance(result[2], LintProblem)
         assert "unsupported flag, {}".format(TERRATAG_SUPPORTED_FLAGS) \
-               in result[3].message
+               in result[2].message
