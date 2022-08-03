@@ -286,7 +286,6 @@ def check_security_group_validation_openstack(model, line):
 
 def check_firewall_rule_gcp(model, line):
     allowed = model.properties.get('allowed', {})
-    print(allowed)
     for item in allowed['tcp']:
         if '-' in str(item):  # 12345-12349
             ports = re.split('-', item)
@@ -298,7 +297,6 @@ def check_firewall_rule_gcp(model, line):
 
 
 def check_terraform(model, line):
-    print(model)
     if model.node_type in TERRAFORM_TYPES:
         tflint_config = model.properties.get('tflint_config', {})
         tfsec_config = model.properties.get('tfsec_config', {})
@@ -399,7 +397,6 @@ def check_terratag(model, line):
             line,
             None,
             'flags_override should be a list')
-    print(flags_override)
     for flag in flags_override:
         if not isinstance(flag, dict):
             yield LintProblem(
