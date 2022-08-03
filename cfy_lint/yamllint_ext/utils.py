@@ -14,10 +14,16 @@
 # limitations under the License.
 
 import io
+import os
+import re
+import json
 import yaml
+import urllib.request
+from urllib.parse import urlparse
+from packaging.version import parse as version_parse
 
 from .cloudify.models import NodeTemplate
-from .constants import (BLUEPRINT_MODEL, NODE_TEMPLATE_MODEL)
+from .constants import (LATEST_PLUGIN_YAMLS, BLUEPRINT_MODEL, NODE_TEMPLATE_MODEL)
 
 INTRINSIC_FNS = [
     'get_input', 'get_capability', 'get_attribute', 'get_property']
@@ -54,6 +60,7 @@ def assign_nested_node_template_level(elem):
     if isinstance(elem.nextnext, (yaml.tokens.BlockMappingStartToken,
                                   yaml.tokens.BlockEntryToken)):
         return elem.curr.value
+
 
 def update_model(_elem):
     """Tracking a Cloudify Model inside YAMLLINT context.
@@ -100,6 +107,160 @@ def node_template(_elem):
 def skip_inputs_in_node_templates(top_level):
     return context.get('current_top_level') == 'node_templates' and \
            top_level == 'inputs'
+
+
+def get_json_from_marketplace(url):
+    try:
+        resp = urllib.request.urlopen(url)
+    except urllib.error.HTTPError:
+        return {}
+    body = resp.read()
+    return json.loads(body)
+
+
+def get_plugin_id_from_marketplace(plugin_name):
+    url_plugin_id = 'https://marketplace.cloudify.co/plugins?name={}'.format(
+        plugin_name)
+    json_resp = get_json_from_marketplace(url_plugin_id)
+    if 'items' in json_resp:
+        if len(json_resp['items']) == 1:
+            return json_resp['items'][0]['id']
+
+
+def get_plugin_versions_from_marketplace(plugin_id):
+    url_plugin_version = 'https://marketplace.cloudify.co/' \
+                         'plugins/{}/versions?'.format(plugin_id)
+    json_resp = get_json_from_marketplace(url_plugin_version)
+    if 'items' in json_resp:
+        versions = [item['version'] for item in json_resp['items']]
+        return sorted(versions, key=lambda x: version_parse(x))
+    return []
+
+
+def get_plugin_release_spec_from_marketplace(plugin_id, plugin_version):
+    release_url = 'https://marketplace.cloudify.co/plugins/{}/{}'.format(
+        plugin_id, plugin_version)
+    return get_json_from_marketplace(release_url)
+
+
+def validate_versions(versions, validations):
+    for neq in validations['!=']:
+        if neq in versions:
+            versions.remove(neq)
+    for gteq in validations['>=']:
+        parsed_gteq = version_parse(gteq)
+        versions = [v for v in versions if version_parse(v) >= parsed_gteq]
+    for lteq in validations['<=']:
+        parsed_lteq = version_parse(lteq)
+        versions = [v for v in versions if version_parse(v) <= parsed_lteq]
+    for gt in validations['>']:
+        parsed_gt = version_parse(gt)
+        versions = [v for v in versions if version_parse(v) > parsed_gt]
+    for lt in validations['<=']:
+        parsed_lt = version_parse(lt)
+        versions = [v for v in versions if version_parse(v) < parsed_lt]
+    return versions
+
+
+def get_validations(version_constraints):
+    validations = {
+        '==': [],
+        '!=': [],
+        '>=': [],
+        '<=': [],
+        '>': [],
+        '<': [],
+    }
+    # Organize the version constraints so we get a dict like this:
+    # {
+    #    '==': [],
+    #    '!=': ['1.0'],
+    #    '>=': ['0.8', 0.9'],
+    #    '<=': ['1.1'],
+    # }
+    for version_constraint in version_constraints:
+        for validation in validations.keys():
+            if version_constraint.startswith(validation):
+                validated_version_constraint = version_constraint.split(
+                    validation)
+                if len(validated_version_constraint) == 2:
+                    validations[validation].append(
+                        validated_version_constraint[1])
+                    continue
+    return validations
+
+
+def get_version_constraints(plugin_name, plugin_version_string):
+    version_constraints = list(
+        # Get rid of irrelevant stringy stuff.
+        filter(
+            lambda item: item, re.split(
+                'plugin:| |{}|,'.format(plugin_name),
+                plugin_version_string)
+        )
+    )
+    # re.split is afraid of this one.
+    if '?version' in version_constraints:
+        version_constraints.remove('?version')
+    if 'version=' in version_constraints:
+        version_constraints.remove('version=')
+    return version_constraints
+
+
+def get_plugin_spec(plugin_version_string, plugin_name):
+    version_constraints = get_version_constraints(
+        plugin_name, plugin_version_string)
+    validations = get_validations(version_constraints)
+
+    plugin_id = get_plugin_id_from_marketplace(plugin_name)
+    versions = get_plugin_versions_from_marketplace(plugin_id)
+
+    if len(validations['==']) == 1 and validations['=='][0] in versions:
+        return get_plugin_release_spec_from_marketplace(
+            plugin_id, validations['=='][0])
+    versions = validate_versions(versions, validations)
+    if len(versions):
+        return get_plugin_release_spec_from_marketplace(
+            plugin_id, versions[-1])
+
+
+def get_plugin_yaml_url(plugin_import):
+    parsed_import_item = urlparse(plugin_import)
+    plugin_name = parsed_import_item.path
+    plugin_spec = get_plugin_spec(parsed_import_item.query, plugin_name)
+    if not plugin_spec:
+        return LATEST_PLUGIN_YAMLS.get(plugin_name)
+    elif len(plugin_spec.get('yaml_urls', [])):
+        return plugin_spec['yaml_urls'][0]['url']
+
+
+def import_cloudify_yaml(import_item):
+    result = {}
+    parsed_import_item = urlparse(import_item)
+    if parsed_import_item.scheme == 'plugin':
+        result = import_cloudify_yaml(get_plugin_yaml_url(import_item))
+    if parsed_import_item.scheme in ['http', 'https']:
+        page = urllib.request.Request(import_item,
+                                      headers={'User-Agent': 'Mozilla/5.0'})
+        infile = urllib.request.urlopen(page).read()
+        result = yaml.safe_load(infile)
+    elif os.path.exists(import_item):
+        result = yaml.safe_load(import_item)
+    result = result or {}
+    for k in result.keys():
+        left = 'imported_{}'.format(k)
+        if left not in context:
+            context[left] = result[k]
+        elif isinstance(result[k], list):
+            context[left].extend(result[k])
+        else:
+            context[left].update(result[k])
+
+
+def setup_types(buffer=None, data=None):
+    data = data or yaml.safe_load(buffer)
+    for imported in data.get('imports', {}):
+        import_cloudify_yaml(imported)
 
 
 def setup_node_templates(elem):

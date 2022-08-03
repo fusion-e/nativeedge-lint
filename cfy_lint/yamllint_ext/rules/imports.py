@@ -42,14 +42,6 @@ def validate_import_items(item, line):
 
     url = urlparse(item.value)
 
-    if url.scheme not in ['http', 'https', 'plugin']:
-        if not url.scheme and url.path.split('/')[-1].endswith('.yaml'):
-            yield
-        yield LintProblem(
-            line,
-            None,
-            'invalid import. {} scheme not accepted'.format(url.scheme)
-        )
     if url.scheme in ['plugin'] and url.path in ['cloudify-openstack-plugin']:
         yield from check_openstack_plugin_version(url, line)
     elif url.scheme in ['https', 'https'] and not url.path.endswith('.yaml'):
