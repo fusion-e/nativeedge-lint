@@ -186,6 +186,10 @@ ACCEPTED_LIST_TYPES = (
     yaml.tokens.FlowSequenceStartToken
 )
 
+TERRAFORM_TYPES = [
+    'cloudify.nodes.terraform.Module',
+]
+
 AWS_TYPES = [
     'cloudify.nodes.aws.dynamodb.Table',
     'cloudify.nodes.aws.iam.Group',
@@ -569,3 +573,24 @@ AWS_VALID_KEY = ['aws_access_key_id',
                  'aws_session_token']
 
 firewall_rule_gcp = ['cloudify.gcp.nodes.FirewallRule']
+
+
+TFLINT_SUPPORTED_CONFIGS = [
+    'config',
+    'plugin',
+    'rule',
+    'variables',
+    'varfile',
+    'ignore_module',
+    'disabled_by_default',
+    'force',
+    'module',
+    'plugin_dir'
+]
+
+TERRATAG_SUPPORTED_FLAGS = [
+    'dir',
+    'skipTerratagFiles',
+    'verbose',
+    'filter'
+]
