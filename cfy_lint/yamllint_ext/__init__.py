@@ -14,7 +14,6 @@
 # limitations under the License.
 
 import re
-import yaml
 
 from yamllint import parser
 from .generators import (
@@ -30,6 +29,7 @@ from .overrides import (
 )
 from .utils import (
     context,
+    setup_types,
     update_model,
     setup_node_templates,
 )
@@ -45,6 +45,9 @@ PROBLEM_LEVELS = {
 
 
 def get_cosmetic_problems(buffer, conf, filepath):
+
+    setup_types(buffer)
+
     rules = conf.enabled_rules(filepath)
 
     # Split token rules from line rules
@@ -120,9 +123,11 @@ def get_cosmetic_problems(buffer, conf, filepath):
             for rule in token_rules:
                 rule_conf = conf.rules[rule.ID]
                 try:
-                    problems = rule.check(conf=rule_conf,
-                                          token=elem,
-                                          context=context[rule.ID])
+                    problems = rule.check(
+                        conf=rule_conf,
+                        token=elem,
+                        context=context[rule.ID],
+                        node_types=context.get('imported_node_types', {}))
                 except TypeError:
                     continue
                 else:
