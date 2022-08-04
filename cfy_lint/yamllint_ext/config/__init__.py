@@ -26,7 +26,8 @@ from .constants import DEFAULT_CLOUDIFY_YAMLLINT_CONFIG
 class YamlLintConfigExt(YamlLintConfig):
     def __init__(self, content=None, file=None, yamllint_rules=None):
         if content:
-            update_dict_values_recursive(DEFAULT_CLOUDIFY_YAMLLINT_CONFIG, content)
+            update_dict_values_recursive(
+                DEFAULT_CLOUDIFY_YAMLLINT_CONFIG, content)
         self._yamllint_rules = yamllint_rules or yamllint.rules
         super().__init__(DEFAULT_CLOUDIFY_YAMLLINT_CONFIG, file)
 

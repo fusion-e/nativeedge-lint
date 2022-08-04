@@ -136,7 +136,7 @@ def relationship_target_not_exist(token, target, line):
             "relationship target node instance does not exist. "
             "The provided target is {}. Possible options are: {}.".format(
                 target,
-            [k for k in token.node_templates.keys()])
+                [k for k in token.node_templates.keys()])
         )
 
 

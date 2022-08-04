@@ -1,3 +1,17 @@
+########
+# Copyright (c) 2014-2022 Cloudify Platform Ltd. All rights reserved
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 from mock import Mock, patch
 
@@ -8,9 +22,10 @@ from .. import LintProblem
 from ..cloudify import models
 from ..generators import (
     CfyNode,
-    CfyToken,
     generate_nodes_recursively)
-from ..rules.constants import TFLINT_SUPPORTED_CONFIGS, TERRATAG_SUPPORTED_FLAGS
+from ..rules.constants import (
+    TFLINT_SUPPORTED_CONFIGS,
+    TERRATAG_SUPPORTED_FLAGS)
 
 
 def get_mock_cfy_node(content, top_level_type, curr_node_index=1):
@@ -121,7 +136,7 @@ def test_inputs():
       foo:
         type: cloudify.nodes.Foo
         properties:
-          bar: { get_input: baz }   
+          bar: { get_input: baz }
     """
 
     elem = get_mock_cfy_node(input_content_2, 'get_input')
@@ -209,7 +224,7 @@ def test_tflint():
             - type_name: configinvalid
             - type_name: config
               option_value_invalid:
-                module: 'true'                
+                module: 'true'
             - type_name: plugin
               option_name_invalid: aws
               option_value:
@@ -227,8 +242,14 @@ def test_tflint():
 
     with patch('cfy_lint.yamllint_ext.rules.node_templates.ctx') as ctx:
         ctx['inputs'] = {}
-        result = get_gen_as_list(rules.node_templates.check,
-                                 {'token': elem, 'context': context})
+        result = get_gen_as_list(
+            rules.node_templates.check,
+            {
+                'token': elem,
+                'context': context,
+                'node_types': ['cloudify.nodes.terraform.Module']
+            }
+        )
         result.pop(0)
         assert isinstance(result[0], LintProblem)
         assert 'tflint_config will have no effect if "enable: false".' \
@@ -254,7 +275,7 @@ def test_tfsec():
         type: cloudify.nodes.terraform.Module
         properties:
           tfsec_config:
-            config: 
+            config:
               "exclude" : 'invalid'
             flags_override: [color]
             enable: false
@@ -267,8 +288,14 @@ def test_tfsec():
 
     with patch('cfy_lint.yamllint_ext.rules.node_templates.ctx') as ctx:
         ctx['inputs'] = {}
-        result = get_gen_as_list(rules.node_templates.check,
-                                 {'token': elem, 'context': context})
+        result = get_gen_as_list(
+            rules.node_templates.check,
+            {
+                'token': elem,
+                'context': context,
+                'node_types': ['cloudify.nodes.terraform.Module']
+            }
+        )
         result.pop(0)
         assert isinstance(result[0], LintProblem)
         assert 'tfsec_config will have no effect if "enable: false".' \
@@ -301,8 +328,15 @@ def test_terratag():
 
     with patch('cfy_lint.yamllint_ext.rules.node_templates.ctx') as ctx:
         ctx['inputs'] = {}
-        result = get_gen_as_list(rules.node_templates.check,
-                                 {'token': elem, 'context': context})
+
+        result = get_gen_as_list(
+            rules.node_templates.check,
+            {
+                'token': elem,
+                'context': context,
+                'node_types': ['cloudify.nodes.terraform.Module']
+            }
+        )
         result.pop(0)
         assert isinstance(result[0], LintProblem)
         assert 'The flags should be without a "-" sign, -verbose' \

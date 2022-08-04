@@ -1,3 +1,17 @@
+########
+# Copyright (c) 2014-2022 Cloudify Platform Ltd. All rights reserved
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import yaml
 from mock import Mock, call, patch
@@ -89,11 +103,13 @@ def test_setup_node_template():
 def test_update_model():
     elem_mock = Mock()
     elem_mock.line_no = 100
-    elem_mock.curr = yaml.tokens.ScalarToken('node_templates', 'node_templates', 100, 200)
+    elem_mock.curr = yaml.tokens.ScalarToken(
+        'node_templates', 'node_templates', 100, 200)
     elem_mock.nextnext = yaml.tokens.BlockMappingStartToken(201, 300)
     with patch('cfy_lint.yamllint_ext.utils.context') as context:
         utils.update_model(elem_mock)
-    assert call.__setitem__('current_top_level', 'node_templates') in context.mock_calls
+    assert call.__setitem__(
+        'current_top_level', 'node_templates') in context.mock_calls
 
 
 def test_assign_nested_node_template_level():

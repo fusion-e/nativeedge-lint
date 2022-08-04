@@ -162,8 +162,8 @@ class RelationshipsList(CloudifyDSLObject):
                           yaml.tokens.BlockMappingStartToken):
                 block_end = self.seek(yaml.tokens.BlockEndToken, index + 1)
                 if block_end:
-                   self._relationship_items.append(
-                       [RelationshipItem(self.tokens[index:block_end])])
+                    self._relationship_items.append(
+                        [RelationshipItem(self.tokens[index:block_end])])
                 index = block_end
             else:
                 index += 1

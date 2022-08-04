@@ -23,7 +23,10 @@ from urllib.parse import urlparse
 from packaging.version import parse as version_parse
 
 from .cloudify.models import NodeTemplate
-from .constants import (LATEST_PLUGIN_YAMLS, BLUEPRINT_MODEL, NODE_TEMPLATE_MODEL)
+from .constants import (
+    LATEST_PLUGIN_YAMLS,
+    BLUEPRINT_MODEL,
+    NODE_TEMPLATE_MODEL)
 
 INTRINSIC_FNS = [
     'get_sys',

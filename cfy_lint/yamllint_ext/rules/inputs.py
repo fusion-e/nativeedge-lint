@@ -17,7 +17,10 @@ import yaml
 
 from .. import LintProblem
 from ..generators import CfyNode
-from ..utils import INTRINSIC_FNS, recurse_mapping, context as ctx, process_relevant_tokens
+from ..utils import (
+    INTRINSIC_FNS,
+    recurse_mapping,
+    context as ctx, process_relevant_tokens)
 
 VALUES = []
 
@@ -117,13 +120,13 @@ class CfyInput(object):
             'description': None,
             'constraints': None,
         }
-        valid_keys = mapping.keys()
         if isinstance(node, yaml.nodes.MappingNode):
             for tup in node.value:
                 if not len(tup) == 2:
                     continue
                 mapping_name = tup[0].value
-                mapping_value = self.get_mapping_value(mapping_name, tup[1].value)
+                mapping_value = self.get_mapping_value(
+                    mapping_name, tup[1].value)
                 mapping[mapping_name] = mapping_value
         return mapping
 
