@@ -124,7 +124,7 @@ deprecated_relationship_types = {
     'cloudify.azure.relationships.contained_in_load_balancer':
         'cloudify.relationships.azure.contained_in_load_balancer',
     'cloudify.azure.relationships.network_security_group_attached_to_subnet':
-        'cloudify.relationships.azure.network_security_group_attached_to_subnet',
+        'cloudify.relationships.azure.network_security_group_attached_to_subnet', # noqa
     'cloudify.azure.relationships.route_table_attached_to_subnet':
         'cloudify.relationships.azure.route_table_attached_to_subnet',
     'cloudify.azure.relationships.nic_connected_to_ip_configuration':
@@ -421,7 +421,6 @@ AZURE_TYPES = [
 
 
 REQUIRED_RELATIONSHIPS = {
-    #aws
     'cloudify.nodes.aws.ec2.Subnet': {
         'cloudify.nodes.aws.ed2.Vpc': 'cloudify.relationships.depends_on',
     },
@@ -479,9 +478,9 @@ REQUIRED_RELATIONSHIPS = {
     },
     'cloudify.nodes.azure.network.IPConfiguration': {
         'cloudify.nodes.azure.network.Subnet':
-            'cloudify.relationships.azure.ip_configuration_connected_to_subnet',
+            'cloudify.relationships.azure.ip_configuration_connected_to_subnet', # noqa
         'cloudify.nodes.azure.network.PublicIPAddress':
-            'cloudify.relationships.azure.ip_configuration_connected_to_public_ip'
+            'cloudify.relationships.azure.ip_configuration_connected_to_public_ip' # noqa
     },
     'cloudify.nodes.azure.network.NetworkSecurityGroup': {
         'cloudify.nodes.azure.ResourceGroup':
@@ -540,7 +539,7 @@ REQUIRED_RELATIONSHIPS = {
         'cloudify.nodes.openstack.Subnet':
             'cloudify.relationships.openstack.port_connected_to_subnet',
         'cloudify.nodes.openstack.SecurityGroup':
-            'cloudify.relationships.openstack.port_connected_to_security_group',
+            'cloudify.relationships.openstack.port_connected_to_security_group', # noqa
         'cloudify.nodes.openstack.FloatingIP':
             'cloudify.relationships.openstack.port_connected_to_floating_ip'
     },
@@ -561,16 +560,22 @@ security_group_validation_azure = [
     'cloudify.azure.nodes.network.NetworkSecurityGroup',
     'cloudify.azure.nodes.network.NetworkSecurityRule'
 ]
-    
+
 security_group_validation_openstack = [
     'cloudify.nodes.openstack.SecurityGroup'
 ]
 
-AZURE_VALID_KEY = ['subscription_id', 'tenant_id', 'client_id', 'client_secret']
-AWS_VALID_KEY = ['aws_access_key_id',
-                 'aws_secret_access_key',
-                 'region_name',
-                 'aws_session_token']
+AZURE_VALID_KEY = [
+    'subscription_id',
+    'tenant_id',
+    'client_id',
+    'client_secret']
+
+AWS_VALID_KEY = [
+    'aws_access_key_id',
+    'aws_secret_access_key',
+    'region_name',
+    'aws_session_token']
 
 firewall_rule_gcp = ['cloudify.gcp.nodes.FirewallRule']
 

@@ -50,5 +50,3 @@ def create_report_for_file(file_path, conf):
     logger.info('Linting blueprint: {}'.format(file_path))
     with io.open(file_path, newline='') as f:
         return run(f, conf)
-
-

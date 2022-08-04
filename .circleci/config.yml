@@ -1,0 +1,36 @@
+version: 2.1
+
+orbs:
+  node: cloudify/public-unittest-orb@1 #orb version
+
+checkout:
+  post:
+    - >
+      if [ -n "$CI_PULL_REQUEST" ]; then
+        PR_ID=${CI_PULL_REQUEST##*/}
+        git fetch origin +refs/pull/$PR_ID/merge:
+        git checkout -qf FETCH_HEAD
+      fi
+
+
+executors:
+  py36:
+    docker:
+      - image: circleci/python:3.6
+
+workflows:
+  version: 2
+  tests:
+    jobs:
+      - node/unittests_job
+
+  nightly:
+    triggers:
+    - schedule:
+        cron: "0 1 * * 0,1,3,5"
+        filters:
+          branches:
+            only:
+              - master
+    jobs:
+      - node/unittests_job

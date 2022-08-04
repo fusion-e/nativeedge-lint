@@ -79,7 +79,6 @@ def check(token=None, context=None, node_types=None, **_):
         yield from check_terraform(
             parsed_node_template,
             parsed_node_template.line or token.line)
-        
 
 
 def parse_node_template(node_template_mapping, node_template_model):
@@ -186,7 +185,7 @@ def check_gcp_config(model, line):
             'The node template "{}" has deprecated property "gcp_config". '
             'please use "client_config".'.format(model.name)
         )
-    elif not 'client_config' in model.properties:
+    elif 'client_config' not in model.properties:
         yield LintProblem(
             line,
             None,
@@ -224,7 +223,7 @@ def check_azure_config(model, line):
 
 
 def check_aws_config(model, line):
-    if not 'client_config' in model.properties:
+    if 'client_config' not in model.properties:
         yield LintProblem(
             line,
             None,
@@ -285,8 +284,8 @@ def check_security_group_validation_azure(model, line):
     security_rules = resource_config.get('securityRules', {})
     for item in security_rules:
         source_port_range = item['properties'].get('sourcePortRange', {})
-        destination_port_range = item['properties'].get('destinationPortRange'
-                                                        , {})
+        destination_port_range = item['properties'].get(
+            'destinationPortRange', {})
         if source_port_range == '*' or destination_port_range == '*':
             yield LintProblem(
                 line,

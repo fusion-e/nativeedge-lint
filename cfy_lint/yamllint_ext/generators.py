@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import yaml
 
 from yamllint.parser import (
@@ -107,7 +106,8 @@ class CfyNode(object):
 
 class SafeLineLoader(yaml.SafeLoader):
     def construct_mapping(self, node, deep=False):
-        mapping = super(SafeLineLoader, self).construct_mapping(node, deep=deep)
+        mapping = super(SafeLineLoader, self).construct_mapping(
+            node, deep=deep)
         # Add 1 so line numbering starts at 1
         mapping['__line__'] = node.start_mark.line + 1
         return mapping
@@ -171,11 +171,7 @@ def token_or_comment_or_line_generator(buffer):
     prev_node = None
 
     while any([g for g in [tok_or_com, line, node.node] if g is not None]):
-        if (tok_or_com is None or (
-                line is not None and tok_or_com.line_no > line.line_no)
-        ) or (node.node is None or (
-                node is not None and node.node.start_mark.line > line.line_no)
-        ):
+        if should_yield_line(tok_or_com, line, node):
             yield line
             line = next(line_gen, None)
         if node.node is None or (
@@ -202,3 +198,11 @@ def token_in_node(node, line_no):
         return node.start_mark.line - 1 <= line_no <= node.end_mark.line - 1
     except AttributeError:
         return None
+
+
+def should_yield_line(tok_or_com, line, node):
+    a = tok_or_com is None or (
+            line is not None and tok_or_com.line_no > line.line_no)
+    b = node.node is None or (
+            node is not None and node.node.start_mark.line > line.line_no)
+    return a or b
