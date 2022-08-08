@@ -30,11 +30,21 @@ from .constants import (
     NODE_TEMPLATE_MODEL)
 
 INTRINSIC_FNS = [
+    'merge',
+    'concat',
     'get_sys',
     'get_input',
+    'get_label',
+    'get_secret',
+    'string_find',
+    'string_split',
+    'string_lower',
+    'string_upper',
     'get_property',
     'get_attribute',
+    'string_replace',
     'get_capability',
+    'get_environment_capability',
 ]
 
 context = {
@@ -234,20 +244,41 @@ def get_plugin_spec(plugin_version_string, plugin_name):
 
 
 def get_plugin_yaml_url(plugin_import):
-    parsed_import_item = urlparse(plugin_import)
-    plugin_name = parsed_import_item.path
-    plugin_spec = get_plugin_spec(parsed_import_item.query, plugin_name)
+    plugin_name, plugin_spec = _get_plugin_spec(plugin_import)
     if not plugin_spec:
         return LATEST_PLUGIN_YAMLS.get(plugin_name)
     elif len(plugin_spec.get('yaml_urls', [])):
         return plugin_spec['yaml_urls'][0]['url']
 
 
+def _get_plugin_spec(plugin_import):
+    parsed_import_item = urlparse(plugin_import)
+    plugin_name = parsed_import_item.path
+    return plugin_name, get_plugin_spec(parsed_import_item.query, plugin_name)
+
+
+def get_node_types_for_plugin_import(plugin_import):
+    plugin_name, plugin_spec = _get_plugin_spec(plugin_import)
+    return get_node_types_for_plugin_version(
+        plugin_name, plugin_spec['version'])
+
+
+def get_node_types_for_plugin_version(plugin_name, plugin_version):
+    url = 'https://marketplace.cloudify.co/node-types?' \
+          '&plugin_name={}' \
+          '&plugin_version={}'.format(plugin_name, plugin_version)
+    result = get_json_from_marketplace(url)
+    node_types = {}
+    for item in result['items']:
+        node_types[item['type']] = item
+    return node_types
+
+
 def import_cloudify_yaml(import_item):
     result = {}
     parsed_import_item = urlparse(import_item)
     if parsed_import_item.scheme == 'plugin':
-        result = import_cloudify_yaml(get_plugin_yaml_url(import_item))
+        result['node_types'] = get_node_types_for_plugin_import(import_item)
     if parsed_import_item.scheme in ['http', 'https']:
         page = urllib.request.Request(import_item,
                                       headers={'User-Agent': 'Mozilla/5.0'})
