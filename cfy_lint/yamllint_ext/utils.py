@@ -24,8 +24,9 @@ from packaging.version import parse as version_parse
 
 from .cloudify.models import NodeTemplate
 from .constants import (
-    LATEST_PLUGIN_YAMLS,
     BLUEPRINT_MODEL,
+    DEFAULT_TYPES,
+    LATEST_PLUGIN_YAMLS,
     NODE_TEMPLATE_MODEL)
 
 INTRINSIC_FNS = [
@@ -252,14 +253,17 @@ def import_cloudify_yaml(import_item):
                                       headers={'User-Agent': 'Mozilla/5.0'})
         infile = urllib.request.urlopen(page).read()
         result = yaml.safe_load(infile)
+    elif import_item == 'cloudify/types/types.yaml':
+        result = DEFAULT_TYPES
     elif os.path.exists(import_item):
-        result = yaml.safe_load(import_item)
+        with open(import_item, 'r') as stream:
+            result = yaml.safe_load(stream)
     result = result or {}
     for k in result.keys():
         left = 'imported_{}'.format(k)
         if left not in context:
             context[left] = result[k]
-        elif isinstance(result[k], list):
+        elif isinstance(context[left], list):
             context[left].extend(result[k])
         else:
             context[left].update(result[k])
