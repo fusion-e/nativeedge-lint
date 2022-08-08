@@ -194,14 +194,16 @@ def check_gcp_config(model, line):
                 model.name)
         )
     elif all(x in ['auth', 'zone'] for x in model.properties['client_config']):
-        yield LintProblem(
-            line,
-            None,
-            'The node template "{}" '
-            'does not provide required client config values '
-            '["auth", "zone"].'.format(
-                model.name)
-        )
+        if 'get_input' not in model.properties['client_config'] or \
+                'get_secret' not in model.properties['client_config']:
+            yield LintProblem(
+                line,
+                None,
+                'The node template "{}" '
+                'does not provide required client config values '
+                '["auth", "zone"].'.format(
+                    model.name)
+            )
 
 
 def check_azure_config(model, line):
@@ -215,11 +217,13 @@ def check_azure_config(model, line):
                 model.name))
     client_config = model.properties.get('client_config', {})
     if not all(x in AZURE_VALID_KEY for x in client_config.keys()):
-        yield LintProblem(line,
-                          None,
-                          'Invalid parameters provided for client config. '
-                          'Valid parameters are {}'.format(
-                              AZURE_VALID_KEY))
+        if 'get_input' not in model.properties['client_config'] or \
+                'get_secret' not in model.properties['client_config']:
+            yield LintProblem(line,
+                              None,
+                              'Invalid parameters provided for client config. '
+                              'Valid parameters are {}'.format(
+                                  AZURE_VALID_KEY))
 
 
 def check_aws_config(model, line):
@@ -232,10 +236,12 @@ def check_aws_config(model, line):
                 model.name))
     client_config = model.properties.get('client_config')
     if not all(x in AWS_VALID_KEY for x in client_config.keys()):
-        yield LintProblem(line,
-                          None,
-                          'Invalid parameters provided for client config. '
-                          'Valid parameters are {}'.format(AWS_VALID_KEY))
+        if 'get_input' not in model.properties['client_config'] or \
+                'get_secret' not in model.properties['client_config']:
+            yield LintProblem(line,
+                              None,
+                              'Invalid parameters provided for client config. '
+                              'Valid parameters are {}'.format(AWS_VALID_KEY))
 
 
 def check_dependent_types(model, line):

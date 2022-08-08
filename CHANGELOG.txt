@@ -1,0 +1,3 @@
+0.0.1: Initial release
+0.0.2: Add packaging to setup py required packages.
+0.0.3: Support importing types YAML from cloudify/types/types.yaml.

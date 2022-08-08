@@ -50,3 +50,49 @@ LATEST_PLUGIN_YAMLS = {
     'cloudify-vcloud-plugin': 'https://github.com/cloudify-cosmo/cloudify-vcloud-plugin/releases/download/latest/plugin.yaml', # noqa
     'cloudify-helm-plugin': 'https://github.com/cloudify-incubator/cloudify-helm-plugin/releases/download/latest/plugin.yaml' # noqa
 }
+
+DEFAULT_NODE_TYPES = [
+    'cloudify.nodes.Port',
+    'cloudify.nodes.Root',
+    'cloudify.nodes.Tier',
+    'cloudify.nodes.Router',
+    'cloudify.nodes.Subnet',
+    'cloudify.nodes.Volume',
+    'cloudify.nodes.Network',
+    'cloudify.nodes.Compute',
+    'cloudify.nodes.Container',
+    'cloudify.nodes.VirtualIP',
+    'cloudify.nodes.FileSystem',
+    'cloudify.nodes.ObjectStorage',
+    'cloudify.nodes.LoadBalancer',
+    'cloudify.nodes.SecurityGroup',
+    'cloudify.nodes.SoftwareComponent',
+    'cloudify.nodes.DBMS',
+    'cloudify.nodes.Database',
+    'cloudify.nodes.WebServer',
+    'cloudify.nodes.ApplicationServer',
+    'cloudify.nodes.MessageBusServer',
+    'cloudify.nodes.ApplicationModule',
+    'cloudify.nodes.CloudifyManager',
+    'cloudify.nodes.Component',
+    'cloudify.nodes.ServiceComponent',
+    'cloudify.nodes.SharedResource',
+    'cloudify.nodes.Blueprint',
+    'cloudify.nodes.PasswordSecret'
+]
+
+DEFAULT_RELATIONSHIPS = [
+    'cloudify.relationships.depends_on',
+    'cloudify.relationships.connected_to',
+    'cloudify.relationships.contained_in',
+    'cloudify.relationships.depends_on_lifecycle_operation',
+    'cloudify.relationships.depends_on_shared_resource',
+    'cloudify.relationships.connected_to_shared_resource',
+    'cloudify.relationships.file_system_depends_on_volume',
+    'cloudify.relationships.file_system_contained_in_compute'
+]
+
+DEFAULT_TYPES = {
+    'node_types': DEFAULT_NODE_TYPES,
+    'relationships': DEFAULT_RELATIONSHIPS,
+}

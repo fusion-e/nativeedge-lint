@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import re
 import yaml
 from packaging import version
@@ -44,12 +45,20 @@ def validate_import_items(item, line):
 
     if url.scheme not in ['http', 'https', 'plugin']:
         if not url.scheme and url.path.split('/')[-1].endswith('.yaml'):
-            yield
-        yield LintProblem(
-            line,
-            None,
-            'invalid import. {} scheme not accepted'.format(url.scheme)
-        )
+            if not os.path.exists(url.path) and \
+                    url.path != 'cloudify/types/types.yaml':
+                yield LintProblem(
+                    line,
+                    None,
+                    'relative import '
+                    'declared but the file path does not exist.'
+                )
+        else:
+            yield LintProblem(
+                line,
+                None,
+                'invalid import. {} scheme not accepted'.format(url.scheme)
+            )
     if url.scheme in ['plugin'] and url.path in ['cloudify-openstack-plugin']:
         yield from check_openstack_plugin_version(url, line)
     elif url.scheme in ['https', 'https'] and not url.path.endswith('.yaml'):
