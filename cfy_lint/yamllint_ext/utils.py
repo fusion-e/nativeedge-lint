@@ -259,8 +259,10 @@ def _get_plugin_spec(plugin_import):
 
 def get_node_types_for_plugin_import(plugin_import):
     plugin_name, plugin_spec = _get_plugin_spec(plugin_import)
-    return get_node_types_for_plugin_version(
-        plugin_name, plugin_spec['version'])
+    plugin_version = None
+    if plugin_spec:
+        plugin_version = plugin_spec['version']
+    return get_node_types_for_plugin_version(plugin_name, plugin_version)
 
 
 def get_node_types_for_plugin_version(plugin_name, plugin_version):

@@ -304,7 +304,12 @@ def check_security_group_validation_openstack(model, line):
     for item in security_group_rules:
         port_range_min = item.get('port_range_min', {})
         port_range_max = item.get('port_range_max', {})
-        if int(port_range_max) - int(port_range_min) < 0:
+        if port_range_max == 'null' or port_range_min == 'null':
+            yield LintProblem(
+                line,
+                None,
+                "Security group rule too open. {}".format(item))
+        elif int(port_range_max) - int(port_range_min) < 0:
             yield LintProblem(
                 line,
                 None,
