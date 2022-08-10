@@ -193,9 +193,9 @@ def check_gcp_config(model, line):
             'does not provide required property "client_config".'.format(
                 model.name)
         )
-    elif all(x in ['auth', 'zone'] for x in model.properties['client_config']):
-        if 'get_input' not in model.properties['client_config'] or \
-                'get_secret' not in model.properties['client_config']:
+    elif not all(x in ['auth', 'zone'] for x in model.properties['client_config']):
+        # if 'get_input' not in model.properties['client_config'] or \
+        #         'get_secret' not in model.properties['client_config']:
             yield LintProblem(
                 line,
                 None,
