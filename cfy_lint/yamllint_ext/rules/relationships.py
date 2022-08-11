@@ -36,10 +36,6 @@ def check(token=None, **_):
     # raise Exception(token.node)
     relationship_type = CfyRelationshipType(token.node)
     if relationship_type.is_relationship_type:
-        print(relationship_type.derived_from)
-        print(relationship_type.connection_type)
-        print(relationship_type.target_interfaces)
-        print(relationship_type.source_interfaces)
         yield from check_relationship_types(relationship_type, token.line)
         return
     yield from relationships_not_list(token.node, token.line)
@@ -177,7 +173,7 @@ class CfyRelationshipInterfaces(object):
 class CfyRelationshipInterface(object):
 
     def __init__(self, data):
-        self._data = data
+        self._data = data or {}
 
     @property
     def lifecycle(self):

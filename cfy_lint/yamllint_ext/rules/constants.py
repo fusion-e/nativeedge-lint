@@ -465,7 +465,6 @@ REQUIRED_RELATIONSHIPS = {
             'cloudify.relationships.azure.connected_to_storage_account',
         'cloudify.nodes.azure.network.NetworkInterfaceCard':
             'cloudify.relationships.azure.connected_to_nic',
-        'cloudify.keys.nodes.RSAKey': 'cloudify.relationships.azure.depends_on'
     },
     'cloudify.nodes.azure.network.NetworkInterfaceCard': {
         'cloudify.nodes.azure.ResourceGroup':
@@ -504,7 +503,6 @@ REQUIRED_RELATIONSHIPS = {
             'cloudify.relationships.gcp.connected_to',
         'cloudify.nodes.gcp.SubNetwork':
             'cloudify.relationships.gcp.depends_on',
-        'cloudify.keys.nodes.RSAKey': 'cloudify.relationships.gcp.depends_on',
         'cloudify.nodes.gcp.Volume': 'cloudify.relationships.gcp.depends_on'
     },
     'cloudify.nodes.gcp.FirewallRule': {
@@ -524,16 +522,12 @@ REQUIRED_RELATIONSHIPS = {
     'cloudify.nodes.openstack.Subnet': {
         'cloudify.nodes.openstack.Network':
             'cloudify.relationships.contained_in',
-        'cloudify.nodes.openstack.Router':
-            'cloudify.relationships.openstack.subnet_connected_to_router'
+        # 'cloudify.nodes.openstack.Router':
+        #     'cloudify.relationships.openstack.subnet_connected_to_router'
     },
     'cloudify.nodes.openstack.FloatingIP': {
         'cloudify.nodes.openstack.Network':
             'cloudify.relationships.connected_to'
-    },
-    'cloudify.nodes.CloudInit.CloudConfig': {  # ??
-        'cloudify.keys.nodes.RSAKey':
-            'cloudify.relationships.openstack.depends_on'
     },
     'cloudify.nodes.openstack.Port': {
         # 'cloudify.nodes.openstack.Subnet':

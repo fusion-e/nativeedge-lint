@@ -292,7 +292,7 @@ def check_security_group_validation_azure(model, line):
         source_port_range = item['properties'].get('sourcePortRange', {})
         destination_port_range = item['properties'].get(
             'destinationPortRange', {})
-        if source_port_range == '*' or destination_port_range == '*':
+        if destination_port_range == '*':
             yield LintProblem(
                 line,
                 None,
