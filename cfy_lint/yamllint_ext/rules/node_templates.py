@@ -302,9 +302,16 @@ def check_security_group_validation_azure(model, line):
 def check_security_group_validation_openstack(model, line):
     security_group_rules = model.properties.get('security_group_rules', {})
     for item in security_group_rules:
+        protocol = item.get('protocol', {})
         port_range_min = item.get('port_range_min', {})
         port_range_max = item.get('port_range_max', {})
         if port_range_max == 'null' or port_range_min == 'null':
+            if protocol != 'icmp':
+                yield LintProblem(
+                    line,
+                    None,
+                    "Security group rule Invalid. {}".format(item))
+        elif port_range_max == '65535' or port_range_min == '1':
             yield LintProblem(
                 line,
                 None,
@@ -314,6 +321,7 @@ def check_security_group_validation_openstack(model, line):
                 line,
                 None,
                 "Security group The port range is invalid. {}".format(item))
+
 
 
 def check_firewall_rule_gcp(model, line):
