@@ -74,7 +74,6 @@ def validate_string(item, line):
         yield LintProblem(line, None, 'import is not a string.')
 
 
-
 def check_openstack_plugin_version(url, line):
     version_openstack = url.query.split(',')
     if version_openstack[0]:

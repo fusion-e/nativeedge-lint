@@ -193,17 +193,16 @@ def check_gcp_config(model, line):
             'does not provide required property "client_config".'.format(
                 model.name)
         )
-    elif not all(x in ['auth', 'zone'] for x in model.properties['client_config']):
-        # if 'get_input' not in model.properties['client_config'] or \
-        #         'get_secret' not in model.properties['client_config']:
-            yield LintProblem(
-                line,
-                None,
-                'The node template "{}" '
-                'does not provide required client config values '
-                '["auth", "zone"].'.format(
-                    model.name)
-            )
+    elif not all(x in ['auth', 'zone']
+                 for x in model.properties['client_config']):
+        yield LintProblem(
+            line,
+            None,
+            'The node template "{}" '
+            'does not provide required client config values '
+            '["auth", "zone"].'.format(
+                model.name)
+        )
 
 
 def check_azure_config(model, line):
@@ -289,7 +288,6 @@ def check_security_group_validation_azure(model, line):
     resource_config = model.properties.get('resource_config', {})
     security_rules = resource_config.get('securityRules', {})
     for item in security_rules:
-        source_port_range = item['properties'].get('sourcePortRange', {})
         destination_port_range = item['properties'].get(
             'destinationPortRange', {})
         if destination_port_range == '*':
@@ -321,7 +319,6 @@ def check_security_group_validation_openstack(model, line):
                 line,
                 None,
                 "Security group The port range is invalid. {}".format(item))
-
 
 
 def check_firewall_rule_gcp(model, line):
