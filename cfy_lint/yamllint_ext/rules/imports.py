@@ -76,18 +76,18 @@ def validate_string(item, line):
 
 def check_openstack_plugin_version(url, line):
     version_openstack = url.query.split(',')
-    for str_version in version_openstack:
-        only_version = re.findall('(\\d+.\\d+.\\d+)', str_version)
-        if version.parse(only_version[0]) >= version.parse('3.0.0') and \
-                "<=" not in str_version:
-            return
-
-    yield LintProblem(
-        line, None,
-        'Cloudify Openstack Plugin version {} is deprecated.'
-        ' Please update to Openstack version 3 or higher. '
-        'Below are suggested node type changes.'
-        ' For more information on conversion to Openstack Plugin v3, '
-        'Please click on this link - https://docs.cloudify.co/latest/'
-        'working_with/official_plugins/infrastructure/openstackv3/'
-        .format(version_openstack))
+    if version_openstack[0]:
+        for str_version in version_openstack:
+            only_version = re.findall('(\\d+.\\d+.\\d+)', str_version)
+            if version.parse(only_version[0]) >= version.parse('3.0.0') and \
+                    "<=" not in str_version:
+                return
+        yield LintProblem(
+            line, None,
+            'Cloudify Openstack Plugin version {} is deprecated.'
+            ' Please update to Openstack version 3 or higher. '
+            'Below are suggested node type changes.'
+            ' For more information on conversion to Openstack Plugin v3, '
+            'Please click on this link - https://docs.cloudify.co/latest/'
+            'working_with/official_plugins/infrastructure/openstackv3/'
+            .format(version_openstack))

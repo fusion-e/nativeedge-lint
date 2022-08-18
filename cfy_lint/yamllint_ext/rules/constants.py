@@ -422,17 +422,17 @@ AZURE_TYPES = [
 
 REQUIRED_RELATIONSHIPS = {
     'cloudify.nodes.aws.ec2.Subnet': {
-        'cloudify.nodes.aws.ed2.Vpc': 'cloudify.relationships.depends_on',
+        'cloudify.nodes.aws.ec2.Vpc': 'cloudify.relationships.depends_on',
     },
     'cloudify.nodes.aws.ec2.SecurityGroup': {
-        'cloudify.nodes.aws.ed2.Vpc': 'cloudify.relationships.depends_on',
+        'cloudify.nodes.aws.ec2.Vpc': 'cloudify.relationships.depends_on',
     },
     'cloudify.nodes.aws.ec2.InternetGateway': {
-        'cloudify.nodes.aws.ed2.Vpc': 'cloudify.relationships.depends_on',
+        'cloudify.nodes.aws.ec2.Vpc': 'cloudify.relationships.depends_on',
     },
     'cloudify.nodes.aws.ec2.RouteTable': {
-        'cloudify.nodes.aws.ed2.Vpc': 'cloudify.relationships.contained_in',
-        'cloudify.nodes.aws.ec2.Subnet': 'cloudify.relationships.depends_on',
+        'cloudify.nodes.aws.ec2.Vpc': 'cloudify.relationships.contained_in',
+        'cloudify.nodes.aws.ec2.Subnet': 'cloudify.relationships.connected_to',
     },
     'cloudify.nodes.aws.ec2.Route': {
         'cloudify.nodes.aws.ec2.RouteTable':
@@ -447,10 +447,10 @@ REQUIRED_RELATIONSHIPS = {
         'cloudify.nodes.aws.ec2.SecurityGroup':
             'cloudify.relationships.depends_on',
     },
-    'cloudify.nodes.aws.ec2.ElasticIP': {
-        'cloudify.nodes.aws.ec2.Interface':
-            'cloudify.relationships.depends_on',
-    },
+    # 'cloudify.nodes.aws.ec2.ElasticIP': {
+    #     'cloudify.nodes.aws.ec2.Interface':
+    #         'cloudify.relationships.depends_on',
+    # },
     'cloudify.nodes.aws.ec2.Instances': {
         'cloudify.nodes.aws.ec2.Image':
             'cloudify.relationships.depends_on',
@@ -465,7 +465,6 @@ REQUIRED_RELATIONSHIPS = {
             'cloudify.relationships.azure.connected_to_storage_account',
         'cloudify.nodes.azure.network.NetworkInterfaceCard':
             'cloudify.relationships.azure.connected_to_nic',
-        'cloudify.keys.nodes.RSAKey': 'cloudify.relationships.azure.depends_on'
     },
     'cloudify.nodes.azure.network.NetworkInterfaceCard': {
         'cloudify.nodes.azure.ResourceGroup':
@@ -504,7 +503,6 @@ REQUIRED_RELATIONSHIPS = {
             'cloudify.relationships.gcp.connected_to',
         'cloudify.nodes.gcp.SubNetwork':
             'cloudify.relationships.gcp.depends_on',
-        'cloudify.keys.nodes.RSAKey': 'cloudify.relationships.gcp.depends_on',
         'cloudify.nodes.gcp.Volume': 'cloudify.relationships.gcp.depends_on'
     },
     'cloudify.nodes.gcp.FirewallRule': {
@@ -519,29 +517,25 @@ REQUIRED_RELATIONSHIPS = {
         'cloudify.nodes.openstack.Port':
             'cloudify.relationships.openstack.server_connected_to_port',
         'cloudify.nodes.CloudInit.CloudConfig':
-            'cloudify.relationships.openstack.depends_on'
+            'cloudify.relationships.depends_on'
     },
     'cloudify.nodes.openstack.Subnet': {
         'cloudify.nodes.openstack.Network':
-            'cloudify.relationships.openstack.contained_in',
-        'cloudify.nodes.openstack.Router':
-            'cloudify.relationships.openstack.subnet_connected_to_router'
+            'cloudify.relationships.contained_in',
+        # 'cloudify.nodes.openstack.Router':
+        #     'cloudify.relationships.openstack.subnet_connected_to_router'
     },
     'cloudify.nodes.openstack.FloatingIP': {
         'cloudify.nodes.openstack.Network':
-            'cloudify.relationships.openstack.connected_to'
-    },
-    'cloudify.nodes.CloudInit.CloudConfig': {  # ??
-        'cloudify.keys.nodes.RSAKey':
-            'cloudify.relationships.openstack.depends_on'
+            'cloudify.relationships.connected_to'
     },
     'cloudify.nodes.openstack.Port': {
-        'cloudify.nodes.openstack.Subnet':
-            'cloudify.relationships.openstack.port_connected_to_subnet',
+        # 'cloudify.nodes.openstack.Subnet':
+        #     'cloudify.relationships.openstack.port_connected_to_subnet',
         'cloudify.nodes.openstack.SecurityGroup':
             'cloudify.relationships.openstack.port_connected_to_security_group', # noqa
-        'cloudify.nodes.openstack.FloatingIP':
-            'cloudify.relationships.openstack.port_connected_to_floating_ip'
+        # 'cloudify.nodes.openstack.FloatingIP':
+        #     'cloudify.relationships.openstack.port_connected_to_floating_ip'
     },
     # terraform
     'cloudify.nodes.terraform.Module': {

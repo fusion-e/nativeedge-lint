@@ -193,17 +193,16 @@ def check_gcp_config(model, line):
             'does not provide required property "client_config".'.format(
                 model.name)
         )
-    elif all(x in ['auth', 'zone'] for x in model.properties['client_config']):
-        if 'get_input' not in model.properties['client_config'] or \
-                'get_secret' not in model.properties['client_config']:
-            yield LintProblem(
-                line,
-                None,
-                'The node template "{}" '
-                'does not provide required client config values '
-                '["auth", "zone"].'.format(
-                    model.name)
-            )
+    elif not all(x in ['auth', 'zone']
+                 for x in model.properties['client_config']):
+        yield LintProblem(
+            line,
+            None,
+            'The node template "{}" '
+            'does not provide required client config values '
+            '["auth", "zone"].'.format(
+                model.name)
+        )
 
 
 def check_azure_config(model, line):
@@ -289,10 +288,9 @@ def check_security_group_validation_azure(model, line):
     resource_config = model.properties.get('resource_config', {})
     security_rules = resource_config.get('securityRules', {})
     for item in security_rules:
-        source_port_range = item['properties'].get('sourcePortRange', {})
         destination_port_range = item['properties'].get(
             'destinationPortRange', {})
-        if source_port_range == '*' or destination_port_range == '*':
+        if destination_port_range == '*':
             yield LintProblem(
                 line,
                 None,
@@ -302,9 +300,21 @@ def check_security_group_validation_azure(model, line):
 def check_security_group_validation_openstack(model, line):
     security_group_rules = model.properties.get('security_group_rules', {})
     for item in security_group_rules:
+        protocol = item.get('protocol', {})
         port_range_min = item.get('port_range_min', {})
         port_range_max = item.get('port_range_max', {})
-        if int(port_range_max) - int(port_range_min) < 0:
+        if port_range_max == 'null' or port_range_min == 'null':
+            if protocol != 'icmp':
+                yield LintProblem(
+                    line,
+                    None,
+                    "Security group rule Invalid. {}".format(item))
+        elif port_range_max == '65535' or port_range_min == '1':
+            yield LintProblem(
+                line,
+                None,
+                "Security group rule too open. {}".format(item))
+        elif int(port_range_max) - int(port_range_min) < 0:
             yield LintProblem(
                 line,
                 None,
