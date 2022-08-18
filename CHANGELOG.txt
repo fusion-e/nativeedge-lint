@@ -2,3 +2,4 @@
 0.0.2: Add packaging to setup py required packages.
 0.0.3: Support importing types YAML from cloudify/types/types.yaml.
 0.0.4: Get node types from marketplace node type service.
+0.0.5: RD-4783 linter test blueprint examples
