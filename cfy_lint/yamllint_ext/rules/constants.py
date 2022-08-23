@@ -427,9 +427,6 @@ REQUIRED_RELATIONSHIPS = {
     'cloudify.nodes.aws.ec2.SecurityGroup': {
         'cloudify.nodes.aws.ec2.Vpc': 'cloudify.relationships.depends_on',
     },
-    'cloudify.nodes.aws.ec2.InternetGateway': {
-        'cloudify.nodes.aws.ec2.Vpc': 'cloudify.relationships.depends_on',
-    },
     'cloudify.nodes.aws.ec2.RouteTable': {
         'cloudify.nodes.aws.ec2.Vpc': 'cloudify.relationships.contained_in',
         'cloudify.nodes.aws.ec2.Subnet': 'cloudify.relationships.connected_to',
@@ -447,10 +444,6 @@ REQUIRED_RELATIONSHIPS = {
         'cloudify.nodes.aws.ec2.SecurityGroup':
             'cloudify.relationships.depends_on',
     },
-    # 'cloudify.nodes.aws.ec2.ElasticIP': {
-    #     'cloudify.nodes.aws.ec2.Interface':
-    #         'cloudify.relationships.depends_on',
-    # },
     'cloudify.nodes.aws.ec2.Instances': {
         'cloudify.nodes.aws.ec2.Image':
             'cloudify.relationships.depends_on',
@@ -478,8 +471,6 @@ REQUIRED_RELATIONSHIPS = {
     'cloudify.nodes.azure.network.IPConfiguration': {
         'cloudify.nodes.azure.network.Subnet':
             'cloudify.relationships.azure.ip_configuration_connected_to_subnet', # noqa
-        'cloudify.nodes.azure.network.PublicIPAddress':
-            'cloudify.relationships.azure.ip_configuration_connected_to_public_ip' # noqa
     },
     'cloudify.nodes.azure.network.NetworkSecurityGroup': {
         'cloudify.nodes.azure.ResourceGroup':
