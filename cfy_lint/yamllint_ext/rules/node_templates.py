@@ -129,7 +129,8 @@ def validate_instrinsic_function(key, value, line):
                 "get_input references undefined input: {}".format(value)
             )
     elif key in ['get_attribute', 'get_property']:
-        if value[0] not in ctx.get('node_templates', {}):
+        if value[0] not in ctx.get('node_templates', {}) and \
+                value[0] not in ctx.get('imported_node_templates', {}):
             yield LintProblem(
                 line,
                 None,
@@ -247,7 +248,7 @@ def check_dependent_types(model, line):
     required_relationship_types = REQUIRED_RELATIONSHIPS.get(
         model.node_type, {})
     model.required_relationships = required_relationship_types
-    if model.required_relationships_not_met(ctx['node_templates']):
+    if model.required_relationships_not_met(ctx['node_templates'], ctx['imported_node_templates']):
         yield LintProblem(
             line,
             None,

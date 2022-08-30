@@ -279,6 +279,7 @@ def get_node_types_for_plugin_version(plugin_name, plugin_version):
 def import_cloudify_yaml(import_item):
     result = {}
     parsed_import_item = urlparse(import_item)
+
     if parsed_import_item.scheme == 'plugin':
         result['node_types'] = get_node_types_for_plugin_import(import_item)
     if parsed_import_item.scheme in ['http', 'https']:
@@ -291,6 +292,7 @@ def import_cloudify_yaml(import_item):
     elif os.path.exists(import_item):
         with open(import_item, 'r') as stream:
             result = yaml.safe_load(stream)
+
     result = result or {}
     for k in result.keys():
         left = 'imported_{}'.format(k)
@@ -298,7 +300,7 @@ def import_cloudify_yaml(import_item):
             context[left] = result[k]
         elif isinstance(context[left], list):
             context[left].extend(result[k])
-        else:
+        elif isinstance(context[left], dict):
             context[left].update(result[k])
 
 
