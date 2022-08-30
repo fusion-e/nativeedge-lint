@@ -48,7 +48,6 @@ INTRINSIC_FNS = [
 ]
 
 context = {
-    # 'tosca_definitions_version': None,
     'imports': [],
     'dsl_version': None,
     'inputs': {},
