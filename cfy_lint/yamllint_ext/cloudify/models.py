@@ -120,7 +120,9 @@ class NodeTemplate(object):
     def required_relationships(self, value):
         self._required_relationships = value
 
-    def required_relationships_not_met(self, node_templates=None, imported = None):
+    def required_relationships_not_met(self,
+                                       node_templates=None,
+                                       imported=None):
         node_templates = node_templates or {}
         if imported:
             for k, v in imported.items():
