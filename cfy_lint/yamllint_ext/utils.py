@@ -300,9 +300,10 @@ def import_cloudify_yaml(import_item):
             context[left].extend(result[k])
         elif isinstance(context[left], str):
             if context[left] != result[k]:
-                raise Exception(
-                    'There is no match between {context} and {result}'
-                        .format(context=context[left]), result=result[k])
+                raise \
+                    Exception('There is no match between {context} '
+                              'and {result} '
+                              .format(context=context[left], result=result[k]))
         else:
             context[left].update(result[k])
 
