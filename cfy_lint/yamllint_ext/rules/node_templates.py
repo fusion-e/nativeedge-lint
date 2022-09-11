@@ -249,7 +249,8 @@ def check_dependent_types(model, line):
         model.node_type, {})
     model.required_relationships = required_relationship_types
     if model.required_relationships_not_met(ctx['node_templates'],
-                                            ctx['imported_node_templates']):
+                                            ctx.get('imported_node_templates',
+                                                    {})):
         yield LintProblem(
             line,
             None,
