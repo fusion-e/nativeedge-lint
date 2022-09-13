@@ -133,8 +133,7 @@ def validate_instrinsic_function(key, value, line):
             yield LintProblem(
                 line,
                 None,
-                "get_input references undefined input: {}".format(
-                    value)
+                "get_input references undefined input: {}".format(value)
             )
     elif key in ['get_attribute', 'get_property']:
         if value[0] not in ctx.get('node_templates', {}) and \
