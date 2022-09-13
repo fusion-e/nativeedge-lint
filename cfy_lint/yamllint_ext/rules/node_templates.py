@@ -122,11 +122,19 @@ def check_intrinsic_functions(data, line):
 
 def validate_instrinsic_function(key, value, line):
     if key == 'get_input':
-        if value not in ctx.get('inputs', {}):
+        if isinstance(value, list):
+            if value[0] not in ctx.get('inputs', {}):
+                yield LintProblem(
+                    line,
+                    None,
+                    "get_input references undefined input: {}".format(value[0])
+                )
+        elif value not in ctx.get('inputs', {}):
             yield LintProblem(
                 line,
                 None,
-                "get_input references undefined input: {}".format(value)
+                "get_input references undefined input: {}".format(
+                    value)
             )
     elif key in ['get_attribute', 'get_property']:
         if value[0] not in ctx.get('node_templates', {}) and \
@@ -137,6 +145,13 @@ def validate_instrinsic_function(key, value, line):
                 "{} references undefined target {}".format(key, value[0])
             )
 
+def check_value_in_inputs(ctx, value):
+    if value not in ctx.get('inputs', {}):
+        yield LintProblem(
+            line,
+            None,
+            "get_input references undefined input: {}".format(value)
+        )
 
 def recurse_node_template(mapping):
     if isinstance(mapping, yaml.nodes.ScalarNode):
