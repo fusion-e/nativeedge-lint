@@ -145,13 +145,6 @@ def validate_instrinsic_function(key, value, line):
                 "{} references undefined target {}".format(key, value[0])
             )
 
-def check_value_in_inputs(ctx, value):
-    if value not in ctx.get('inputs', {}):
-        yield LintProblem(
-            line,
-            None,
-            "get_input references undefined input: {}".format(value)
-        )
 
 def recurse_node_template(mapping):
     if isinstance(mapping, yaml.nodes.ScalarNode):
