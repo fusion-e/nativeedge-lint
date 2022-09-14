@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import re
 
 from yamllint import parser
@@ -44,9 +45,9 @@ PROBLEM_LEVELS = {
 }
 
 
-def get_cosmetic_problems(buffer, conf, filepath):
+def get_cosmetic_problems(buffer, conf, filepath, base_path=None):
 
-    setup_types(buffer)
+    setup_types(buffer, base_path=base_path)
 
     rules = conf.enabled_rules(filepath)
 
@@ -203,7 +204,7 @@ def get_cosmetic_problems(buffer, conf, filepath):
         cache = []
 
 
-def _run(buffer, conf, filepath):
+def _run(buffer, conf, filepath, base_path=None):
     assert hasattr(buffer, '__getitem__'), \
         '_run() argument must be a buffer, not a stream'
 
@@ -215,7 +216,7 @@ def _run(buffer, conf, filepath):
     # right line
     syntax_error = get_syntax_error(buffer)
 
-    problems = list(get_cosmetic_problems(buffer, conf, filepath))
+    problems = list(get_cosmetic_problems(buffer, conf, filepath, base_path))
 
     for problem in sorted(problems, key=lambda x: x.line):
         # Insert the syntax error (if any) at the right place...
@@ -250,11 +251,14 @@ def run(input, conf, filepath=None):
     if conf.is_file_ignored(filepath):
         return ()
 
+    base_path = os.path.dirname(os.path.abspath(input.name))
+
     if isinstance(input, (bytes, str)):
-        return _run(input, conf, filepath)
+        base_path = os.path.dirname(os.path.abspath(input.name))
+        return _run(input, conf, filepath, base_path=base_path)
     elif hasattr(input, 'read'):  # Python 2's file or Python 3's io.IOBase
         # We need to have everything in memory to parse correctly
         content = input.read()
-        return _run(content, conf, filepath)
+        return _run(content, conf, filepath, base_path=base_path)
     else:
         raise TypeError('input should be a string or a stream')
