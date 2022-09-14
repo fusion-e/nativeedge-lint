@@ -32,10 +32,10 @@ def check(token=None, **_):
     for item in token.node.value:
         if token.prev.node.value == 'outputs':
             output_obj = CfyOutput(item)
+            if not output_obj.name and not output_obj.mapping:
+                continue
         elif token.prev.node.value == 'capabilities':
             output_obj = CfyCapability(item)
-        else:
-            continue
         if output_obj.not_output():
             continue
         if isinstance(output_obj, CfyOutput):
@@ -72,7 +72,8 @@ class CfyOutput(object):
         return get_output(nodes)
 
     def not_output(self):
-        return all([not k for k in self.mapping.values()])
+        if self.mapping:
+            return all([not k for k in self.mapping.values()])
 
     def __dict__(self):
         return {
