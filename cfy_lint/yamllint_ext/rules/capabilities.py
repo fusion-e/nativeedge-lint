@@ -72,8 +72,7 @@ class CfyOutput(object):
         return get_output(nodes)
 
     def not_output(self):
-        if self.mapping:
-            return all([not k for k in self.mapping.values()])
+        return all([not k for k in self.mapping.values()])
 
     def __dict__(self):
         return {
