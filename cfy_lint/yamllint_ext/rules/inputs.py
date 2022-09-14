@@ -41,11 +41,26 @@ def check(token=None, **_):
             yield from validate_inputs(input_obj, input_obj.line or token.line)
 
     if token.prev.node.value == 'get_input':
-        if token.node.value not in ctx['inputs']:
-            yield LintProblem(
-                token.line,
-                None,
-                'undefined input "{}"'.format(token.node.value))
+        if isinstance(token.node.value, list):
+            if isinstance(token.node.value[0], yaml.nodes.ScalarNode):
+                if token.node.value[0].value not in ctx['inputs']:
+                    yield LintProblem(
+                        token.line,
+                        None,
+                        'undefined input {}'
+                        .format(token.node.value[0].value))
+            if isinstance(token.node.value[0], tuple):
+                if token.node.value[0][0] not in ctx['inputs']:
+                    yield LintProblem(
+                        token.line,
+                        None,
+                        'undefined input "{}"'.format(token.node.value[0][0]))
+        else:
+            if token.node.value not in ctx['inputs']:
+                yield LintProblem(
+                    token.line,
+                    None,
+                    'undefined input "{}"'.format(token.node.value))
 
 
 def validate_inputs(input_obj, line):
