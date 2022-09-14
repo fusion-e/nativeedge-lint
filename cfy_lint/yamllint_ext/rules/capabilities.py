@@ -32,7 +32,9 @@ def check(token=None, **_):
     for item in token.node.value:
         if token.prev.node.value == 'outputs':
             output_obj = CfyOutput(item)
-        else:
+            if not output_obj.name and not output_obj.mapping:
+                continue
+        elif token.prev.node.value == 'capabilities':
             output_obj = CfyCapability(item)
         if output_obj.not_output():
             continue
@@ -59,11 +61,12 @@ def check(token=None, **_):
 class CfyOutput(object):
     def __init__(self, nodes):
         self.name, self.mapping = self.get_name_mapping(nodes)
-        for key in list(self.mapping.keys()):
-            if key not in ['description', 'value']:
-                del self.mapping[key]
-        self.value = self.mapping.get('value')
-        self.description = self.mapping.get('description')
+        if self.name and self.mapping:
+            for key in list(self.mapping.keys()):
+                if key not in ['description', 'value']:
+                    del self.mapping[key]
+            self.value = self.mapping.get('value')
+            self.description = self.mapping.get('description')
 
     def get_name_mapping(self, nodes):
         return get_output(nodes)
