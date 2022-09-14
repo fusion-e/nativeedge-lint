@@ -122,7 +122,14 @@ def check_intrinsic_functions(data, line):
 
 def validate_instrinsic_function(key, value, line):
     if key == 'get_input':
-        if value not in ctx.get('inputs', {}):
+        if isinstance(value, list):
+            if value[0] not in ctx.get('inputs', {}):
+                yield LintProblem(
+                    line,
+                    None,
+                    "get_input references undefined input: {}".format(value[0])
+                )
+        elif value not in ctx.get('inputs', {}):
             yield LintProblem(
                 line,
                 None,
