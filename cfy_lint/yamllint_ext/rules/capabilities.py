@@ -32,7 +32,7 @@ def check(token=None, **_):
     for item in token.node.value:
         if token.prev.node.value == 'outputs':
             output_obj = CfyOutput(item)
-        if token.prev.node.value == 'capabilities':
+        elif token.prev.node.value == 'capabilities':
             output_obj = CfyCapability(item)
         else:
             continue
