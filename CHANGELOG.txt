@@ -4,4 +4,6 @@
 0.0.4: Get node types from marketplace node type service.
 0.0.5: RD-4783 linter test blueprint examples
 0.0.6: RD-5693 support the import of node-templates
-0.0.7: RD-5935 fix erore when get_input get type list
+0.0.7:
+- RD-5727 relative import cfy lintq
+- RD-5935 fix erore when get_input get type list

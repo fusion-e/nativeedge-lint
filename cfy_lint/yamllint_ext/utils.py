@@ -276,7 +276,7 @@ def get_node_types_for_plugin_version(plugin_name, plugin_version):
     return node_types
 
 
-def import_cloudify_yaml(import_item):
+def import_cloudify_yaml(import_item, base_path=None):
     result = {}
     parsed_import_item = urlparse(import_item)
     if parsed_import_item.scheme == 'plugin':
@@ -288,6 +288,10 @@ def import_cloudify_yaml(import_item):
         result = yaml.safe_load(infile)
     elif import_item == 'cloudify/types/types.yaml':
         result = DEFAULT_TYPES
+    elif base_path and os.path.exists(os.path.join(base_path, import_item)):
+
+        with open(os.path.join(base_path, import_item), 'r') as stream:
+            result = yaml.safe_load(stream)
     elif os.path.exists(import_item):
         with open(import_item, 'r') as stream:
             result = yaml.safe_load(stream)
@@ -308,10 +312,10 @@ def import_cloudify_yaml(import_item):
             context[left].update(result[k])
 
 
-def setup_types(buffer=None, data=None):
+def setup_types(buffer=None, data=None, base_path=None):
     data = data or yaml.safe_load(buffer)
     for imported in data.get('imports', {}):
-        import_cloudify_yaml(imported)
+        import_cloudify_yaml(imported, base_path=base_path)
 
 
 def setup_node_templates(elem):
