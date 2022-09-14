@@ -289,7 +289,6 @@ def import_cloudify_yaml(import_item, base_path=None):
     elif import_item == 'cloudify/types/types.yaml':
         result = DEFAULT_TYPES
     elif base_path and os.path.exists(os.path.join(base_path, import_item)):
-        print(base_path)
         with open(os.path.join(base_path, import_item), 'r') as stream:
             result = yaml.safe_load(stream)
     elif os.path.exists(import_item):
