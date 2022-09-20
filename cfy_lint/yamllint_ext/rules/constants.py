@@ -445,8 +445,8 @@ REQUIRED_RELATIONSHIPS = {
             'cloudify.relationships.depends_on',
     },
     'cloudify.nodes.aws.ec2.Instances': {
-        'cloudify.nodes.aws.ec2.Image':
-            'cloudify.relationships.depends_on',
+        # 'cloudify.nodes.aws.ec2.Image':
+        #     'cloudify.relationships.depends_on',
         'cloudify.nodes.aws.ec2.Interface':
             'cloudify.relationships.depends_on',
     },
