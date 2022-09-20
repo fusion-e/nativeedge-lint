@@ -90,7 +90,10 @@ class CfyInput(object):
         self.name, self.mapping = self.get_input(nodes)
         if self.name and self.mapping:
             for key in list(self.mapping.keys()):
-                if key not in ['type', 'default', 'description', 'constraints']:
+                if key not in ['type',
+                               'default',
+                               'description',
+                               'constraints']:
                     del self.mapping[key]
             self.input_type = self.mapping.get('type')
             self.description = self.mapping.get('description')
