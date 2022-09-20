@@ -35,6 +35,8 @@ def check(token=None, **_):
     if token.prev.node.value == 'inputs':
         for item in token.node.value:
             input_obj = CfyInput(item)
+            if not input_obj.name and not input_obj.mapping:
+                continue
             if input_obj.not_input():
                 continue
             ctx['inputs'].update(input_obj.__dict__())
@@ -86,13 +88,17 @@ class CfyInput(object):
     def __init__(self, nodes):
         self._line = None
         self.name, self.mapping = self.get_input(nodes)
-        for key in list(self.mapping.keys()):
-            if key not in ['type', 'default', 'description', 'constraints']:
-                del self.mapping[key]
-        self.input_type = self.mapping.get('type')
-        self.description = self.mapping.get('description')
-        self._default = self.mapping.get('default')
-        self.constraints = self.mapping.get('constraints')
+        if self.name and self.mapping:
+            for key in list(self.mapping.keys()):
+                if key not in ['type',
+                               'default',
+                               'description',
+                               'constraints']:
+                    del self.mapping[key]
+            self.input_type = self.mapping.get('type')
+            self.description = self.mapping.get('description')
+            self._default = self.mapping.get('default')
+            self.constraints = self.mapping.get('constraints')
 
     @property
     def default(self):
