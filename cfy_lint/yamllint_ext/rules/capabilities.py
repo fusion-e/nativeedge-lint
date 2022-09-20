@@ -36,6 +36,8 @@ def check(token=None, **_):
                 continue
         elif token.prev.node.value == 'capabilities':
             output_obj = CfyCapability(item)
+            if not output_obj.name and not output_obj.mapping:
+                continue
         if output_obj.not_output():
             continue
         if isinstance(output_obj, CfyOutput):

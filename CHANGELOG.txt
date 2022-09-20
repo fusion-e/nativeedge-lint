@@ -8,3 +8,4 @@
 - RD-5920 output is a keyword
 - RD-5727 relative import cfy lintq
 - RD-5935 fix erore when get_input get type list
+- RD-5966 capabilities is a keyword
