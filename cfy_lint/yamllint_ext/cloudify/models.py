@@ -131,7 +131,8 @@ class NodeTemplate(object):
             for relationship in self.relationships:
                 rel_type = relationship.get('type')
                 rel_target_name = relationship.get('target')
-                rel_target = node_templates.get(rel_target_name)
+                rel_target = node_templates.get(
+                    rel_target_name, UnknownNodeType(rel_target_name))
                 self._relationships_mapping[rel_target.node_type] = rel_type
         for k, v in self.required_relationships.items():
             if k not in self._relationships_mapping or v != \
@@ -203,3 +204,9 @@ class RelationshipItem(CloudifyDSLObject):
 
     def validate(self):
         return self._type and self._target
+
+
+class UnknownNodeType(NodeTemplate):
+    def __init__(self, name):
+        super().__init__(name)
+        self.node_type = 'Unknown Node Type'
