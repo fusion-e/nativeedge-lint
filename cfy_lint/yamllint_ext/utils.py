@@ -298,7 +298,10 @@ def import_cloudify_yaml(import_item, base_path=None):
     for k in result.keys():
         left = 'imported_{}'.format(k)
         if left not in context:
-            context[left] = result[k]
+            if isinstance(result[k], dict) and left in ['imported_node_types']:
+                context[left] = list(result[k].keys())
+            else:
+                context[left] = result[k]
         elif isinstance(context[left], list):
             context[left].extend(result[k])
         elif isinstance(context[left], str):

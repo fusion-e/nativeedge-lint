@@ -224,7 +224,7 @@ def check_azure_config(model, line):
                 model.name))
     client_config = model.properties.get('client_config', {})
     if not all(x in AZURE_VALID_KEY for x in client_config.keys()):
-        if 'get_input' not in model.properties['client_config'] or \
+        if 'get_input' not in model.properties['client_config'] and \
                 'get_secret' not in model.properties['client_config']:
             yield LintProblem(line,
                               None,
@@ -243,7 +243,7 @@ def check_aws_config(model, line):
                 model.name))
     client_config = model.properties.get('client_config')
     if not all(x in AWS_VALID_KEY for x in client_config.keys()):
-        if 'get_input' not in model.properties['client_config'] or \
+        if 'get_input' not in model.properties['client_config'] and \
                 'get_secret' not in model.properties['client_config']:
             yield LintProblem(line,
                               None,
