@@ -16,8 +16,8 @@
 import yaml
 
 deprecated_node_types = {
-    'cloudify.nodes.azure.resources.Azure':
-        'cloudify.azure.nodes.resources.Azure',
+    'cloudify.azure.nodes.resources.Azure':
+        'cloudify.nodes.azure.resources.Azure',
     'cloudify.azure.nodes.compute.ManagedCluster':
         'cloudify.nodes.azure.compute.ManagedCluster',
     'cloudify.azure.nodes.compute.ContainerService':
