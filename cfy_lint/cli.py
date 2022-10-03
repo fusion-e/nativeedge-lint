@@ -50,5 +50,14 @@ class Options(object):
             multiple=False,
             help='ability to use configuration file or options.')
 
+        self.verbose = click.option(
+            '-v',
+            '--verbose',
+            default=None,
+            type=click.BOOL,
+            is_flag=True,
+            multiple=False,
+            help='show full verbose logs')
+
 
 options = Options()

@@ -15,6 +15,7 @@
 
 import io
 import os
+import sys
 
 from ..logger import logger
 from ..yamllint_ext.config import YamlLintConfigExt
@@ -26,10 +27,18 @@ from .. import cli
 @cli.command()
 @cli.options.blueprint_path
 @cli.options.config
-def lint(blueprint_path, config):
+@cli.options.verbose
+def lint(blueprint_path, config, verbose):
     yaml_config = YamlLintConfigExt(content=config, yamllint_rules=rules)
-
-    report = create_report_for_file(blueprint_path, yaml_config)
+    try:
+        report = create_report_for_file(blueprint_path, yaml_config)
+    except Exception as e:
+        if verbose:
+            raise e
+        else:
+            exception_str = str(e)
+        logger.error(exception_str)
+        sys.exit(1)
     cnt = 0
     for item in report:
         message = '{0: <4}: {1:>4}'.format(item.line, item.message)
