@@ -137,8 +137,7 @@ def validate_instrinsic_function(key, value, line):
             )
     elif key in ['get_attribute', 'get_property']:
         if value[0] not in ctx.get('node_templates', {}) and \
-                value[0] not in ctx.get('imported_node_templates', {})\
-                and value[0] not in ['SELF']:
+                value[0] not in ctx.get('imported_node_templates', {}):
             yield LintProblem(
                 line,
                 None,
