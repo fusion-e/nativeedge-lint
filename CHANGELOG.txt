@@ -16,3 +16,4 @@
 - RD-5643 cfy-lint throws errors during blueprint parsing
 0.0.10: RD-5668-ensure-all-azure-deprecated-node-reported-as-deprecated
 0.0.11: RD-5646-pretify-error-messages
+0.0.12: RD-5566-to-support-self-target-source
