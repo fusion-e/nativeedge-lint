@@ -26,6 +26,11 @@ setup(
             "cfy-lint = cfy_lint.main:lint",
         ]
     },
+    package_data={
+        'cfy_lint': [
+            'yamllint_ext/cloudify/__cfylint_runtime_cache/README.md',
+        ]
+    },
     install_requires=[
         'click',
         'pyyaml',

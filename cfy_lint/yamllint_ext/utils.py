@@ -18,6 +18,7 @@ import os
 import re
 import json
 import yaml
+import pathlib
 import urllib.request
 from urllib.parse import urlparse
 from packaging.version import parse as version_parse
@@ -227,8 +228,10 @@ def get_version_constraints(plugin_name, plugin_version_string):
 
 
 def get_plugin_spec(plugin_version_string, plugin_name):
+
     version_constraints = get_version_constraints(
         plugin_name, plugin_version_string)
+
     validations = get_validations(version_constraints)
 
     plugin_id = get_plugin_id_from_marketplace(plugin_name)
@@ -237,7 +240,9 @@ def get_plugin_spec(plugin_version_string, plugin_name):
     if len(validations['==']) == 1 and validations['=='][0] in versions:
         return get_plugin_release_spec_from_marketplace(
             plugin_id, validations['=='][0])
+
     versions = validate_versions(versions, validations)
+
     if len(versions):
         return get_plugin_release_spec_from_marketplace(
             plugin_id, versions[-1])
@@ -265,27 +270,55 @@ def get_node_types_for_plugin_import(plugin_import):
     return get_node_types_for_plugin_version(plugin_name, plugin_version)
 
 
+
 def get_node_types_for_plugin_version(plugin_name, plugin_version):
+
     url = 'https://marketplace.cloudify.co/node-types?' \
           '&plugin_name={}' \
           '&plugin_version={}'.format(plugin_name, plugin_version)
+
     result = get_json_from_marketplace(url)
     node_types = {}
     for item in result['items']:
         node_types[item['type']] = item
+
     return node_types
 
 
 def import_cloudify_yaml(import_item, base_path=None):
+    cache_item = re.sub('[^0-9a-zA-Z]+', '_', import_item)
+    current_dir = pathlib.Path(__file__).parent.resolve()
+    cache_item_path = os.path.join(
+        current_dir,
+        'cloudify/__cfylint_runtime_cache',
+        cache_item
+    )
+
     result = {}
     parsed_import_item = urlparse(import_item)
     if parsed_import_item.scheme == 'plugin':
-        result['node_types'] = get_node_types_for_plugin_import(import_item)
+        if os.path.exists(cache_item_path):
+            with open(cache_item_path, 'r') as jsonfile:
+                result['node_types'] = json.load(jsonfile)
+        else:
+            node_types = get_node_types_for_plugin_import(
+                import_item)
+            result['node_types'] = node_types
+            with open(cache_item_path, 'w') as jsonfile:
+                json.dump(node_types, jsonfile)
     if parsed_import_item.scheme in ['http', 'https']:
-        page = urllib.request.Request(import_item,
-                                      headers={'User-Agent': 'Mozilla/5.0'})
-        infile = urllib.request.urlopen(page).read()
-        result = yaml.safe_load(infile)
+        if os.path.exists(cache_item_path):
+            with open(cache_item_path, 'r') as jsonfile:
+                result = json.load(jsonfile)
+        else:
+            page = urllib.request.Request(
+                import_item,
+                headers={'User-Agent': 'Mozilla/5.0'}
+            )
+            infile = urllib.request.urlopen(page).read()
+            result = yaml.safe_load(infile)
+            with open(cache_item_path, 'w') as jsonfile:
+                json.dump(result, jsonfile)
     elif import_item == 'cloudify/types/types.yaml':
         result = DEFAULT_TYPES
     elif base_path and os.path.exists(os.path.join(base_path, import_item)):
@@ -306,10 +339,11 @@ def import_cloudify_yaml(import_item, base_path=None):
             context[left].extend(result[k])
         elif isinstance(context[left], str):
             if context[left] != result[k]:
-                raise \
-                    Exception('There is no match between {context} '
-                              'and {result} '
-                              .format(context=context[left], result=result[k]))
+                raise Exception(
+                    'There is no match between '
+                    '{context} and {result}'.format(
+                        context=context[left],
+                        result=result[k]))
         else:
             context[left].update(result[k])
 
@@ -318,7 +352,6 @@ def setup_types(buffer=None, data=None, base_path=None):
     data = data or yaml.safe_load(buffer)
     for imported in data.get('imports', {}):
         import_cloudify_yaml(imported, base_path=base_path)
-
 
 def setup_node_templates(elem):
     if 'node_templates' not in context:
