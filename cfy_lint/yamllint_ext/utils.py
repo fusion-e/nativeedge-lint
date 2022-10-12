@@ -270,7 +270,6 @@ def get_node_types_for_plugin_import(plugin_import):
     return get_node_types_for_plugin_version(plugin_name, plugin_version)
 
 
-
 def get_node_types_for_plugin_version(plugin_name, plugin_version):
 
     url = 'https://marketplace.cloudify.co/node-types?' \
@@ -352,6 +351,7 @@ def setup_types(buffer=None, data=None, base_path=None):
     data = data or yaml.safe_load(buffer)
     for imported in data.get('imports', {}):
         import_cloudify_yaml(imported, base_path=base_path)
+
 
 def setup_node_templates(elem):
     if 'node_templates' not in context:
