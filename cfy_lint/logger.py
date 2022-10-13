@@ -15,7 +15,7 @@
 
 import logging
 logger = logging.getLogger('cfy-lint')
-streamHandler = logging.StreamHandler()
-logger.addHandler(streamHandler)
+stream_handler = logging.StreamHandler()
+logger.addHandler(stream_handler)
 streamformatter = logging.Formatter(fmt='%(levelname)-7s: %(message)s')
-streamHandler.setFormatter(streamformatter)
+stream_handler.setFormatter(streamformatter)

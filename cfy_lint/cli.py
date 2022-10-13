@@ -59,5 +59,13 @@ class Options(object):
             multiple=False,
             help='show full verbose logs')
 
+        self.format = click.option(
+            '-f',
+            '--format',
+            default=None,
+            type=click.STRING,
+            multiple=False,
+            help='toggle format, options empty or "json".')
+
 
 options = Options()
