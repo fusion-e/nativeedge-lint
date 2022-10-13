@@ -17,13 +17,18 @@ from setuptools import (setup, find_packages)
 
 setup(
     name='cfy-lint',
-    version='0.0.12',
+    version='0.0.13',
     license='LICENSE',
     packages=find_packages(),
     description='Linter for Cloudify Blueprints',
     entry_points={
         "console_scripts": [
             "cfy-lint = cfy_lint.main:lint",
+        ]
+    },
+    package_data={
+        'cfy_lint': [
+            'yamllint_ext/cloudify/__cfylint_runtime_cache/README.md',
         ]
     },
     install_requires=[

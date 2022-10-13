@@ -168,7 +168,7 @@ local-storage/
 .cloudify/
 *.zip
 *.DS_STORE
+cfy_lint/yamllint_ext/cloudify/__cfylint_runtime_cache/*
 
 # Wagons
 **/*.wgn
-
