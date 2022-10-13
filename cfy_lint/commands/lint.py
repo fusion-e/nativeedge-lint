@@ -16,8 +16,10 @@
 import io
 import os
 import sys
+from re import sub
+from logging import (Formatter, StreamHandler)
 
-from ..logger import logger
+from ..logger import logger, stream_handler
 from ..yamllint_ext.config import YamlLintConfigExt
 from ..yamllint_ext import (run, rules)
 
@@ -28,7 +30,8 @@ from .. import cli
 @cli.options.blueprint_path
 @cli.options.config
 @cli.options.verbose
-def lint(blueprint_path, config, verbose):
+@cli.options.format
+def lint(blueprint_path, config, verbose, format):
     yaml_config = YamlLintConfigExt(content=config, yamllint_rules=rules)
     try:
         report = create_report_for_file(blueprint_path, yaml_config)
@@ -39,9 +42,17 @@ def lint(blueprint_path, config, verbose):
             exception_str = str(e)
         logger.error(exception_str)
         sys.exit(1)
+
+    if format == 'json':
+        logger.removeHandler(stream_handler)
+        new_logging_handler = StreamHandler()
+        new_logging_formatter = Formatter(fmt='%(message)s')
+        new_logging_handler.setFormatter(new_logging_formatter)
+        logger.addHandler(new_logging_handler)
+
     cnt = 0
     for item in report:
-        message = '{0: <4}: {1:>4}'.format(item.line, item.message)
+        message = formatted_message(item, format)
         if cnt == 0:
             logger.info('The following linting errors were found: ')
             cnt += 1
@@ -59,3 +70,15 @@ def create_report_for_file(file_path, conf):
     logger.info('Linting blueprint: {}'.format(file_path))
     with io.open(file_path, newline='') as f:
         return run(f, conf)
+
+
+def formatted_message(item, format=None):
+    if format == 'json':
+        rule, item_message = item.message.split(':', 1)
+        return {
+            'level': item.level,
+            'line': item.line,
+            'rule': sub(r'[()]', '', rule),
+            'message': item_message,
+        }
+    return '{0: <4}: {1:>4}'.format(item.line, item.message)
