@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .commands.lint import lint
+from cfy_lint.commands.lint import lint
 
 
 if __name__ == "__main__":

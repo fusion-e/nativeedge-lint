@@ -15,9 +15,9 @@
 
 import yaml
 
-from .. import LintProblem
-from ..generators import CfyNode
-from ..utils import (
+from cfy_lint.yamllint_ext import LintProblem
+from cfy_lint.yamllint_ext.generators import CfyNode
+from cfy_lint.yamllint_ext.utils import (
     INTRINSIC_FNS,
     recurse_mapping,
     context as ctx, process_relevant_tokens)

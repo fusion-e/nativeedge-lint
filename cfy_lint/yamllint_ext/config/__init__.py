@@ -14,13 +14,14 @@
 # limitations under the License.
 
 import yamllint.rules
-from ..utils import update_dict_values_recursive
+from cfy_lint.yamllint_ext.utils import update_dict_values_recursive
 from yamllint.config import YamlLintConfig
 from yamllint.config import (
     validate_rule_conf,
     YamlLintConfigError)
 
-from .constants import DEFAULT_CLOUDIFY_YAMLLINT_CONFIG
+from cfy_lint.yamllint_ext.config.constants import \
+    DEFAULT_CLOUDIFY_YAMLLINT_CONFIG
 
 
 class YamlLintConfigExt(YamlLintConfig):

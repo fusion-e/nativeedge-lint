@@ -13,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .. import LintProblem
+from cfy_lint.yamllint_ext import LintProblem
 
-from ..generators import CfyNode
-from ..utils import process_relevant_tokens, context
+from cfy_lint.yamllint_ext.generators import CfyNode
+from cfy_lint.yamllint_ext.utils import process_relevant_tokens, context
 
 VALUES = []
 

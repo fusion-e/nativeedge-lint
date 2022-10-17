@@ -19,11 +19,11 @@ import sys
 from re import sub
 from logging import (Formatter, StreamHandler)
 
-from ..logger import logger, stream_handler
-from ..yamllint_ext.config import YamlLintConfigExt
-from ..yamllint_ext import (run, rules)
+from cfy_lint.logger import logger, stream_handler
+from cfy_lint.yamllint_ext.config import YamlLintConfigExt
+from cfy_lint.yamllint_ext import (run, rules)
 
-from .. import cli
+from cfy_lint import cli
 
 
 @cli.command()
