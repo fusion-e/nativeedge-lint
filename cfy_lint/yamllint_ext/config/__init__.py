@@ -20,7 +20,8 @@ from yamllint.config import (
     validate_rule_conf,
     YamlLintConfigError)
 
-from cfy_lint.yamllint_ext.config.constants import DEFAULT_CLOUDIFY_YAMLLINT_CONFIG
+from cfy_lint.yamllint_ext.config.constants import \
+    DEFAULT_CLOUDIFY_YAMLLINT_CONFIG
 
 
 class YamlLintConfigExt(YamlLintConfig):

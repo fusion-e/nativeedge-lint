@@ -17,7 +17,9 @@ import yaml
 
 from cfy_lint.yamllint_ext import LintProblem
 from cfy_lint.yamllint_ext.generators import CfyNode
-from cfy_lint.yamllint_ext.utils import process_relevant_tokens, recurse_mapping, context as ctx
+from cfy_lint.yamllint_ext.utils import (process_relevant_tokens,
+                                         recurse_mapping,
+                                         context as ctx)
 
 VALUES = []
 
