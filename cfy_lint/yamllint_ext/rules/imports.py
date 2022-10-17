@@ -19,10 +19,10 @@ import yaml
 from packaging import version
 from urllib.parse import urlparse
 
-from .. import LintProblem
+from cfy_lint.yamllint_ext import LintProblem
 
-from ..generators import CfyNode
-from ..utils import process_relevant_tokens
+from cfy_lint.yamllint_ext.generators import CfyNode
+from cfy_lint.yamllint_ext.utils import process_relevant_tokens
 
 VALUES = []
 

@@ -14,12 +14,12 @@
 # limitations under the License.
 
 import yaml
-from .. import LintProblem
+from cfy_lint.yamllint_ext import LintProblem
 
-from . import constants
-from ..generators import CfyNode
-from .node_templates import recurse_node_template
-from ..utils import process_relevant_tokens
+from cfy_lint.yamllint_ext.rules import constants
+from cfy_lint.yamllint_ext.generators import CfyNode
+from cfy_lint.yamllint_ext.rules.node_templates import recurse_node_template
+from cfy_lint.yamllint_ext.utils import process_relevant_tokens
 
 VALUES = []
 

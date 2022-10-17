@@ -17,18 +17,18 @@ import os
 import re
 
 from yamllint import parser
-from .generators import (
+from cfy_lint.yamllint_ext.generators import (
     CfyNode,
     CfyToken,
     token_or_comment_or_line_generator,
 )
-from .overrides import (
+from cfy_lint.yamllint_ext.overrides import (
     LintProblem,
     spaces_after,
     spaces_before,
     get_syntax_error
 )
-from .utils import (
+from cfy_lint.yamllint_ext.utils import (
     context,
     setup_types,
     update_model,

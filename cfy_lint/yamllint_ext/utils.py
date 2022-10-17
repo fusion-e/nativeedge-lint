@@ -23,8 +23,8 @@ import urllib.request
 from urllib.parse import urlparse
 from packaging.version import parse as version_parse
 
-from .cloudify.models import NodeTemplate
-from .constants import (
+from cfy_lint.yamllint_ext.cloudify.models import NodeTemplate
+from cfy_lint.yamllint_ext.constants import (
     BLUEPRINT_MODEL,
     DEFAULT_TYPES,
     LATEST_PLUGIN_YAMLS,

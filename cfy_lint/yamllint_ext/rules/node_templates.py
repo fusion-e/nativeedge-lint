@@ -16,10 +16,10 @@
 import re
 import yaml
 
-from .. import LintProblem
-from ..generators import CfyNode
-from ..utils import process_relevant_tokens, INTRINSIC_FNS, context as ctx
-from .constants import (GCP_TYPES,
+from cfy_lint.yamllint_ext import LintProblem
+from cfy_lint.yamllint_ext.generators import CfyNode
+from cfy_lint.yamllint_ext.utils import process_relevant_tokens, INTRINSIC_FNS, context as ctx
+from cfy_lint.yamllint_ext.rules.constants import (GCP_TYPES,
                         AWS_TYPES,
                         AZURE_TYPES,
                         TERRAFORM_TYPES,
