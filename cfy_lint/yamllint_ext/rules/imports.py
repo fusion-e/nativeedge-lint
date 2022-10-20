@@ -15,6 +15,7 @@
 
 import os
 import re
+import requests
 import yaml
 from packaging import version
 from urllib.parse import urlparse
@@ -23,6 +24,7 @@ from cfy_lint.yamllint_ext import LintProblem
 
 from cfy_lint.yamllint_ext.generators import CfyNode
 from cfy_lint.yamllint_ext.utils import process_relevant_tokens
+from cloudify.exceptions import NonRecoverableError
 
 VALUES = []
 
@@ -36,10 +38,11 @@ DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 def check(token=None, **_):
     for import_item in token.node.value:
         yield from validate_string(import_item, token.line)
-        yield from validate_import_items(import_item, token.line)
+        yield from validate_import_items(
+            import_item, token.line, _.get('dsl_version'))
 
 
-def validate_import_items(item, line):
+def validate_import_items(item, line, dsl):
 
     url = urlparse(item.value)
 
@@ -67,6 +70,17 @@ def validate_import_items(item, line):
             None,
             'invalid import. {}'.format(url)
         )
+    elif url.scheme in ['https', 'https'] and url.path.endswith('.yaml'):
+        response = requests.get(item.value)
+        re_13 = re.compile(u'cloudify_dsl_1_3')
+        re_14 = re.compile(u'cloudify_dsl_1_4')
+        if re_13.search(str(response.content)) and \
+                dsl in ['cloudify_dsl_1_4'] or \
+                re_14.search(str(response.content)) and \
+                dsl in ['cloudify_dsl_1_3']:
+            raise NonRecoverableError(
+                "The dsl version in the blueprint doesn't match the dsl "
+                "version in the import: {}".format(item.value))
 
 
 def validate_string(item, line):
