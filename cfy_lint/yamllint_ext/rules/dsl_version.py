@@ -43,9 +43,10 @@ def check(token=None, **_):
     if token.prev and token.prev.node.value == 'tosca_definitions_version':
         context['dsl_version'] = token.node.value
         yield from validate_supported_dsl_version(token.node.value, token.line)
-        yield from validate_imported_dsl_version(
-            token.node.value, token.line, context.get('dsl_version'),
-            context.get('imported_tosca_definitions_version'))
+        if context.get('imported_tosca_definitions_version', None):
+            yield from validate_imported_dsl_version(
+                token.node.value, token.line, context.get('dsl_version'),
+                context.get('imported_tosca_definitions_version'))
     if token.prev and token.prev.node.value == 'type':
         yield from validate_dsl_version_31(
             token.node.value, token.line, context.get('dsl_version'))

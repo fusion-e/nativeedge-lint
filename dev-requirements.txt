@@ -12,7 +12,7 @@ packaging==21.3
     # via cfy-lint (setup.py)
 pathspec==0.9.0
     # via yamllint
-pyparsing==3.0.9
+pyparsing==3.0.7
     # via packaging
 pyyaml==6.0
     # via
