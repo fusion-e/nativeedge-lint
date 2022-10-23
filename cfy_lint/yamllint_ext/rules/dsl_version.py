@@ -43,6 +43,9 @@ def check(token=None, **_):
     if token.prev and token.prev.node.value == 'tosca_definitions_version':
         context['dsl_version'] = token.node.value
         yield from validate_supported_dsl_version(token.node.value, token.line)
+        yield from validate_imported_dsl_version(
+            token.node.value, token.line, context.get('dsl_version'),
+            context.get('imported_tosca_definitions_version'))
     if token.prev and token.prev.node.value == 'type':
         yield from validate_dsl_version_31(
             token.node.value, token.line, context.get('dsl_version'))
@@ -64,3 +67,14 @@ def validate_dsl_version_31(value, line, dsl_version):
             None,
             "invalid type for {}: {} ".format(dsl_version, value)
         )
+
+
+def validate_imported_dsl_version(value, line, dsl_version, imported_dsl):
+    for dsl in imported_dsl:
+        if dsl not in dsl_version:
+            yield LintProblem(
+                line,
+                None,
+                "imports dsl version doesn't match blueprint {}: {} ".format(
+                    imported_dsl, value)
+            )

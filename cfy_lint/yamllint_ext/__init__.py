@@ -128,8 +128,7 @@ def get_cosmetic_problems(buffer, conf, filepath, base_path=None):
                         conf=rule_conf,
                         token=elem,
                         context=context[rule.ID],
-                        node_types=context.get('imported_node_types', {}),
-                        dsl_version=context.get('dsl_version', None))
+                        node_types=context.get('imported_node_types', {}))
                 except TypeError:
                     continue
                 else:
