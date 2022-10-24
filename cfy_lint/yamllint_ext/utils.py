@@ -335,9 +335,18 @@ def import_cloudify_yaml(import_item, base_path=None):
             else:
                 context[left] = result[k]
         elif isinstance(context[left], list):
-            context[left].extend(result[k])
+            if k in ["tosca_definitions_version"]:
+                context[left].append(result[k])
+            else:
+                context[left].extend(result[k])
         elif isinstance(context[left], str):
-            if context[left] != result[k]:
+            if context[left] != result[k] and \
+                    k in ["tosca_definitions_version"]:
+                if not isinstance(context[left], list):
+                    tmp = [context[left]]
+                    context[left] = tmp
+                context[left].append(result[k])
+            elif context[left] != result[k]:
                 raise Exception(
                     'There is no match between '
                     '{result} and {context}'.format(

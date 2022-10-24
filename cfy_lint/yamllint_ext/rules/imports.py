@@ -98,9 +98,10 @@ def check_openstack_plugin_version(url, line):
 
 
 def validate_imported_dsl_version(line, dsl_version, imported_dsl):
+    if isinstance(imported_dsl, list):
+        imported_dsl = imported_dsl.pop(0)
     for dsl in imported_dsl:
         if dsl not in dsl_version:
-            print(line)
             yield LintProblem(
                 line,
                 None,
