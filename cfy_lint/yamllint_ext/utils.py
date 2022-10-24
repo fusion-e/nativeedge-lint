@@ -340,7 +340,7 @@ def import_cloudify_yaml(import_item, base_path=None):
             if context[left] != result[k]:
                 raise Exception(
                     'There is no match between '
-                    '{context} and {result}'.format(
+                    '{result} and {context}'.format(
                         context=context[left],
                         result=result[k]))
         else:
