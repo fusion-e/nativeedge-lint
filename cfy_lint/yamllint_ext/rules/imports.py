@@ -22,7 +22,7 @@ from urllib.parse import urlparse
 from cfy_lint.yamllint_ext import LintProblem
 
 from cfy_lint.yamllint_ext.generators import CfyNode
-from cfy_lint.yamllint_ext.utils import process_relevant_tokens
+from cfy_lint.yamllint_ext.utils import process_relevant_tokens, context
 
 VALUES = []
 
@@ -37,12 +37,12 @@ def check(token=None, **_):
     for import_item in token.node.value:
         yield from validate_string(import_item, token.line)
         yield from validate_import_items(import_item, token.line)
+        token.line = token.line + 1
 
 
 def validate_import_items(item, line):
 
     url = urlparse(item.value)
-
     if url.scheme not in ['http', 'https', 'plugin']:
         if not url.scheme and url.path.split('/')[-1].endswith('.yaml'):
             if not os.path.exists(url.path) and \
@@ -67,6 +67,10 @@ def validate_import_items(item, line):
             None,
             'invalid import. {}'.format(url)
         )
+    elif url.scheme in ['https', 'https']:
+        yield from validate_imported_dsl_version(
+            line, context.get('dsl_version'),
+            context.get('imported_tosca_definitions_version'))
 
 
 def validate_string(item, line):
@@ -91,3 +95,16 @@ def check_openstack_plugin_version(url, line):
             'Please click on this link - https://docs.cloudify.co/latest/'
             'working_with/official_plugins/infrastructure/openstackv3/'
             .format(version_openstack))
+
+
+def validate_imported_dsl_version(line, dsl_version, imported_dsl):
+    if isinstance(imported_dsl, list):
+        imported_dsl = imported_dsl.pop(0)
+    for dsl in imported_dsl:
+        if dsl not in dsl_version:
+            yield LintProblem(
+                line,
+                None,
+                "imports dsl version doesn't match blueprint {}: {} ".format(
+                    dsl_version, imported_dsl)
+            )
