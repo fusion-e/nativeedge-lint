@@ -28,6 +28,12 @@ ID = 'inputs'
 TYPE = 'token'
 CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
+INPUTS_NOT_CORRESPONDING_DSL = {
+    'cloudify_dsl_1_3': ['deployment_ids', 'blueprint_id', 'secret_key',
+                         'capability_value', 'node_template', 'node_instance',
+                         'node_instance_ids', 'scaling_group', 'deployment_id',
+                         'node_type', 'node_ids', 'blueprint_ids', 'node_id'],
+    'cloudify_dsl_1_4': []}
 
 
 @process_relevant_tokens(CfyNode, ['inputs', 'get_input'])
@@ -40,7 +46,9 @@ def check(token=None, **_):
             if input_obj.not_input():
                 continue
             ctx['inputs'].update(input_obj.__dict__())
-            yield from validate_inputs(input_obj, input_obj.line or token.line)
+            yield from validate_inputs(input_obj,
+                                       input_obj.line or token.line,
+                                       ctx.get("dsl_version"))
 
     if token.prev.node.value == 'get_input':
         if isinstance(token.node.value, list):
@@ -64,8 +72,7 @@ def check(token=None, **_):
                     None,
                     'undefined input "{}"'.format(token.node.value))
 
-
-def validate_inputs(input_obj, line):
+def validate_inputs(input_obj, line, dsl):
     if not input_obj.input_type:
         message = 'input "{}" does not specify a type. '.format(input_obj.name)
         if input_obj.default:
@@ -82,6 +89,11 @@ def validate_inputs(input_obj, line):
             if isinstance(input_obj.default, list):
                 message += 'The correct type could be "list".'
         yield LintProblem(line, None, message)
+    if input_obj.input_type in INPUTS_NOT_CORRESPONDING_DSL[dsl]:
+        yield LintProblem(line, None, 'input "{}" of type "{}" doesn\'t work '
+                                      'with {}.'.format(input_obj.name,
+                                                        input_obj.input_type,
+                                                        dsl))
 
 
 class CfyInput(object):
