@@ -72,6 +72,7 @@ def check(token=None, **_):
                     None,
                     'undefined input "{}"'.format(token.node.value))
 
+
 def validate_inputs(input_obj, line, dsl):
     if not input_obj.input_type:
         message = 'input "{}" does not specify a type. '.format(input_obj.name)
@@ -89,7 +90,7 @@ def validate_inputs(input_obj, line, dsl):
             if isinstance(input_obj.default, list):
                 message += 'The correct type could be "list".'
         yield LintProblem(line, None, message)
-    if input_obj.input_type in INPUTS_NOT_CORRESPONDING_DSL[dsl]:
+    if input_obj.input_type in INPUTS_NOT_CORRESPONDING_DSL.get(dsl, []):
         yield LintProblem(line, None, 'input "{}" of type "{}" doesn\'t work '
                                       'with {}.'.format(input_obj.name,
                                                         input_obj.input_type,
