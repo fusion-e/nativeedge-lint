@@ -28,12 +28,15 @@ ID = 'inputs'
 TYPE = 'token'
 CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
-INPUTS_NOT_CORRESPONDING_DSL = {
-    'cloudify_dsl_1_3': ['deployment_ids', 'blueprint_id', 'secret_key',
-                         'capability_value', 'node_template', 'node_instance',
-                         'node_instance_ids', 'scaling_group', 'deployment_id',
-                         'node_type', 'node_ids', 'blueprint_ids', 'node_id'],
-    'cloudify_dsl_1_4': []}
+INPUTS_BY_DSL = {
+    'cloudify_dsl_1_3': ['string', 'integer', 'float', 'boolean', 'list',
+                         'dict', 'regex', 'textarea'],
+    'cloudify_dsl_1_4': ['string', 'integer', 'float', 'boolean', 'node_id',
+                         'dict', 'regex', 'textarea', 'blueprint_id', 'list',
+                         'deployment_id', 'capability_value', 'scaling_group',
+                         'node_type', 'node_instance', 'secret_key',
+                         'node_ids', 'node_template', 'node_instance_ids',
+                         'deployment_ids', 'blueprint_ids']}
 
 
 @process_relevant_tokens(CfyNode, ['inputs', 'get_input'])
@@ -90,7 +93,7 @@ def validate_inputs(input_obj, line, dsl):
             if isinstance(input_obj.default, list):
                 message += 'The correct type could be "list".'
         yield LintProblem(line, None, message)
-    if input_obj.input_type in INPUTS_NOT_CORRESPONDING_DSL.get(dsl, []):
+    elif input_obj.input_type not in INPUTS_BY_DSL.get(dsl, []):
         yield LintProblem(line, None, 'input "{}" of type "{}" doesn\'t work '
                                       'with {}.'.format(input_obj.name,
                                                         input_obj.input_type,
