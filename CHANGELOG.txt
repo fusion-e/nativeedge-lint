@@ -20,3 +20,4 @@
 0.0.13: RD-6107 Add caching
 0.0.14: RD-5666 Add JSON format support.
 0.0.15: RD-5948-dsl-doesnt-match
+0.0.16: RD-5565 support timeout cfy-lint
