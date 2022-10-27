@@ -28,15 +28,17 @@ ID = 'inputs'
 TYPE = 'token'
 CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
+DSL_1_3 = ['string', 'integer', 'float', 'boolean', 'list', 'dict', 'regex',
+           'textarea']
+DSL_1_4 = ['blueprint_id', 'node_id', 'deployment_id', 'capability_value',
+           'scaling_group', 'node_type', 'node_instance', 'secret_key',
+           'node_ids', 'node_template', 'node_instance_ids', 'deployment_ids',
+           'blueprint_ids']
+DSL_1_4.extend(DSL_1_3)
 INPUTS_BY_DSL = {
-    'cloudify_dsl_1_3': ['string', 'integer', 'float', 'boolean', 'list',
-                         'dict', 'regex', 'textarea'],
-    'cloudify_dsl_1_4': ['string', 'integer', 'float', 'boolean', 'node_id',
-                         'dict', 'regex', 'textarea', 'blueprint_id', 'list',
-                         'deployment_id', 'capability_value', 'scaling_group',
-                         'node_type', 'node_instance', 'secret_key',
-                         'node_ids', 'node_template', 'node_instance_ids',
-                         'deployment_ids', 'blueprint_ids']}
+    'cloudify_dsl_1_3': DSL_1_3,
+    'cloudify_dsl_1_4': DSL_1_4
+}
 
 
 @process_relevant_tokens(CfyNode, ['inputs', 'get_input'])
@@ -94,10 +96,9 @@ def validate_inputs(input_obj, line, dsl):
                 message += 'The correct type could be "list".'
         yield LintProblem(line, None, message)
     elif input_obj.input_type not in INPUTS_BY_DSL.get(dsl, []):
-        yield LintProblem(line, None, 'input "{}" of type "{}" doesn\'t work '
-                                      'with {}.'.format(input_obj.name,
-                                                        input_obj.input_type,
-                                                        dsl))
+        yield LintProblem(line, None,
+                          'Input of type {} is not supported by DSL {}.'.
+                          format(input_obj.input_type, dsl))
 
 
 class CfyInput(object):
