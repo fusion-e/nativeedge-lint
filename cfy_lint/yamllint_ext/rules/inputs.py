@@ -96,9 +96,13 @@ def validate_inputs(input_obj, line, dsl):
                 message += 'The correct type could be "list".'
         yield LintProblem(line, None, message)
     elif input_obj.input_type not in INPUTS_BY_DSL.get(dsl, []):
-        yield LintProblem(line, None,
-                          'Input of type {} is not supported by DSL {}.'.
-                          format(input_obj.input_type, dsl))
+        yield LintProblem(
+            line,
+            None,
+            'Input of type {} is not supported by DSL {}.'.format(
+                input_obj.input_type, dsl
+            )
+        )
 
 
 class CfyInput(object):
