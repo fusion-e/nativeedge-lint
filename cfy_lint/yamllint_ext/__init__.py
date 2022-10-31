@@ -47,7 +47,6 @@ PROBLEM_LEVELS = {
 
 def get_cosmetic_problems(buffer, conf, filepath, base_path=None,
                           skip_suggestions=None):
-
     setup_types(buffer, base_path=base_path)
 
     rules = conf.enabled_rules(filepath)
@@ -218,7 +217,8 @@ def _run(buffer, conf, filepath, base_path=None, skip_suggestions=None):
     # right line
     syntax_error = get_syntax_error(buffer)
 
-    problems = list(get_cosmetic_problems(buffer, conf, filepath, base_path))
+    problems = list(get_cosmetic_problems(buffer, conf, filepath, base_path,
+                                          skip_suggestions))
 
     for problem in sorted(problems, key=lambda x: x.line):
         # Insert the syntax error (if any) at the right place...
@@ -250,6 +250,7 @@ def run(input, conf, filepath=None, skip_suggestions=None):
     :param input: buffer, string or stream to read from
     :param conf: yamllint configuration object
     """
+
     if conf.is_file_ignored(filepath):
         return ()
 

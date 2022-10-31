@@ -73,7 +73,7 @@ class Options(object):
             default=None,
             type=click.STRING,
             multiple=False,
-            help='Allows to cancel suggestions for a type solution.')
+            help='Allows to cancel suggestions for a solution.')
 
 
 options = Options()

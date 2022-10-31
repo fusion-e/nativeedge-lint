@@ -17,7 +17,7 @@ from setuptools import (setup, find_packages)
 
 setup(
     name='cfy-lint',
-    version='0.0.16',
+    version='0.0.17',
     license='LICENSE',
     packages=find_packages(),
     description='Linter for Cloudify Blueprints',
