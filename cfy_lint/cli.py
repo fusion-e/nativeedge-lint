@@ -72,7 +72,7 @@ class Options(object):
             '--skip-suggestions',
             default=None,
             type=click.STRING,
-            multiple=False,
+            multiple=True,
             help='Allows to cancel suggestions for a solution.')
 
 
