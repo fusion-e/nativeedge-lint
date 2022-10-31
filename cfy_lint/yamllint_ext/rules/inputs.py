@@ -80,8 +80,9 @@ def check(token=None, skip_suggestions=None, **_):
 
 
 def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
-    if 'inputs' in skip_suggestions:
-        skip_suggestions = False
+    skip_suggestions = skip_suggestions or ()
+    suggestions = 'inputs' in skip_suggestions
+
     if not input_obj.input_type:
         message = 'input "{}" does not specify a type. '.format(input_obj.name)
         if input_obj.default:
@@ -89,13 +90,13 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                 for key in input_obj.default.keys():
                     if key in INTRINSIC_FNS:
                         input_obj.default = None
-                if isinstance(input_obj.default, dict) and skip_suggestions:
+                if isinstance(input_obj.default, dict) and not suggestions:
                     message += 'The correct type could be "dict".'
-            if isinstance(input_obj.default, str) and skip_suggestions:
+            if isinstance(input_obj.default, str) and not suggestions:
                 message += 'The correct type could be "string".'
-            if isinstance(input_obj.default, bool) and skip_suggestions:
+            if isinstance(input_obj.default, bool) and not suggestions:
                 message += 'The correct type could be "boolean".'
-            if isinstance(input_obj.default, list) and skip_suggestions:
+            if isinstance(input_obj.default, list) and not suggestions:
                 message += 'The correct type could be "list".'
         yield LintProblem(line, None, message)
     elif input_obj.input_type not in INPUTS_BY_DSL.get(dsl, []):

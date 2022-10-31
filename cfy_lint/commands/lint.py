@@ -33,11 +33,10 @@ from cfy_lint import cli
 @cli.options.format
 @cli.options.skip_suggestions
 def lint(blueprint_path, config, verbose, format, skip_suggestions=None):
-    suggestions = skip_suggestions or ()
     yaml_config = YamlLintConfigExt(content=config, yamllint_rules=rules)
     try:
         report = create_report_for_file(blueprint_path, yaml_config,
-                                        skip_suggestions=suggestions)
+                                        skip_suggestions=skip_suggestions)
     except Exception as e:
         if verbose:
             raise e
