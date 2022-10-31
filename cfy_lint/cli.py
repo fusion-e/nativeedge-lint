@@ -67,5 +67,13 @@ class Options(object):
             multiple=False,
             help='toggle format, options empty or "json".')
 
+        self.skip_suggestions = click.option(
+            '-sx',
+            '--skip-suggestions',
+            default=None,
+            type=click.STRING,
+            multiple=False,
+            help='Allows to cancel suggestions for a type solution.')
+
 
 options = Options()

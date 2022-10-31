@@ -53,7 +53,8 @@ def check(token=None, **_):
             ctx['inputs'].update(input_obj.__dict__())
             yield from validate_inputs(input_obj,
                                        input_obj.line or token.line,
-                                       ctx.get("dsl_version"))
+                                       ctx.get("dsl_version"),
+                                       skip_suggestions)
 
     if token.prev.node.value == 'get_input':
         if isinstance(token.node.value, list):
@@ -78,10 +79,18 @@ def check(token=None, **_):
                     'undefined input "{}"'.format(token.node.value))
 
 
-def validate_inputs(input_obj, line, dsl):
+def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
+    if skip_suggestions:
+        if 'input' in skip_suggestions:
+            suggestions = False
+        else:
+            suggestions = True
+    else:
+        suggestions = True
+
     if not input_obj.input_type:
         message = 'input "{}" does not specify a type. '.format(input_obj.name)
-        if input_obj.default:
+        if input_obj.default and suggestions:
             if isinstance(input_obj.default, dict):
                 for key in input_obj.default.keys():
                     if key in INTRINSIC_FNS:
