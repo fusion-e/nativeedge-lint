@@ -42,7 +42,7 @@ INPUTS_BY_DSL = {
 
 
 @process_relevant_tokens(CfyNode, ['inputs', 'get_input'])
-def check(token=None, skip_suggestions=(), **_):
+def check(token=None, skip_suggestions=None, **_):
     if token.prev.node.value == 'inputs':
         for item in token.node.value:
             input_obj = CfyInput(item)
@@ -79,9 +79,9 @@ def check(token=None, skip_suggestions=(), **_):
                     'undefined input "{}"'.format(token.node.value))
 
 
-def validate_inputs(input_obj, line, dsl, skip_suggestions=()):
-    suggestions = True
-    if 'inputs' in skip_suggestions:
+def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
+    suggestions = skip_suggestions or ()
+    if 'inputs' in suggestions:
         suggestions = False
     if not input_obj.input_type:
         message = 'input "{}" does not specify a type. '.format(input_obj.name)
