@@ -68,7 +68,7 @@ class Options(object):
             help='toggle format, options empty or "json".')
 
         self.skip_suggestions = click.option(
-            '-sx',
+            '-xs',
             '--skip-suggestions',
             default=None,
             type=click.STRING,
