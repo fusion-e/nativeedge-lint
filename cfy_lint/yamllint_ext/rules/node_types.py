@@ -27,13 +27,16 @@ DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
 
 @process_relevant_tokens(CfyNode, 'node_types')
-def check(token=None, skip_suggestions=None, **_):
+def check(token=None, skip_suggestions=(), **_):
     for node_type in token.node.value:
         yield from node_type_follows_naming_conventions(
             node_type[0].value, token.line, skip_suggestions)
 
 
-def node_type_follows_naming_conventions(value, line, skip_suggestions=None):
+def node_type_follows_naming_conventions(value, line, skip_suggestions=()):
+    suggestions = True
+    if 'node_templates' in skip_suggestions:
+        suggestions = False
     split_node_type = value.split('.')
     last_key = split_node_type.pop()
     if not {'cloudify', 'nodes'} <= set(split_node_type):
@@ -42,8 +45,7 @@ def node_type_follows_naming_conventions(value, line, skip_suggestions=None):
             None,
             "node types should following naming convention cloudify.nodes.*: "
             "{}".format(value))
-    if not good_camel_case(last_key, split_node_type) and \
-            skip_suggestions=='node_types':
+    if not good_camel_case(last_key, split_node_type) and suggestions:
         new_value = '.'.join(
             [k.lower() for k in split_node_type]) + '.{}'.format(last_key)
         yield LintProblem(

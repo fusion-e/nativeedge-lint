@@ -70,7 +70,7 @@ class Options(object):
         self.skip_suggestions = click.option(
             '-xs',
             '--skip-suggestions',
-            default=None,
+            default=(),
             type=click.STRING,
             multiple=True,
             help='Allows to cancel suggestions for a solution.')

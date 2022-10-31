@@ -46,7 +46,7 @@ PROBLEM_LEVELS = {
 
 
 def get_cosmetic_problems(buffer, conf, filepath, base_path=None,
-                          skip_suggestions=None):
+                          skip_suggestions=()):
     setup_types(buffer, base_path=base_path)
 
     rules = conf.enabled_rules(filepath)
@@ -205,7 +205,7 @@ def get_cosmetic_problems(buffer, conf, filepath, base_path=None,
         cache = []
 
 
-def _run(buffer, conf, filepath, base_path=None, skip_suggestions=None):
+def _run(buffer, conf, filepath, base_path=None, skip_suggestions=()):
     assert hasattr(buffer, '__getitem__'), \
         '_run() argument must be a buffer, not a stream'
 
@@ -242,7 +242,7 @@ def _run(buffer, conf, filepath, base_path=None, skip_suggestions=None):
         yield syntax_error
 
 
-def run(input, conf, filepath=None, skip_suggestions=None):
+def run(input, conf, filepath=None, skip_suggestions=()):
     """Lints a YAML source.
 
     Returns a generator of LintProblem objects.
@@ -250,7 +250,6 @@ def run(input, conf, filepath=None, skip_suggestions=None):
     :param input: buffer, string or stream to read from
     :param conf: yamllint configuration object
     """
-
     if conf.is_file_ignored(filepath):
         return ()
 
