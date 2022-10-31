@@ -34,9 +34,8 @@ def check(token=None, skip_suggestions=None, **_):
 
 
 def node_type_follows_naming_conventions(value, line, skip_suggestions=None):
-    suggestions = skip_suggestions or ()
-    if 'node_templates' in suggestions:
-        suggestions = False
+    if 'node_templates' in skip_suggestions:
+        skip_suggestions = False
     split_node_type = value.split('.')
     last_key = split_node_type.pop()
     if not {'cloudify', 'nodes'} <= set(split_node_type):
@@ -45,7 +44,7 @@ def node_type_follows_naming_conventions(value, line, skip_suggestions=None):
             None,
             "node types should following naming convention cloudify.nodes.*: "
             "{}".format(value))
-    if not good_camel_case(last_key, split_node_type) and suggestions:
+    if not good_camel_case(last_key, split_node_type) and skip_suggestions:
         new_value = '.'.join(
             [k.lower() for k in split_node_type]) + '.{}'.format(last_key)
         yield LintProblem(
