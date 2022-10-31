@@ -80,15 +80,9 @@ def check(token=None, skip_suggestions=None, **_):
 
 
 def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
-    suggestions = True
-
-    if skip_suggestions:
-        if 'input' in skip_suggestions:
-            suggestions = False
-
     if not input_obj.input_type:
         message = 'input "{}" does not specify a type. '.format(input_obj.name)
-        if input_obj.default and suggestions:
+        if input_obj.default and skip_suggestions=='inputs':
             if isinstance(input_obj.default, dict):
                 for key in input_obj.default.keys():
                     if key in INTRINSIC_FNS:
