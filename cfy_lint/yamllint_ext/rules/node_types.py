@@ -34,7 +34,6 @@ def check(token=None, skip_suggestions=None, **_):
 
 
 def node_type_follows_naming_conventions(value, line, skip_suggestions=None):
-    skip_suggestions = skip_suggestions or ()
     suggestions = 'node_templates' in skip_suggestions
 
     split_node_type = value.split('.')

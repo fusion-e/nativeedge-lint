@@ -80,7 +80,6 @@ def check(token=None, skip_suggestions=None, **_):
 
 
 def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
-    skip_suggestions = skip_suggestions or ()
     suggestions = 'inputs' in skip_suggestions
 
     if not input_obj.input_type:
