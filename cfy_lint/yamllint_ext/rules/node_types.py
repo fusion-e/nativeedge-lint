@@ -27,13 +27,13 @@ DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
 
 @process_relevant_tokens(CfyNode, 'node_types')
-def check(token=None, skip_suggestions=(), **_):
+def check(token=None, skip_suggestions=None, **_):
     for node_type in token.node.value:
         yield from node_type_follows_naming_conventions(
             node_type[0].value, token.line, skip_suggestions)
 
 
-def node_type_follows_naming_conventions(value, line, skip_suggestions=()):
+def node_type_follows_naming_conventions(value, line, skip_suggestions=None):
     suggestions = 'node_templates' in skip_suggestions
     split_node_type = value.split('.')
     last_key = split_node_type.pop()
