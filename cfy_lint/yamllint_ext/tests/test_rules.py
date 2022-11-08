@@ -127,7 +127,8 @@ def test_inputs():
         default: 'taco'
     """
     elem = get_mock_cfy_node(input_content, 'inputs')
-    result = get_gen_as_list(rules.inputs.check, {'token': elem})
+    result = get_gen_as_list(rules.inputs.check, {'token': elem,
+                                                  'skip_suggestions': ()})
     assert isinstance(result[0], LintProblem)
     assert '"taco" does not specify a type. ' \
            'The correct type could be "string".' in result[0].message
@@ -186,7 +187,8 @@ def test_node_types():
         derived_from: cloudify.nodes.Root
     """
     elem = get_mock_cfy_node(node_types_content, 'node_types')
-    result = get_gen_as_list(rules.node_types.check, {'token': elem})
+    result = get_gen_as_list(rules.node_types.check, {'token': elem,
+                                                      'skip_suggestions': ()})
     assert 'naming convention cloudify.nodes.*' in result[0].message
 
 

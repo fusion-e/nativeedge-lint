@@ -45,8 +45,11 @@ PROBLEM_LEVELS = {
 }
 
 
-def get_cosmetic_problems(buffer, conf, filepath, base_path=None):
-
+def get_cosmetic_problems(buffer,
+                          conf,
+                          filepath,
+                          base_path=None,
+                          skip_suggestions=None):
     setup_types(buffer, base_path=base_path)
 
     rules = conf.enabled_rules(filepath)
@@ -128,7 +131,8 @@ def get_cosmetic_problems(buffer, conf, filepath, base_path=None):
                         conf=rule_conf,
                         token=elem,
                         context=context[rule.ID],
-                        node_types=context.get('imported_node_types', {}))
+                        node_types=context.get('imported_node_types', {}),
+                        skip_suggestions=skip_suggestions)
                 except TypeError:
                     continue
                 else:
@@ -204,7 +208,7 @@ def get_cosmetic_problems(buffer, conf, filepath, base_path=None):
         cache = []
 
 
-def _run(buffer, conf, filepath, base_path=None):
+def _run(buffer, conf, filepath, base_path=None, skip_suggestions=None):
     assert hasattr(buffer, '__getitem__'), \
         '_run() argument must be a buffer, not a stream'
 
@@ -216,7 +220,11 @@ def _run(buffer, conf, filepath, base_path=None):
     # right line
     syntax_error = get_syntax_error(buffer)
 
-    problems = list(get_cosmetic_problems(buffer, conf, filepath, base_path))
+    problems = list(get_cosmetic_problems(buffer,
+                                          conf,
+                                          filepath,
+                                          base_path,
+                                          skip_suggestions))
 
     for problem in sorted(problems, key=lambda x: x.line):
         # Insert the syntax error (if any) at the right place...
@@ -240,7 +248,7 @@ def _run(buffer, conf, filepath, base_path=None):
         yield syntax_error
 
 
-def run(input, conf, filepath=None):
+def run(input, conf, filepath=None, skip_suggestions=None):
     """Lints a YAML source.
 
     Returns a generator of LintProblem objects.
@@ -255,10 +263,18 @@ def run(input, conf, filepath=None):
 
     if isinstance(input, (bytes, str)):
         base_path = os.path.dirname(os.path.abspath(input.name))
-        return _run(input, conf, filepath, base_path=base_path)
+        return _run(input,
+                    conf,
+                    filepath,
+                    base_path=base_path,
+                    skip_suggestions=skip_suggestions)
     elif hasattr(input, 'read'):  # Python 2's file or Python 3's io.IOBase
         # We need to have everything in memory to parse correctly
         content = input.read()
-        return _run(content, conf, filepath, base_path=base_path)
+        return _run(content,
+                    conf,
+                    filepath,
+                    base_path=base_path,
+                    skip_suggestions=skip_suggestions)
     else:
         raise TypeError('input should be a string or a stream')

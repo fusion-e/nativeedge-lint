@@ -42,7 +42,7 @@ INPUTS_BY_DSL = {
 
 
 @process_relevant_tokens(CfyNode, ['inputs', 'get_input'])
-def check(token=None, **_):
+def check(token=None, skip_suggestions=None, **_):
     if token.prev.node.value == 'inputs':
         for item in token.node.value:
             input_obj = CfyInput(item)
@@ -53,7 +53,8 @@ def check(token=None, **_):
             ctx['inputs'].update(input_obj.__dict__())
             yield from validate_inputs(input_obj,
                                        input_obj.line or token.line,
-                                       ctx.get("dsl_version"))
+                                       ctx.get("dsl_version"),
+                                       skip_suggestions)
 
     if token.prev.node.value == 'get_input':
         if isinstance(token.node.value, list):
@@ -78,7 +79,8 @@ def check(token=None, **_):
                     'undefined input "{}"'.format(token.node.value))
 
 
-def validate_inputs(input_obj, line, dsl):
+def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
+    suggestions = 'inputs' in skip_suggestions
     if not input_obj.input_type:
         message = 'input "{}" does not specify a type. '.format(input_obj.name)
         if input_obj.default:
@@ -86,13 +88,13 @@ def validate_inputs(input_obj, line, dsl):
                 for key in input_obj.default.keys():
                     if key in INTRINSIC_FNS:
                         input_obj.default = None
-                if isinstance(input_obj.default, dict):
+                if isinstance(input_obj.default, dict) and not suggestions:
                     message += 'The correct type could be "dict".'
-            if isinstance(input_obj.default, str):
+            if isinstance(input_obj.default, str) and not suggestions:
                 message += 'The correct type could be "string".'
-            if isinstance(input_obj.default, bool):
+            if isinstance(input_obj.default, bool) and not suggestions:
                 message += 'The correct type could be "boolean".'
-            if isinstance(input_obj.default, list):
+            if isinstance(input_obj.default, list) and not suggestions:
                 message += 'The correct type could be "list".'
         yield LintProblem(line, None, message)
     elif input_obj.input_type not in INPUTS_BY_DSL.get(dsl, []):
