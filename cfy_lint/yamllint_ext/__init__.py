@@ -45,7 +45,10 @@ PROBLEM_LEVELS = {
 }
 
 
-def get_cosmetic_problems(buffer, conf, filepath, base_path=None,
+def get_cosmetic_problems(buffer,
+                          conf,
+                          filepath,
+                          base_path=None,
                           skip_suggestions=None):
     setup_types(buffer, base_path=base_path)
 
@@ -217,7 +220,10 @@ def _run(buffer, conf, filepath, base_path=None, skip_suggestions=None):
     # right line
     syntax_error = get_syntax_error(buffer)
 
-    problems = list(get_cosmetic_problems(buffer, conf, filepath, base_path,
+    problems = list(get_cosmetic_problems(buffer,
+                                          conf,
+                                          filepath,
+                                          base_path,
                                           skip_suggestions))
 
     for problem in sorted(problems, key=lambda x: x.line):
@@ -257,12 +263,18 @@ def run(input, conf, filepath=None, skip_suggestions=None):
 
     if isinstance(input, (bytes, str)):
         base_path = os.path.dirname(os.path.abspath(input.name))
-        return _run(input, conf, filepath, base_path=base_path,
+        return _run(input,
+                    conf,
+                    filepath,
+                    base_path=base_path,
                     skip_suggestions=skip_suggestions)
     elif hasattr(input, 'read'):  # Python 2's file or Python 3's io.IOBase
         # We need to have everything in memory to parse correctly
         content = input.read()
-        return _run(content, conf, filepath, base_path=base_path,
+        return _run(content,
+                    conf,
+                    filepath,
+                    base_path=base_path,
                     skip_suggestions=skip_suggestions)
     else:
         raise TypeError('input should be a string or a stream')

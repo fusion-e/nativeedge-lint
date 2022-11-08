@@ -36,8 +36,10 @@ def lint(blueprint_path, config, verbose, format, skip_suggestions=None):
     yaml_config = YamlLintConfigExt(content=config, yamllint_rules=rules)
     skip_suggestions = skip_suggestions or ()
     try:
-        report = create_report_for_file(blueprint_path, yaml_config,
-                                        skip_suggestions=skip_suggestions)
+        report = create_report_for_file(
+            blueprint_path,
+            yaml_config,
+            skip_suggestions=skip_suggestions)
     except Exception as e:
         if verbose:
             raise e
@@ -67,7 +69,9 @@ def lint(blueprint_path, config, verbose, format, skip_suggestions=None):
             logger.info(message)
 
 
-def create_report_for_file(file_path, conf, create_report_for_file=False,
+def create_report_for_file(file_path,
+                           conf,
+                           create_report_for_file=False,
                            skip_suggestions=None):
     if not os.path.exists(file_path):
         raise RuntimeError('File path does not exist: {}.'.format(file_path))
