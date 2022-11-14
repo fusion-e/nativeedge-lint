@@ -289,8 +289,7 @@ def import_cloudify_yaml(import_item, base_path=None):
     current_dir = pathlib.Path(__file__).parent.resolve()
     cache_dir = os.path.join(
         current_dir,
-        'cloudify/__cfylint_runtime_cache'   
-    )
+        'cloudify/__cfylint_runtime_cache')
     if not os.path.exists(cache_dir):
         os.mkdir(cache_dir)
     cache_item_path = os.path.join(cache_dir, cache_item)
