@@ -22,3 +22,4 @@
 0.0.15: RD-5948-dsl-doesnt-match
 0.0.16: RD-5565 support timeout cfy-lint
 0.0.17: RD-5667 Allows to cancel suggestions for a solution with skip_suggestions
+0.0.18: add cache dir mkdir
