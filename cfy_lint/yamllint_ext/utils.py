@@ -287,11 +287,13 @@ def get_node_types_for_plugin_version(plugin_name, plugin_version):
 def import_cloudify_yaml(import_item, base_path=None):
     cache_item = re.sub('[^0-9a-zA-Z]+', '_', import_item)
     current_dir = pathlib.Path(__file__).parent.resolve()
-    cache_item_path = os.path.join(
+    cache_dir = os.path.join(
         current_dir,
-        'cloudify/__cfylint_runtime_cache',
-        cache_item
+        'cloudify/__cfylint_runtime_cache'   
     )
+    if not os.path.exists(cache_dir):
+        os.mkdir(cache_dir)
+    cache_item_path = os.path.join(cache_dir, cache_item)
 
     result = {}
     parsed_import_item = urlparse(import_item)
