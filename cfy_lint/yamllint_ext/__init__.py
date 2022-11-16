@@ -34,6 +34,7 @@ from cfy_lint.yamllint_ext.utils import (
     update_model,
     setup_node_templates,
 )
+from cfy_lint.yamllint_ext.autofix import fix_problem
 
 PROBLEM_LEVELS = {
     0: None,
@@ -126,6 +127,7 @@ def get_cosmetic_problems(buffer,
             setup_node_templates(elem)
             for rule in token_rules:
                 rule_conf = conf.rules[rule.ID]
+                elem.blueprint_path = base_path
                 try:
                     problems = rule.check(
                         conf=rule_conf,
@@ -208,7 +210,14 @@ def get_cosmetic_problems(buffer,
         cache = []
 
 
-def _run(buffer, conf, filepath, base_path=None, skip_suggestions=None):
+def _run(buffer,
+         conf,
+         filepath,
+         base_path=None,
+         input_file=None,
+         skip_suggestions=None,
+         autofix=False):
+
     assert hasattr(buffer, '__getitem__'), \
         '_run() argument must be a buffer, not a stream'
 
@@ -228,6 +237,7 @@ def _run(buffer, conf, filepath, base_path=None, skip_suggestions=None):
 
     for problem in sorted(problems, key=lambda x: x.line):
         # Insert the syntax error (if any) at the right place...
+
         if (syntax_error and syntax_error.line <= problem.line and
                 syntax_error.column <= problem.column):
             yield syntax_error
@@ -242,20 +252,28 @@ def _run(buffer, conf, filepath, base_path=None, skip_suggestions=None):
 
             syntax_error = None
 
+        if autofix:
+            input_file_path = os.path.abspath(input_file)
+            problem.file = input_file_path
+            fix_problem(problem)
         yield problem
 
     if syntax_error:
         yield syntax_error
 
 
-def run(input, conf, filepath=None, skip_suggestions=None):
+def run(input, conf, filepath=None, skip_suggestions=None, autofix=False):
     """Lints a YAML source.
 
     Returns a generator of LintProblem objects.
 
     :param input: buffer, string or stream to read from
     :param conf: yamllint configuration object
+    :param filepath: The config file path.
+    :param skip_suggestions: Do not suggest changes in lint message.
+    :param autofix: fix changes in place.
     """
+
     if conf.is_file_ignored(filepath):
         return ()
 
@@ -266,15 +284,19 @@ def run(input, conf, filepath=None, skip_suggestions=None):
         return _run(input,
                     conf,
                     filepath,
+                    input_file=input.name,
                     base_path=base_path,
-                    skip_suggestions=skip_suggestions)
+                    skip_suggestions=skip_suggestions,
+                    autofix=autofix)
     elif hasattr(input, 'read'):  # Python 2's file or Python 3's io.IOBase
         # We need to have everything in memory to parse correctly
         content = input.read()
         return _run(content,
                     conf,
                     filepath,
+                    input_file=input.name,
                     base_path=base_path,
-                    skip_suggestions=skip_suggestions)
+                    skip_suggestions=skip_suggestions,
+                    autofix=autofix)
     else:
         raise TypeError('input should be a string or a stream')

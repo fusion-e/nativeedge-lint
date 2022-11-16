@@ -45,7 +45,12 @@ def spaces_before(token, prev, next, min=-1, max=-1,
 
 class LintProblem(object):
     """Represents a linting problem found by yamllint."""
-    def __init__(self, line, column, desc='<no description>', rule=None):
+    def __init__(self,
+                 line,
+                 column,
+                 desc='<no description>',
+                 rule=None,
+                 file=None):
         #: Line on which the problem was found (starting at 1)
         self.line = line
         #: Column on which the problem was found (starting at 1)
@@ -55,6 +60,7 @@ class LintProblem(object):
         #: Identifier of the rule that detected the problem
         self.rule = rule
         self.level = None
+        self._file = file
 
     @property
     def message(self):
@@ -73,6 +79,14 @@ class LintProblem(object):
 
     def __repr__(self):
         return '%d:%d: %s' % (self.line, self.column, self.message)
+
+    @property
+    def file(self):
+        return self._file
+
+    @file.setter
+    def file(self, value):
+        self._file = value
 
 
 def get_syntax_error(buffer):

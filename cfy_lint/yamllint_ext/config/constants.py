@@ -54,7 +54,9 @@ rules:
   quoted-strings:
     required: only-when-needed
     extra-allowed: ["^http://", "^ftp://", "(?![A-Za-z0-9])"]
-  truthy: enable
+  truthy:
+    allowed-values: ['true', 'false']
+    check-keys: true
   new-line-at-end-of-file: disable
   inputs: enable
   imports: enable
