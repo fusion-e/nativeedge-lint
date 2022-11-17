@@ -36,40 +36,40 @@ DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 def check(token=None, **_):
     for import_item in token.node.value:
         yield from validate_string(import_item, token.line)
-        yield from validate_import_items(import_item, token.line)
+        yield from validate_import_items(import_item, token)
         token.line = token.line + 1
 
 
-def validate_import_items(item, line):
-
+def validate_import_items(item, token):
     url = urlparse(item.value)
     if url.scheme not in ['http', 'https', 'plugin']:
         if not url.scheme and url.path.split('/')[-1].endswith('.yaml'):
-            if not os.path.exists(url.path) and \
-                    url.path != 'cloudify/types/types.yaml':
-                yield LintProblem(
-                    line,
-                    None,
-                    'relative import '
-                    'declared but the file path does not exist.'
-                )
+            if url.path != 'cloudify/types/types.yaml':
+                import_path = os.path.join(token.blueprint_path, url.path)
+                if not os.path.exists(import_path):
+                    yield LintProblem(
+                        token.line,
+                        None,
+                        'relative import "- {}" declared, '
+                        'but the file path does not exist.'.format(url.path)
+                    )
         else:
             yield LintProblem(
-                line,
+                token.line,
                 None,
                 'invalid import. {} scheme not accepted'.format(url.scheme)
             )
     if url.scheme in ['plugin'] and url.path in ['cloudify-openstack-plugin']:
-        yield from check_openstack_plugin_version(url, line)
+        yield from check_openstack_plugin_version(url, token.line)
     elif url.scheme in ['https', 'https'] and not url.path.endswith('.yaml'):
         yield LintProblem(
-            line,
+            token.line,
             None,
             'invalid import. {}'.format(url)
         )
     elif url.scheme in ['https', 'https']:
         yield from validate_imported_dsl_version(
-            line, context.get('dsl_version'),
+            token.line, context.get('dsl_version'),
             context.get('imported_tosca_definitions_version'))
 
 

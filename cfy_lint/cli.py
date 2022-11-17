@@ -53,7 +53,7 @@ class Options(object):
         self.verbose = click.option(
             '-v',
             '--verbose',
-            default=None,
+            default=False,
             type=click.BOOL,
             is_flag=True,
             multiple=False,
@@ -74,6 +74,15 @@ class Options(object):
             type=click.STRING,
             multiple=True,
             help='Remove suggested values for supported sections.')
+
+        self.autofix = click.option(
+            '-af',
+            '--autofix',
+            default=False,
+            type=click.BOOL,
+            is_flag=True,
+            multiple=False,
+            help='Fix changes in place.')
 
 
 options = Options()

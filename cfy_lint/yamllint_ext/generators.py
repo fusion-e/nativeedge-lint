@@ -22,11 +22,20 @@ from yamllint.parser import (
 
 
 class CfyToken(Token):
-    def __init__(self, line_no, curr, prev, after, nextnext, stack):
+    def __init__(self,
+                 line_no,
+                 curr,
+                 prev,
+                 after,
+                 nextnext,
+                 stack,
+                 blueprint_file=None):
+
         super().__init__(line_no, curr, prev, after, nextnext)
         self.after = self.next
         self.stack = stack
         self._node = None
+        self._blueprint_file = blueprint_file
 
     @staticmethod
     def from_token(token):
@@ -43,6 +52,14 @@ class CfyToken(Token):
     @node.setter
     def node(self, value):
         self._node = value
+
+    @property
+    def blueprint_file(self):
+        return self._blueprint_file
+
+    @blueprint_file.setter
+    def blueprint_file(self, value):
+        self._blueprint_file = value
 
 
 class CfyNode(object):
