@@ -15,6 +15,8 @@
 
 from contextlib import contextmanager
 
+from cfy_lint.logger import logger
+
 TRUE_PATTERN = 'TRUE'
 FALSE_PATTERN = 'FALSE'
 TRUE_REPLACEMENT = 'true'
@@ -38,24 +40,20 @@ def fix_problem(problem):
 def fix_truthy(problem):
     if problem.rule == 'truthy':
         with filelines(problem.file) as lines:
-            line = lines[problem.line - 1]
+            line = lines[problem.line]
             line = replace_words(line, TRUE_PATTERN, TRUE_REPLACEMENT)
             line = replace_words(line, FALSE_PATTERN, FALSE_REPLACEMENT)
-            lines[problem.line - 1] = line
+            lines[problem.line] = line
 
 
 def replace_words(line, pattern, replacement):
-    words = line.split(' ')
+    clean_line = line.rstrip()
     new_words = []
-    for word in words:
-        if word.upper().strip() == pattern:
-            if word.endswith('\n'):
-                word = word.lstrip()
-                print('Replacing {} with {}.'.format(
-                    word.strip(), replacement))
-                word = word.upper().replace(pattern, replacement)
-            else:
-                print('Replacing {} with {}.'.format(word, replacement))
-                word = word.upper().replace(pattern, replacement)
+    for word in clean_line.split(' '):
+        if word.upper() == pattern:
+            logger.debug('Replacing {} with {}.'.format(word, replacement))
+            word = word.upper().replace(pattern, replacement)
         new_words.append(word)
+    if clean_line != line:
+        new_words[-1] += '\n'
     return ' '.join(new_words)
