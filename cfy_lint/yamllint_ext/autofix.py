@@ -13,8 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 from contextlib import contextmanager
 
+# import yaml
 from cfy_lint.logger import logger
 
 TRUE_PATTERN = 'TRUE'
@@ -35,6 +37,56 @@ def filelines(filename):
 def fix_problem(problem):
     if problem.file or problem.line:
         fix_truthy(problem)
+        fix_indentation(problem)
+
+
+def fix_indentation(problem):
+    if problem.rule == 'indentation':
+        with filelines(problem.file) as lines:
+            expected, found = get_space_diff(problem.desc)
+            indented_regex = get_indented_regex(
+                lines[problem.line - 1], len(found))
+            idx = problem.line - 1
+            while True:
+                if idx == len(lines) or not indented_regex.match(lines[idx]):
+                    break
+                lines[idx] = replace_spaces(expected, found, lines[idx])
+                idx += 1
+                continue
+
+
+def is_list(line):
+    if line.lstrip().startswith('-'):
+        return True
+
+
+def get_indented_regex(line, found):
+    if is_list(line):
+        regex = r'^\s{%s}[\-\s{1}A-Za-z]' % found
+    else:
+        regex = r'^\s{%s}[A-Za-z]' % found
+    return re.compile(regex)
+
+
+def replace_spaces(expected, found, line):
+    sans_newline = line.rstrip()
+    new_line = sans_newline.replace(found, expected)
+    print('Old line {}.'.format(sans_newline))
+    print('New line {}.'.format(new_line))
+    if sans_newline != line:
+        new_line += '\n'
+    return new_line
+
+
+def get_space_diff(message):
+    """Get the indentation that exists, and what we want to replace it with.
+    :param message: The string message that we have in problem.desc
+    :return: (found, desired)
+    """
+    found_expect = re.findall(r'\d+', message)
+    if isinstance(found_expect, list) and len(found_expect) == 2:
+        return int(found_expect[0]) * ' ', int(found_expect[1]) * ' '
+    return 0, 0
 
 
 def fix_truthy(problem):
