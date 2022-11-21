@@ -14,29 +14,7 @@
 # limitations under the License.
 
 import re
-from contextlib import contextmanager
-
-from cfy_lint.logger import logger
-
-TRUE_PATTERN = 'TRUE'
-FALSE_PATTERN = 'FALSE'
-TRUE_REPLACEMENT = 'true'
-FALSE_REPLACEMENT = 'false'
-
-
-@contextmanager
-def filelines(filename):
-    with open(filename, 'r') as file:
-        lines = file.readlines()
-    yield lines
-    with open(filename, 'w') as file:
-        file.writelines(lines)
-
-
-def fix_problem(problem):
-    if problem.file or problem.line:
-        fix_truthy(problem)
-        fix_indentation(problem)
+from cfy_lint.yamllint_ext.autofix.utils import (filelines, get_indented_regex)
 
 
 def fix_indentation(problem):
@@ -52,19 +30,6 @@ def fix_indentation(problem):
                 lines[idx] = replace_spaces(expected, found, lines[idx])
                 idx += 1
                 continue
-
-
-def is_list(line):
-    if line.lstrip().startswith('-'):
-        return True
-
-
-def get_indented_regex(line, found):
-    if is_list(line):
-        regex = r'^\s{%s}[\-\s{1}A-Za-z]' % found
-    else:
-        regex = r'^\s{%s}[A-Za-z]' % found
-    return re.compile(regex)
 
 
 def replace_spaces(expected, found, line):
@@ -86,25 +51,3 @@ def get_space_diff(message):
     if isinstance(found_expect, list) and len(found_expect) == 2:
         return int(found_expect[0]) * ' ', int(found_expect[1]) * ' '
     return 0, 0
-
-
-def fix_truthy(problem):
-    if problem.rule == 'truthy':
-        with filelines(problem.file) as lines:
-            line = lines[problem.line]
-            line = replace_words(line, TRUE_PATTERN, TRUE_REPLACEMENT)
-            line = replace_words(line, FALSE_PATTERN, FALSE_REPLACEMENT)
-            lines[problem.line] = line
-
-
-def replace_words(line, pattern, replacement):
-    clean_line = line.rstrip()
-    new_words = []
-    for word in clean_line.split(' '):
-        if word.upper() == pattern:
-            logger.debug('Replacing {} with {}.'.format(word, replacement))
-            word = word.upper().replace(pattern, replacement)
-        new_words.append(word)
-    if clean_line != line:
-        new_words[-1] += '\n'
-    return ' '.join(new_words)
