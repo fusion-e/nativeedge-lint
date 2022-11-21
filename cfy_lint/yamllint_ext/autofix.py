@@ -16,7 +16,6 @@
 import re
 from contextlib import contextmanager
 
-# import yaml
 from cfy_lint.logger import logger
 
 TRUE_PATTERN = 'TRUE'
