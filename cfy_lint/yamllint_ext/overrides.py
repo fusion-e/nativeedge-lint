@@ -50,7 +50,11 @@ class LintProblem(object):
                  column,
                  desc='<no description>',
                  rule=None,
-                 file=None):
+                 file=None,
+                 token=None,
+                 next=None,
+                 prev=None,
+                 nextnext=None):
         #: Line on which the problem was found (starting at 1)
         self.line = line
         #: Column on which the problem was found (starting at 1)
@@ -61,6 +65,10 @@ class LintProblem(object):
         self.rule = rule
         self.level = None
         self._file = file
+        self._token = token
+        self._next = next
+        self._prev = prev
+        self._nextnext = nextnext
 
     @property
     def message(self):
@@ -87,6 +95,38 @@ class LintProblem(object):
     @file.setter
     def file(self, value):
         self._file = value
+
+    @property
+    def token(self):
+        return self._token
+
+    @token.setter
+    def token(self, value):
+        self._token = value
+
+    @property
+    def next(self):
+        return self._next
+
+    @next.setter
+    def next(self, value):
+        self._next = value
+
+    @property
+    def nextnext(self):
+        return self._nextnext
+
+    @nextnext.setter
+    def nextnext(self, value):
+        self._nextnext = value
+
+    @property
+    def prev(self):
+        return self._prev
+
+    @prev.setter
+    def prev(self, value):
+        self._prev = value
 
 
 def get_syntax_error(buffer):

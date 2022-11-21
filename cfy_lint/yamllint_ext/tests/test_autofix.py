@@ -14,9 +14,10 @@
 # limitations under the License.
 
 import os
+import re
 from tempfile import NamedTemporaryFile
 
-from cfy_lint.yamllint_ext.autofix import fix_truthy
+from cfy_lint.yamllint_ext import autofix
 from cfy_lint.yamllint_ext.overrides import LintProblem
 
 
@@ -49,7 +50,7 @@ def test_fix_truthy():
                 rule='truthy',
                 file=fix_truthy_file.name
             )
-            fix_truthy(problem)
+            autofix.fix_truthy(problem)
     finally:
         f = open(fix_truthy_file.name, 'r')
         result_lines = f.readlines()
@@ -57,3 +58,19 @@ def test_fix_truthy():
         os.remove(fix_truthy_file.name)
 
     assert result_lines == expected_lines
+
+
+def test_fix_indentation():
+    messages = [
+        "wrong indentation: expected 10 but found 12",
+        "wrong indentation: expected 6 but found 7",
+    ]
+
+    assert autofix.get_space_diff(messages[0]) == (10 * ' ', 12 * ' ')
+    assert autofix.get_space_diff(messages[1]) == (6 * ' ', 7 * ' ')
+
+    assert autofix.get_indented_regex(
+        '     - foo', 4) == re.compile(r'^\s{4}[\-\s{1}A-Za-z]')
+    assert autofix.get_indented_regex(
+        '    foo', 4) == re.compile(r'^\s{4}[A-Za-z]')
+

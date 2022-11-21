@@ -88,7 +88,7 @@ def update_model(_elem):
     :param _elem:
     :return:
     """
-    # print(vars(_elem))
+
     context['current_tokens_line'] = _elem.line_no
     if stop_document(_elem):
         # The document is finished.
