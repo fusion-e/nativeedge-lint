@@ -13,13 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from cfy_lint.yamllint_ext.autofix.truthy import fix_truthy
-from cfy_lint.yamllint_ext.autofix.indentation import fix_indentation
-from cfy_lint.yamllint_ext.autofix.trailing_spaces import fix_trailing_spaces
+from cfy_lint.yamllint_ext.autofix.utils import filelines
 
 
-def fix_problem(problem):
-    if problem.file or problem.line:
-        fix_truthy(problem)
-        fix_indentation(problem)
-        fix_trailing_spaces(problem)
+def fix_trailing_spaces(problem):
+    if problem.rule == 'trailing-spaces':
+        with filelines(problem.file) as lines:
+            line = lines[problem.line - 1]
+            new_line = line.rstrip() + '\n'
+            lines[problem.line - 1] = new_line
