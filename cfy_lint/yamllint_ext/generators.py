@@ -131,7 +131,7 @@ class SafeLineLoader(yaml.SafeLoader):
 
 
 def generate_nodes_recursively(node):
-    # print(node)
+
     if isinstance(node, (tuple, list)):
         for sub in node:
             yield from generate_nodes_recursively(sub)
