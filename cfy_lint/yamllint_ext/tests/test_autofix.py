@@ -20,6 +20,7 @@ from tempfile import NamedTemporaryFile
 from cfy_lint.yamllint_ext import autofix
 from cfy_lint.yamllint_ext.autofix import utils
 from cfy_lint.yamllint_ext.autofix import indentation
+from cfy_lint.yamllint_ext.autofix import empty_lines
 from cfy_lint.yamllint_ext.overrides import LintProblem
 from cfy_lint.yamllint_ext.autofix import trailing_spaces
 
@@ -154,4 +155,51 @@ def test_fix_truthy():
         result_lines = f.readlines()
         f.close()
         os.remove(fix_truthy_file.name)
+    assert result_lines == expected_lines
+
+
+def test_empty_lines():
+    lines = [
+        "\n",
+        "They wanna get my\n",
+        "\n",
+        "\n",
+        "\n",
+        "They wanna get my gold on the ceiling\n",
+        "I ain't blind, just a matter of time\n",
+        "Before you steal it\n",
+        "\n",
+        "\n",
+        "\n",
+        "Its all right, ain't no guarding my high\n",
+        "\n",
+        "\n",
+        "\n"
+    ]
+    expected_lines = [
+        "They wanna get my\n",
+        "\n",
+        "They wanna get my gold on the ceiling\n",
+        "I ain't blind, just a matter of time\n",
+        "Before you steal it\n",
+        "\n",
+        "Its all right, ain't no guarding my high\n",
+    ]
+    fix_trailing_spaces_file = get_file(lines)
+
+    try:
+        for i in range(0, len(lines)):
+            problem = LintProblem(
+                line=i,
+                column=0,
+                desc='foo',
+                rule='trailing-spaces',
+                file=fix_trailing_spaces_file.name
+            )
+            empty_lines.fix_empty_lines(problem)
+    finally:
+        f = open(fix_trailing_spaces_file.name, 'r')
+        result_lines = f.readlines()
+        f.close()
+        os.remove(fix_trailing_spaces_file.name)
     assert result_lines == expected_lines
