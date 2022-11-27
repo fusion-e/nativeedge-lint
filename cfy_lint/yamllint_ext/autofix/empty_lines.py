@@ -22,13 +22,13 @@ def fix_empty_lines(problem):
     with filelines(problem.file) as lines:
         successive_blank_lines = 0
         index = 0
-        regex_pattern_1 = "^ *\n"
-        while re.match(regex_pattern_1, lines[0]):
+        pattern = "^ *\n"
+        while re.match(pattern, lines[0]):
             lines.pop(0)
 
         while index < (len(lines)):
             line = lines.pop(index)
-            if re.match(regex_pattern_1, line):
+            if re.match(pattern, line):
                 successive_blank_lines += 1
                 if successive_blank_lines >= 2:
                     continue
@@ -37,5 +37,5 @@ def fix_empty_lines(problem):
             lines.insert(index, line)
             index += 1
 
-        while re.match(regex_pattern_1, lines[-1]):
+        while re.match(pattern, lines[-1]):
             lines.pop(-1)

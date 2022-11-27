@@ -185,7 +185,7 @@ def test_empty_lines():
         "\n",
         "Its all right, ain't no guarding my high\n",
     ]
-    fix_trailing_spaces_file = get_file(lines)
+    fix_empty_lines_file = get_file(lines)
 
     try:
         for i in range(0, len(lines)):
@@ -194,12 +194,12 @@ def test_empty_lines():
                 column=0,
                 desc='foo',
                 rule='trailing-spaces',
-                file=fix_trailing_spaces_file.name
+                file=fix_empty_lines_file.name
             )
             empty_lines.fix_empty_lines(problem)
     finally:
-        f = open(fix_trailing_spaces_file.name, 'r')
+        f = open(fix_empty_lines_file.name, 'r')
         result_lines = f.readlines()
         f.close()
-        os.remove(fix_trailing_spaces_file.name)
+        os.remove(fix_empty_lines_file.name)
     assert result_lines == expected_lines
