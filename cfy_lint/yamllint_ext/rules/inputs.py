@@ -105,6 +105,12 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                 input_obj.input_type, dsl
             )
         )
+    elif not input_obj.label:
+        yield LintProblem(
+            line,
+            None,
+            'Input {} is missing a label.'.format(input_obj.name)
+        )
 
 
 class CfyInput(object):
@@ -116,12 +122,14 @@ class CfyInput(object):
                 if key not in ['type',
                                'default',
                                'description',
-                               'constraints']:
+                               'constraints',
+                               'label']:
                     del self.mapping[key]
             self.input_type = self.mapping.get('type')
             self.description = self.mapping.get('description')
             self._default = self.mapping.get('default')
             self.constraints = self.mapping.get('constraints')
+            self.label = self.mapping.get('label')
 
     @property
     def default(self):
@@ -163,6 +171,7 @@ class CfyInput(object):
             'default': None,
             'description': None,
             'constraints': None,
+            'label': None,
         }
         if isinstance(node, yaml.nodes.MappingNode):
             for tup in node.value:
