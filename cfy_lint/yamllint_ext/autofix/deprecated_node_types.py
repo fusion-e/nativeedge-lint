@@ -22,15 +22,6 @@ def fix_deprecated_node_types(problem):
         with filelines(problem.file) as lines:
             line = lines[problem.line - 1]
             line = line.rstrip()
-            print('line = {}'.format(line))
-
             split = problem.message.split()
             new_line = line.replace(split[-3], split[-1].rstrip('.'))
-            print('line num = {}'.format(problem.line))
-            print('message = {}'.format(problem.message))
-            print('line = {}'.format(line))
-            print('split = {}'.format(split))
-            print('-3 = {}'.format(split[-3]))
-            print('-1 = {}'.format(split[-1]))
-            print('new_line = {}'.format(new_line))
             lines[problem.line - 1] = new_line + '\n'
