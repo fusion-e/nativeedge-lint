@@ -16,9 +16,14 @@
 from cfy_lint.yamllint_ext.autofix.utils import filelines
 
 
-def fix_add_label(problem):
-    if problem.rule == 'inputs' and \
-            ' is missing a label.' in problem.message:
-        with filelines(problem.file) as lines:
-            line = lines[problem.line - 1]
-            print(line)
+def fix_add_label(problems):
+    counter = 0
+    for problem in problems:
+        if problem.rule == 'inputs' and ' is missing a label.' in \
+                problem.message:
+            with filelines(problem.file) as lines:
+                line = lines[problem.line - 1]
+                line.replace('_', ' ')
+                print(line)
+                counter += 1
+    print(counter)
