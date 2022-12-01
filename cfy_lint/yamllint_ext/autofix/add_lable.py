@@ -22,8 +22,15 @@ def fix_add_label(problems):
         if problem.rule == 'inputs' and ' is missing a label.' in \
                 problem.message:
             with filelines(problem.file) as lines:
-                line = lines[problem.line - 1]
-                line.replace('_', ' ')
-                print(line)
+                line = lines[problem.line - 1 + counter]
+                line = line.rstrip()
+                line = line.rstrip(':')
+                line = line.lstrip()
+                line = line.replace('_', ' ')
+                line = line.title()
+                # print(line)
+                line = "    label: '{}'\n".format(line)
+                # print(line)
+                lines.insert(problem.line + counter, line)
+
                 counter += 1
-    print(counter)
