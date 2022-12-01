@@ -283,79 +283,77 @@ def test_deprecated_node_types():
     ]
 
     expected_lines = [
-        '    type: cloudify.nodes.azure.resources.Azure\n',
-        '    type: cloudify.nodes.azure.compute.ManagedCluster\n',
-        '    type: cloudify.nodes.azure.compute.ContainerService\n',
-        '    type: cloudify.nodes.azure.network.LoadBalancer.Probe\n',
-        '    type: '
+        'cloudify.nodes.azure.resources.Azure\n',
+        'cloudify.nodes.azure.compute.ManagedCluster\n',
+        'cloudify.nodes.azure.compute.ContainerService\n',
+        'cloudify.nodes.azure.network.LoadBalancer.Probe\n',
         'cloudify.nodes.azure.network.LoadBalancer.BackendAddressPool\n',
-        '    type: '
         'cloudify.nodes.azure.network.LoadBalancer.IncomingNATRule\n',
-        '    type: cloudify.nodes.azure.network.LoadBalancer.Rule\n',
-        '    type: cloudify.nodes.azure.network.LoadBalancer\n',
-        '    type: cloudify.nodes.azure.compute.VirtualMachineExtension\n',
-        '    type: cloudify.nodes.azure.PublishingUser\n',
-        '    type: cloudify.nodes.azure.WebApp\n',
-        '    type: cloudify.nodes.azure.Plan\n',
-        '    type: cloudify.nodes.azure.compute.WindowsVirtualMachine\n',
-        '    type: cloudify.nodes.azure.compute.AvailabilitySet\n',
-        '    type: cloudify.nodes.azure.network.Route\n',
-        '    type: cloudify.nodes.azure.network.NetworkSecurityRule\n',
-        '    type: cloudify.nodes.azure.network.RouteTable\n',
-        '    type: cloudify.nodes.azure.network.Subnet\n',
-        '    type: cloudify.nodes.azure.compute.VirtualMachine\n',
-        '    type: cloudify.nodes.azure.network.NetworkInterfaceCard\n',
-        '    type: cloudify.nodes.azure.network.NetworkSecurityGroup\n',
-        '    type: cloudify.nodes.azure.network.IPConfiguration\n',
-        '    type: cloudify.nodes.azure.network.VirtualNetwork\n',
-        '    type: cloudify.nodes.azure.network.PublicIPAddress\n',
-        '    type: cloudify.nodes.azure.ResourceGroup\n',
-        '    type: cloudify.nodes.azure.storage.StorageAccount\n',
-        '    type: cloudify.nodes.azure.storage.DataDisk\n',
-        '    type: cloudify.nodes.azure.storage.FileShare\n',
-        '    type: cloudify.nodes.azure.storage.VirtualNetwork\n',
-        '    type: cloudify.nodes.azure.storage.NetworkSecurityGroup\n',
-        '    type: cloudify.nodes.azure.storage.NetworkSecurityRule\n',
-        '    type: cloudify.nodes.azure.storage.RouteTable\n',
-        '    type: cloudify.nodes.azure.storage.Route\n',
-        '    type: cloudify.nodes.azure.storage.IPConfiguration\n',
-        '    type: cloudify.nodes.azure.storage.PublicIPAddress\n',
-        '    type: cloudify.nodes.azure.storage.AvailabilitySet\n',
-        '    type: cloudify.nodes.azure.storage.VirtualMachine\n',
-        '    type: cloudify.nodes.azure.storage.WindowsVirtualMachine\n',
-        '    type: cloudify.nodes.azure.storage.VirtualMachineExtension\n',
-        '    type: cloudify.nodes.azure.storage.LoadBalancer\n',
-        '    type: cloudify.nodes.azure.storage.BackendAddressPool\n',
-        '    type: cloudify.nodes.azure.storage.Probe\n',
-        '    type: cloudify.nodes.azure.storage.IncomingNATRule\n',
-        '    type: cloudify.nodes.azure.storage.Rule\n',
-        '    type: cloudify.nodes.azure.storage.ContainerService\n',
-        '    type: cloudify.nodes.azure.storage.Plan\n',
-        '    type: cloudify.nodes.azure.storage.WebApp\n',
-        '    type: cloudify.nodes.azure.storage.PublishingUser\n',
-        '    type: cloudify.nodes.azure.storage.ManagedCluster\n',
-        '    type: cloudify.nodes.azure.storage.Azure\n',
+        'cloudify.nodes.azure.network.LoadBalancer.Rule\n',
+        'cloudify.nodes.azure.network.LoadBalancer\n',
+        'cloudify.nodes.azure.compute.VirtualMachineExtension\n',
+        'cloudify.nodes.azure.PublishingUser\n',
+        'cloudify.nodes.azure.WebApp\n',
+        'cloudify.nodes.azure.Plan\n',
+        'cloudify.nodes.azure.compute.WindowsVirtualMachine\n',
+        'cloudify.nodes.azure.compute.AvailabilitySet\n',
+        'cloudify.nodes.azure.network.Route\n',
+        'cloudify.nodes.azure.network.NetworkSecurityRule\n',
+        'cloudify.nodes.azure.network.RouteTable\n',
+        'cloudify.nodes.azure.network.Subnet\n',
+        'cloudify.nodes.azure.compute.VirtualMachine\n',
+        'cloudify.nodes.azure.network.NetworkInterfaceCard\n',
+        'cloudify.nodes.azure.network.NetworkSecurityGroup\n',
+        'cloudify.nodes.azure.network.IPConfiguration\n',
+        'cloudify.nodes.azure.network.VirtualNetwork\n',
+        'cloudify.nodes.azure.network.PublicIPAddress\n',
+        'cloudify.nodes.azure.ResourceGroup\n',
+        'cloudify.nodes.azure.storage.StorageAccount\n',
+        'cloudify.nodes.azure.storage.DataDisk\n',
+        'cloudify.nodes.azure.storage.FileShare\n',
+        'cloudify.nodes.azure.storage.VirtualNetwork\n',
+        'cloudify.nodes.azure.storage.NetworkSecurityGroup\n',
+        'cloudify.nodes.azure.storage.NetworkSecurityRule\n',
+        'cloudify.nodes.azure.storage.RouteTable\n',
+        'cloudify.nodes.azure.storage.Route\n',
+        'cloudify.nodes.azure.storage.IPConfiguration\n',
+        'cloudify.nodes.azure.storage.PublicIPAddress\n',
+        'cloudify.nodes.azure.storage.AvailabilitySet\n',
+        'cloudify.nodes.azure.storage.VirtualMachine\n',
+        'cloudify.nodes.azure.storage.WindowsVirtualMachine\n',
+        'cloudify.nodes.azure.storage.VirtualMachineExtension\n',
+        'cloudify.nodes.azure.storage.LoadBalancer\n',
+        'cloudify.nodes.azure.storage.BackendAddressPool\n',
+        'cloudify.nodes.azure.storage.Probe\n',
+        'cloudify.nodes.azure.storage.IncomingNATRule\n',
+        'cloudify.nodes.azure.storage.Rule\n',
+        'cloudify.nodes.azure.storage.ContainerService\n',
+        'cloudify.nodes.azure.storage.Plan\n',
+        'cloudify.nodes.azure.storage.WebApp\n',
+        'cloudify.nodes.azure.storage.PublishingUser\n',
+        'cloudify.nodes.azure.storage.ManagedCluster\n',
+        'cloudify.nodes.azure.storage.Azure\n',
 
-        '    type: cloudify.nodes.openstack.Server\n',
-        '    type: cloudify.nodes.openstack.WindowsServer\n',
-        '    type: cloudify.nodes.openstack.KeyPair\n',
-        '    type: cloudify.nodes.openstack.Subnet\n',
-        '    type: cloudify.nodes.openstack.SecurityGroup\n',
-        '    type: cloudify.nodes.openstack.Router\n',
-        '    type: cloudify.nodes.openstack.Port\n',
-        '    type: cloudify.nodes.openstack.Network\n',
-        '    type: cloudify.nodes.openstack.FloatingIP\n',
-        '    type: cloudify.nodes.openstack.RBACPolicy\n',
-        '    type: cloudify.nodes.openstack.Volume\n',
-        '    type: cloudify.nodes.openstack.FloatingIP\n',
-        '    type: cloudify.nodes.openstack.SecurityGroup\n',
-        '    type: cloudify.nodes.openstack.Flavor\n',
-        '    type: cloudify.nodes.openstack.Image\n',
-        '    type: cloudify.nodes.openstack.Project\n',
-        '    type: cloudify.nodes.openstack.User\n',
-        '    type: cloudify.nodes.openstack.HostAggregate\n',
-        '    type: cloudify.nodes.openstack.ServerGroup\n',
-        '    type: cloudify.nodes.openstack.Router\n'
+        'cloudify.nodes.openstack.Server\n',
+        'cloudify.nodes.openstack.WindowsServer\n',
+        'cloudify.nodes.openstack.KeyPair\n',
+        'cloudify.nodes.openstack.Subnet\n',
+        'cloudify.nodes.openstack.SecurityGroup\n',
+        'cloudify.nodes.openstack.Router\n',
+        'cloudify.nodes.openstack.Port\n',
+        'cloudify.nodes.openstack.Network\n',
+        'cloudify.nodes.openstack.FloatingIP\n',
+        'cloudify.nodes.openstack.RBACPolicy\n',
+        'cloudify.nodes.openstack.Volume\n',
+        'cloudify.nodes.openstack.FloatingIP\n',
+        'cloudify.nodes.openstack.SecurityGroup\n',
+        'cloudify.nodes.openstack.Flavor\n',
+        'cloudify.nodes.openstack.Image\n',
+        'cloudify.nodes.openstack.Project\n',
+        'cloudify.nodes.openstack.User\n',
+        'cloudify.nodes.openstack.HostAggregate\n',
+        'cloudify.nodes.openstack.ServerGroup\n',
+        'cloudify.nodes.openstack.Router\n'
     ]
 
     fix_trailing_spaces_file = get_file(lines)
@@ -363,9 +361,10 @@ def test_deprecated_node_types():
     try:
         for i in range(0, len(lines)):
             problem = LintProblem(
-                line=i,
+                line=i+1,
                 column=0,
-                desc='deprecated node type',
+                desc='deprecated node type. Replace usage of {} with '
+                     '{}'.format(lines[i], expected_lines[i]),
                 rule='node_templates',
                 file=fix_trailing_spaces_file.name
             )
@@ -375,7 +374,9 @@ def test_deprecated_node_types():
         result_lines = f.readlines()
         f.close()
         os.remove(fix_trailing_spaces_file.name)
-
+    print(lines)
+    print(result_lines)
+    print(expected_lines)
     assert result_lines == expected_lines
 
 
@@ -421,69 +422,43 @@ def test_relationships_types():
     ]
 
     expected_lines = [
-        '      - type: '
         'cloudify.relationships.azure.contained_in_resource_group\n',
-        '      - type: '
         'cloudify.relationships.azure.contained_in_storage_account\n',
-        '      - type: '
         'cloudify.relationships.azure.contained_in_virtual_network\n',
-        '      - type: '
         'cloudify.relationships.azure.contained_in_network_security_group\n',
-        '      - type: '
         'cloudify.relationships.azure.contained_in_route_table\n',
-        '      - type: '
         'cloudify.relationships.azure.contained_in_load_balancer\n',
-        '      - type: cloudify.relationships.azure.'
-        'network_security_group_attached_to_subnet\n',
-        '      - type: '
+        'cloudify.relationships.azure.network_security_group_attached_'
+        'to_subnet\n',
         'cloudify.relationships.azure.route_table_attached_to_subnet\n',
-        '      - type: '
         'cloudify.relationships.azure.nic_connected_to_ip_configuration\n',
-        '      - type: '
         'cloudify.relationships.azure.ip_configuration_connected_to_subnet\n',
-        '      - type: cloudify.relationships.azure.'
-        'ip_configuration_connected_to_public_ip\n',
-        '      - type: '
+        'cloudify.relationships.azure.ip_configuration_connected_'
+        'to_public_ip\n',
         'cloudify.relationships.azure.connected_to_storage_account\n',
-        '      - type: cloudify.relationships.azure.connected_to_data_disk\n',
-        '      - type: cloudify.relationships.azure.connected_to_nic\n',
-        '      - type: '
+        'cloudify.relationships.azure.connected_to_data_disk\n',
+        'cloudify.relationships.azure.connected_to_nic\n',
         'cloudify.relationships.azure.connected_to_availability_set\n',
-        '      - type: '
         'cloudify.relationships.azure.connected_to_ip_configuration\n',
-        '      - type: cloudify.relationships.azure.connected_to_lb_be_pool\n',
-        '      - type: cloudify.relationships.azure.connected_to_lb_probe\n',
-        '      - type: cloudify.relationships.azure.vmx_contained_in_vm\n',
-        '      - type: '
+        'cloudify.relationships.azure.connected_to_lb_be_pool\n',
+        'cloudify.relationships.azure.connected_to_lb_probe\n',
+        'cloudify.relationships.azure.vmx_contained_in_vm\n',
         'cloudify.relationships.azure.nic_connected_to_lb_be_pool\n',
-        '      - type: '
         'cloudify.relationships.azure.vm_connected_to_datadisk\n',
-        '      - type: '
         'cloudify.relationships.azure.connected_to_aks_cluster\n',
 
-        '      - type: '
         'cloudify.relationships.openstack.server_connected_to_server_group\n',
-        '      - type: '
         'cloudify.relationships.openstack.server_connected_to_keypair\n',
-        '      - type: '
         'cloudify.relationships.openstack.server_connected_to_port\n',
-        '      - type: '
         'cloudify.relationships.openstack.server_connected_to_floating_ip\n',
-        '      - type: cloudify.relationships.'
-        'openstack.server_connected_to_security_group\n',
-        '      - type: '
+        'cloudify.relationships.openstack.server_connected_'
+        'to_security_group\n',
         'cloudify.relationships.openstack.port_connected_to_security_group\n',
-        '      - type: '
         'cloudify.relationships.openstack.port_connected_to_floating_ip\n',
-        '      - type: '
         'cloudify.relationships.openstack.port_connected_to_subnet\n',
-        '      - type: '
         'cloudify.relationships.openstack.subnet_connected_to_router\n',
-        '      - type: '
         'cloudify.relationships.openstack.volume_attached_to_server\n',
-        '      - type: '
         'cloudify.relationships.openstack.route_connected_to_router\n',
-        '      - type: '
         'cloudify.relationships.openstack.rbac_policy_applied_to\n'
     ]
 
@@ -494,7 +469,8 @@ def test_relationships_types():
             problem = LintProblem(
                 line=i,
                 column=0,
-                desc='deprecated relationship type',
+                desc='deprecated relationship type. Replace usage '
+                     'of {} with {}'.format(lines[i], expected_lines[i]),
                 rule='relationships',
                 file=fix_trailing_spaces_file.name
             )

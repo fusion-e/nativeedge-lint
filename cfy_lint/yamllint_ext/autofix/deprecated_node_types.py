@@ -13,10 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import re
-
 from cfy_lint.yamllint_ext.autofix.utils import filelines
-from cfy_lint.yamllint_ext.rules.constants import deprecated_node_types
 
 
 def fix_deprecated_node_types(problem):
@@ -25,7 +22,15 @@ def fix_deprecated_node_types(problem):
         with filelines(problem.file) as lines:
             line = lines[problem.line - 1]
             line = line.rstrip()
-            pattern = 'cloudify.*'
-            key = re.search(pattern, line)
-            lines[problem.line - 1] = \
-                "    type: {}\n".format(deprecated_node_types[key.group()])
+            print('line = {}'.format(line))
+
+            split = problem.message.split()
+            new_line = line.replace(split[-3], split[-1].rstrip('.'))
+            print('line num = {}'.format(problem.line))
+            print('message = {}'.format(problem.message))
+            print('line = {}'.format(line))
+            print('split = {}'.format(split))
+            print('-3 = {}'.format(split[-3]))
+            print('-1 = {}'.format(split[-1]))
+            print('new_line = {}'.format(new_line))
+            lines[problem.line - 1] = new_line + '\n'

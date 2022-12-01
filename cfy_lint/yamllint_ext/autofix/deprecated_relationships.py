@@ -13,10 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import re
-
 from cfy_lint.yamllint_ext.autofix.utils import filelines
-from cfy_lint.yamllint_ext.rules.constants import deprecated_relationship_types
 
 
 def fix_deprecated_relationships(problem):
@@ -25,7 +22,6 @@ def fix_deprecated_relationships(problem):
         with filelines(problem.file) as lines:
             line = lines[problem.line]
             line = line.rstrip()
-            pattern = 'cloudify.*'
-            key = re.search(pattern, line)
-            lines[problem.line] = "      - type: {}\n".format(
-                deprecated_relationship_types[key.group()])
+            split = problem.message.split()
+            new_line = line.replace(split[-3], split[-1].rstrip('.'))
+            lines[problem.line] = new_line + '\n'
