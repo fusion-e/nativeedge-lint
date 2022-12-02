@@ -24,7 +24,7 @@ commands:
     - run: 
         name: Trigger Jenkins Pipeline
         command: |
-           curl $JENKINS_URL --user $JENKINS_USER:$JENKINS_TOKEN --data BRANCH=main --data GITHUB_PROJECT_URL=GH_REPO
+           curl $JENKINS_URL --user $JENKINS_USER:$JENKINS_TOKEN --data BRANCH=main --data GITHUB_PROJECT_URL=$GH_REPO
 
 jobs:
 
