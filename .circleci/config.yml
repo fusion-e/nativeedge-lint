@@ -24,7 +24,10 @@ commands:
     - run: 
         name: Trigger Jenkins Pipeline
         command: |
-           curl $JENKINS_URL --user $JENKINS_USER:$JENKINS_TOKEN --data BRANCH=main --data GITHUB_PROJECT_URL=$GH_REPO
+           curl $JENKINS_URL \
+           --user $JENKINS_USER:$JENKINS_TOKEN \
+           --data BRANCH=main \
+           --data GITHUB_PROJECT_URL=$GH_REPO
 
 jobs:
 
@@ -44,8 +47,8 @@ workflows:
           filters:
             branches:
               only: RD-6042
-          # requires:
-          # - node/unittests_job
+          requires:
+          - node/unittests_job
 
   nightly:
     triggers:
