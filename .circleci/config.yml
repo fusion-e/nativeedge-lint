@@ -20,6 +20,7 @@ executors:
 
 commands: 
   release: 
+    steps:
     - run: 
         name: Trigger Jenkins Pipeline
         command: |
