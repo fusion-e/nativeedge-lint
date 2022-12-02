@@ -44,8 +44,8 @@ workflows:
           filters:
             branches:
               only: RD-6042
-          requires:
-          - node/unittests_job
+          # requires:
+          # - node/unittests_job
 
   nightly:
     triggers:
