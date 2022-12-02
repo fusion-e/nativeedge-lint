@@ -46,7 +46,7 @@ workflows:
             - cfy-lint
           filters:
             branches:
-              only: RD-6042
+              only: main
           requires:
           - node/unittests_job
 
