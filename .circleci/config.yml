@@ -45,7 +45,7 @@ workflows:
             branches:
               only: RD-6042
           requires:
-          - unittests
+          - node/unittests_job
 
   nightly:
     triggers:
