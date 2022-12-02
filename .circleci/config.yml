@@ -25,6 +25,13 @@ commands:
         command: |
            curl $JENKINS_URL --user $JENKINS_USER:$JENKINS_TOKEN --data BRANCH=main --data GITHUB_PROJECT_URL=GH_REPO
 
+jobs:
+
+  release:
+    executor: py36
+    steps: 
+      - release
+
 workflows:
   version: 2
   tests:
