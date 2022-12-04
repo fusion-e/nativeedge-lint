@@ -237,7 +237,6 @@ def _run(buffer,
                                           skip_suggestions))
 
     sorted_problems = sorted(problems, key=lambda x: x.line)
-    extra_empty_line = False
     add_lable = False
 
     for problem in sorted_problems:
@@ -260,8 +259,6 @@ def _run(buffer,
         if autofix:
             input_file_path = os.path.abspath(input_file)
             problem.file = input_file_path
-            if problem.rule == 'empty-lines':
-                extra_empty_line = True
             if problem.rule == 'inputs':
                 add_lable = True
             fix_problem(problem)
@@ -269,13 +266,6 @@ def _run(buffer,
 
     if autofix and add_lable:
         fix_add_label(sorted_problems)
-
-    # this needs to be separated from the rest of the auto fix functions since
-    # it changes the line numbers of the entire file, so we do it once all
-    # other tasks are done
-
-    # if autofix and extra_empty_line:
-    #     fix_empty_lines(problem)
 
     if syntax_error:
         yield syntax_error
