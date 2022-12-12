@@ -129,7 +129,7 @@ class CfyInput(object):
             self.description = self.mapping.get('description')
             self._default = self.mapping.get('default')
             self.constraints = self.mapping.get('constraints')
-            self.label = self.mapping.get('display_label')
+            self.display_label = self.mapping.get('display_label')
 
     @property
     def default(self):
