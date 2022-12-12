@@ -24,5 +24,6 @@
 0.0.17: RD-5667 Allows to cancel suggestions for a solution with skip_suggestions
 0.0.18: add cache dir mkdir
 0.0.19:
+- RD-5875 add input display label
 - RD-5871 replace deprecated node types and relationships with new
 - RD-5870 reduce empty lines

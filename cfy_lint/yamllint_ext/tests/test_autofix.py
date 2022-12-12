@@ -19,6 +19,7 @@ from tempfile import NamedTemporaryFile
 
 from cfy_lint.yamllint_ext import autofix
 from cfy_lint.yamllint_ext.autofix import utils
+from cfy_lint.yamllint_ext.autofix import add_label
 from cfy_lint.yamllint_ext.autofix import indentation
 from cfy_lint.yamllint_ext.autofix import empty_lines
 from cfy_lint.yamllint_ext.overrides import LintProblem
@@ -54,6 +55,41 @@ def get_file(lines):
     f.writelines(lines)
     f.close()
     return f
+
+
+def test_fix_add_label():
+    lines = [
+        '  size:\n',
+        '  retry_after:\n',
+        '  env_name:\n',
+    ]
+    expected = [
+        '  size:\n',
+        "    display_label: 'Size'\n",
+        '  retry_after:\n',
+        "    display_label: 'Retry After'\n",
+        '  env_name:\n',
+        "    display_label: 'Env Name'\n",
+    ]
+    fix_indentation_file = get_file(lines)
+    problems = []
+    try:
+        for i in range(0, len(lines)):
+            problem = LintProblem(
+                line=i+1,
+                column=0,
+                desc=' is missing a label.',
+                rule='inputs',
+                file=fix_indentation_file.name
+            )
+            problems.insert(i, problem)
+        add_label.fix_add_label(problems)
+    finally:
+        f = open(fix_indentation_file.name, 'r')
+        result_lines = f.readlines()
+        f.close()
+        os.remove(fix_indentation_file.name)
+    assert expected == result_lines
 
 
 def test_fix_indentation():
