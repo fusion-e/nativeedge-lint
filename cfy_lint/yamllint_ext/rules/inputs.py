@@ -105,7 +105,7 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                 input_obj.input_type, dsl
             )
         )
-    elif not input_obj.label:
+    elif not input_obj.display_label:
         yield LintProblem(
             line,
             None,
@@ -123,13 +123,13 @@ class CfyInput(object):
                                'default',
                                'description',
                                'constraints',
-                               'label']:
+                               'display_label']:
                     del self.mapping[key]
             self.input_type = self.mapping.get('type')
             self.description = self.mapping.get('description')
             self._default = self.mapping.get('default')
             self.constraints = self.mapping.get('constraints')
-            self.label = self.mapping.get('label')
+            self.label = self.mapping.get('display_label')
 
     @property
     def default(self):
@@ -171,7 +171,7 @@ class CfyInput(object):
             'default': None,
             'description': None,
             'constraints': None,
-            'label': None,
+            'display_label': None,
         }
         if isinstance(node, yaml.nodes.MappingNode):
             for tup in node.value:

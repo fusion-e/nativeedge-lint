@@ -19,7 +19,7 @@ from tempfile import NamedTemporaryFile
 
 from cfy_lint.yamllint_ext import autofix
 from cfy_lint.yamllint_ext.autofix import utils
-from cfy_lint.yamllint_ext.autofix import add_lable
+from cfy_lint.yamllint_ext.autofix import add_label
 from cfy_lint.yamllint_ext.autofix import indentation
 from cfy_lint.yamllint_ext.autofix import empty_lines
 from cfy_lint.yamllint_ext.overrides import LintProblem
@@ -83,7 +83,7 @@ def test_fix_add_label():
                 file=fix_indentation_file.name
             )
             problems.insert(i, problem)
-        add_lable.fix_add_label(problems)
+        add_label.fix_add_label(problems)
     finally:
         f = open(fix_indentation_file.name, 'r')
         result_lines = f.readlines()

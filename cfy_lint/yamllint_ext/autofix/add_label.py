@@ -28,6 +28,6 @@ def fix_add_label(problems):
                 line = line.lstrip()
                 line = line.replace('_', ' ')
                 line = line.title()
-                line = "    label: '{}'\n".format(line)
+                line = "    display_label: '{}'\n".format(line)
                 lines.insert(problem.line + counter, line)
                 counter += 1

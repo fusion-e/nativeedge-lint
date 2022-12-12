@@ -35,7 +35,7 @@ from cfy_lint.yamllint_ext.utils import (
     setup_node_templates,
 )
 from cfy_lint.yamllint_ext.autofix import fix_problem
-from cfy_lint.yamllint_ext.autofix.add_lable import fix_add_label
+from cfy_lint.yamllint_ext.autofix.add_label import fix_add_label
 from cfy_lint.yamllint_ext.autofix.empty_lines import fix_empty_lines
 
 PROBLEM_LEVELS = {
@@ -238,7 +238,7 @@ def _run(buffer,
                                           skip_suggestions))
 
     sorted_problems = sorted(problems, key=lambda x: x.line)
-    add_lable = False
+    add_label = False
     extra_empty_line = False
     for problem in sorted_problems:
         # Insert the syntax error (if any) at the right place...
@@ -262,13 +262,13 @@ def _run(buffer,
             problem.file = input_file_path
 
             if problem.rule == 'inputs':
-                add_lable = True
+                add_label = True
             if problem.rule == 'empty-lines':
                 extra_empty_line = True
             fix_problem(problem)
         yield problem
 
-    if autofix and add_lable:
+    if autofix and add_label:
         fix_add_label(sorted_problems)
 
     # this needs to be separated from the rest of the auto fix functions since
