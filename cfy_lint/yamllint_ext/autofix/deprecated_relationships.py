@@ -13,28 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from setuptools import (setup, find_packages)
+from cfy_lint.yamllint_ext.autofix.utils import filelines
 
-setup(
-    name='cfy-lint',
-    version='0.0.20',
-    license='LICENSE',
-    packages=find_packages(),
-    description='Linter for Cloudify Blueprints',
-    entry_points={
-        "console_scripts": [
-            "cfy-lint = cfy_lint.main:lint",
-        ]
-    },
-    package_data={
-        'cfy_lint': [
-            'yamllint_ext/cloudify/__cfylint_runtime_cache/README.md',
-        ]
-    },
-    install_requires=[
-        'click',
-        'pyyaml',
-        'yamllint',
-        'packaging',
-    ]
-)
+
+def fix_deprecated_relationships(problem):
+    if problem.rule == 'relationships' and \
+            'deprecated relationship type' in problem.message:
+        with filelines(problem.file) as lines:
+            line = lines[problem.line]
+            line = line.rstrip()
+            split = problem.message.split()
+            new_line = line.replace(split[-3], split[-1].rstrip('.'))
+            lines[problem.line] = new_line + '\n'

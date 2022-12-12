@@ -50,7 +50,6 @@ deprecated_node_types = {
         'cloudify.nodes.azure.network.NetworkSecurityRule',
     'cloudify.azure.nodes.network.RouteTable':
         'cloudify.nodes.azure.network.RouteTable',
-
     'cloudify.azure.nodes.network.Subnet':
         'cloudify.nodes.azure.network.Subnet',
     'cloudify.azure.nodes.compute.VirtualMachine':
@@ -117,6 +116,7 @@ deprecated_node_types = {
         'cloudify.nodes.azure.storage.ManagedCluster',
     'cloudify.azure.nodes.storage.Azure':
         'cloudify.nodes.azure.storage.Azure',
+
     'cloudify.openstack.nodes.Server':
         'cloudify.nodes.openstack.Server',
     'cloudify.openstack.nodes.WindowsServer':
@@ -204,13 +204,14 @@ deprecated_relationship_types = {
         'cloudify.relationships.azure.vm_connected_to_datadisk',
     'cloudify.azure.relationships.connected_to_aks_cluster':
         'cloudify.relationships.azure.connected_to_aks_cluster',
+
     'cloudify.openstack.server_connected_to_server_group':
         'cloudify.relationships.openstack.server_connected_to_server_group',
     'cloudify.openstack.server_connected_to_keypair':
         'cloudify.relationships.openstack.server_connected_to_keypair',
     'cloudify.openstack.server_connected_to_port':
         'cloudify.relationships.openstack.server_connected_to_port',
-    ' cloudify.openstack.server_connected_to_floating_ip':
+    'cloudify.openstack.server_connected_to_floating_ip':
         'cloudify.relationships.openstack.server_connected_to_floating_ip',
     'cloudify.openstack.server_connected_to_security_group':
         'cloudify.relationships.openstack.server_connected_to_security_group',
