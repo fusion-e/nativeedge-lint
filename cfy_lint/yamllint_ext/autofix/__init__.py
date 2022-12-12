@@ -16,6 +16,10 @@
 from cfy_lint.yamllint_ext.autofix.truthy import fix_truthy
 from cfy_lint.yamllint_ext.autofix.indentation import fix_indentation
 from cfy_lint.yamllint_ext.autofix.trailing_spaces import fix_trailing_spaces
+from cfy_lint.yamllint_ext.autofix.deprecated_node_types import \
+    fix_deprecated_node_types
+from cfy_lint.yamllint_ext.autofix.deprecated_relationships import \
+    fix_deprecated_relationships
 
 
 def fix_problem(problem):
@@ -23,3 +27,5 @@ def fix_problem(problem):
         fix_truthy(problem)
         fix_indentation(problem)
         fix_trailing_spaces(problem)
+        fix_deprecated_node_types(problem)
+        fix_deprecated_relationships(problem)
