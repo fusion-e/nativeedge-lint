@@ -18,11 +18,37 @@ executors:
     docker:
       - image: circleci/python:3.6
 
+commands: 
+  release: 
+    steps:
+    - run: 
+        name: Trigger Jenkins Pipeline
+        command: |
+           curl $JENKINS_URL \
+           --user $JENKINS_USER:$JENKINS_TOKEN \
+           --data BRANCH=main \
+           --data GITHUB_PROJECT_URL=$GH_REPO
+
+jobs:
+
+  release:
+    executor: py36
+    steps: 
+      - release
+
 workflows:
   version: 2
   tests:
     jobs:
       - node/unittests_job
+      - release: 
+          context:
+            - cfy-lint
+          filters:
+            branches:
+              only: main
+          requires:
+          - node/unittests_job
 
   nightly:
     triggers:
@@ -34,3 +60,4 @@ workflows:
               - master
     jobs:
       - node/unittests_job
+
