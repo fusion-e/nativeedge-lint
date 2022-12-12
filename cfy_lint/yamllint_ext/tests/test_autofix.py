@@ -65,11 +65,11 @@ def test_fix_add_label():
     ]
     expected = [
         '  size:\n',
-        "    label: 'Size'\n",
+        "    display_label: 'Size'\n",
         '  retry_after:\n',
-        "    label: 'Retry After'\n",
+        "    display_label: 'Retry After'\n",
         '  env_name:\n',
-        "    label: 'Env Name'\n",
+        "    display_label: 'Env Name'\n",
     ]
     fix_indentation_file = get_file(lines)
     problems = []
