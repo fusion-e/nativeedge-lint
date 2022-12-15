@@ -28,3 +28,4 @@
 - RD-5875 add input display label
 - RD-5871 replace deprecated node types and relationships with new
 - RD-5870 reduce empty lines
+0.0.21: JSON Loads

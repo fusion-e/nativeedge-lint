@@ -16,14 +16,14 @@
 import io
 import os
 import sys
+import json
 from re import sub
 from logging import (Formatter, StreamHandler)
 
+from cfy_lint import cli
+from cfy_lint.yamllint_ext import (run, rules)
 from cfy_lint.logger import logger, stream_handler
 from cfy_lint.yamllint_ext.config import YamlLintConfigExt
-from cfy_lint.yamllint_ext import (run, rules)
-
-from cfy_lint import cli
 
 
 @cli.command()
@@ -92,10 +92,10 @@ def create_report_for_file(file_path,
 def formatted_message(item, format=None):
     if format == 'json':
         rule, item_message = item.message.split(':', 1)
-        return {
-            'level': item.level,
-            'line': item.line,
-            'rule': sub(r'[()]', '', rule),
-            'message': item_message,
-        }
+        return json.dumps({
+            "level": item.level,
+            "line": item.line,
+            "rule": sub(r"[()]", "", rule),
+            "message": item_message,
+        })
     return '{0: <4}: {1:>4}'.format(item.line, item.message)

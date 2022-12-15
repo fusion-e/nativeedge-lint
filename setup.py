@@ -17,7 +17,7 @@ from setuptools import (setup, find_packages)
 
 setup(
     name='cfy-lint',
-    version='0.0.20',
+    version='0.0.21',
     license='LICENSE',
     packages=find_packages(),
     description='Linter for Cloudify Blueprints',
@@ -35,6 +35,6 @@ setup(
         'click',
         'pyyaml',
         'yamllint',
-        'packaging',
+        'packaging'
     ]
 )
