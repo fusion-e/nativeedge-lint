@@ -35,10 +35,11 @@ OP_KEYS = {'implementation', 'inputs'}
 def check(token=None, **_):
     # raise Exception(token.node)
     relationship_type = CfyRelationshipType(token.node)
+    if relationship_type.malformed_relationship:
+        yield from relationships_not_list(token.node, token.line)
     if relationship_type.is_relationship_type:
         yield from check_relationship_types(relationship_type, token.line)
         return
-    yield from relationships_not_list(token.node, token.line)
     for list_item in token.node.value:
         if isinstance(list_item, tuple) or isinstance(
                 list_item.value, dict):
@@ -96,13 +97,20 @@ def deprecated_type(type_name, line):
                 constants.deprecated_relationship_types[type_name]))
 
 
+def get_yaml_type(node):
+    if isinstance(node,yaml.nodes.MappingNode):
+        return type(dict())
+    return type(node.value).mro()[0]
+
+
 def relationships_not_list(node, line):
     if not isinstance(node, yaml.nodes.SequenceNode):
+        relationship_type = get_yaml_type(node)
         yield LintProblem(
             line,
             None,
             "relationships block must be a list. "
-            "The provided type is {}".format(type(node.value).mro()[0])
+            "The provided type is {}".format(relationship_type)
         )
 
 
@@ -143,6 +151,11 @@ class CfyRelationshipType(object):
         self._is_relationship_type = None
         self._name = None
         self.parsed = recurse_node_template(self._node)
+        self.derived_from = None
+        self.connection_type = None
+        self.source_interfaces = None
+        self.target_interfaces = None
+        self.malformed_relationship = False
 
         try:
             for k, v in self.parsed.items():
@@ -153,10 +166,15 @@ class CfyRelationshipType(object):
             self.is_relationship_type = False
         else:
             self.is_relationship_type = True
-            self.derived_from = self.definition.get('derived_from')
-            self.connection_type = self.definition.get('connection_type')
-            self.source_interfaces = self.definition.get('source_interfaces')
-            self.target_interfaces = self.definition.get('target_interfaces')
+            if isinstance(self.definition, dict):
+                self.derived_from = self.definition.get('derived_from')
+                self.connection_type = self.definition.get('connection_type')
+                self.source_interfaces = self.definition.get(
+                    'source_interfaces')
+                self.target_interfaces = self.definition.get(
+                    'target_interfaces')
+            else:
+                self.malformed_relationship = True
 
     @property
     def interfaces(self):

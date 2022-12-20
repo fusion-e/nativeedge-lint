@@ -20,6 +20,7 @@ from yamllint import parser
 from cfy_lint.yamllint_ext.generators import (
     CfyNode,
     CfyToken,
+    YamlParserLintProblem,
     token_or_comment_or_line_generator,
 )
 from cfy_lint.yamllint_ext.overrides import (
@@ -124,6 +125,8 @@ def get_cosmetic_problems(buffer,
     disabled_for_next_line = DisableLineDirective()
 
     for elem in token_or_comment_or_line_generator(buffer):
+        if isinstance(elem, YamlParserLintProblem):
+            yield LintProblem(elem.line, elem. column, elem.desc)
 
         if isinstance(elem, CfyNode):
             setup_node_templates(elem)

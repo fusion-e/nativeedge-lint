@@ -129,11 +129,12 @@ class NodeTemplate(object):
                 node_templates[k] = NodeTemplate(v)
         if not self._relationships_mapping:
             for relationship in self.relationships:
-                rel_type = relationship.get('type')
-                rel_target_name = relationship.get('target')
-                rel_target = node_templates.get(
-                    rel_target_name, UnknownNodeType(rel_target_name))
-                self._relationships_mapping[rel_target.node_type] = rel_type
+                if isinstance(relationship, dict):
+                    rel_type = relationship.get('type')
+                    rel_target_name = relationship.get('target')
+                    rel_target = node_templates.get(
+                        rel_target_name, UnknownNodeType(rel_target_name))
+                    self._relationships_mapping[rel_target.node_type] = rel_type
         for k, v in self.required_relationships.items():
             if k not in self._relationships_mapping or v != \
                     self._relationships_mapping[k]:
