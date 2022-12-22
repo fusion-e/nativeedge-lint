@@ -145,7 +145,7 @@ def generate_nodes_recursively(node):
 def node_generator(buffer):
     yaml_loader = SafeLineLoader(buffer)
     if not yaml_loader.check_node():
-        raise Exception('No nodes in document.')
+        return
     yield from generate_nodes_recursively(yaml_loader.get_node().value)
 
 
@@ -174,6 +174,13 @@ def token_or_comment_generator(buffer):
         pass
 
 
+class YamlParserLintProblem():
+    def __init__(self, line, column, desc):
+        self.line = line
+        self.column = column
+        self.desc = desc
+
+
 def token_or_comment_or_line_generator(buffer):
     """Generator that mixes tokens and lines, ordering them by line number"""
 
@@ -183,7 +190,17 @@ def token_or_comment_or_line_generator(buffer):
 
     tok_or_com = next(tok_or_com_gen, None)
     line = next(line_gen, None)
-    node = CfyNode(next(node_gen, None))
+    try:
+        node = CfyNode(next(node_gen, None))
+    except yaml.parser.ParserError as e:
+        start_line = e.context_mark.line
+        end_line = e.problem_mark.line
+        yield YamlParserLintProblem(
+            e.context_mark.line,
+            e.context_mark.column,
+            '\n'.join(buffer.split('\n')[start_line:end_line])
+        )
+        return
 
     prev_node = None
 

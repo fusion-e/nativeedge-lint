@@ -358,7 +358,12 @@ def import_cloudify_yaml(import_item, base_path=None):
 
 
 def setup_types(buffer=None, data=None, base_path=None):
-    data = data or yaml.safe_load(buffer)
+    try:
+        data = data or yaml.safe_load(buffer)
+    except yaml.parser.ParserError:
+        return
+    if not data:
+        return
     for imported in data.get('imports', {}):
         import_cloudify_yaml(imported, base_path=base_path)
 

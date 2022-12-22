@@ -45,6 +45,12 @@ INPUTS_BY_DSL = {
 def check(token=None, skip_suggestions=None, **_):
     if token.prev.node.value == 'inputs':
         for item in token.node.value:
+            if isinstance(item, yaml.nodes.ScalarNode):
+                yield LintProblem(
+                    token.line,
+                    None,
+                    'Bad inputs format. '
+                    'Input should be a key not a list item.')
             input_obj = CfyInput(item)
             if not input_obj.name and not input_obj.mapping:
                 continue
@@ -109,7 +115,7 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
         yield LintProblem(
             line,
             None,
-            'Input {} is missing a label.'.format(input_obj.name)
+            'Input {} is missing a display_label.'.format(input_obj.name)
         )
 
 
@@ -152,7 +158,7 @@ class CfyInput(object):
         }
 
     def get_input(self, nodes):
-        if len(nodes) != 2:
+        if not isinstance(nodes, tuple) or len(nodes) != 2:
             name = None
             mapping = None
         else:
