@@ -134,7 +134,8 @@ class NodeTemplate(object):
                     rel_target_name = relationship.get('target')
                     rel_target = node_templates.get(
                         rel_target_name, UnknownNodeType(rel_target_name))
-                    self._relationships_mapping[rel_target.node_type] = rel_type
+                    self._relationships_mapping[rel_target.node_type] = \
+                        rel_type
         for k, v in self.required_relationships.items():
             if k not in self._relationships_mapping or v != \
                     self._relationships_mapping[k]:

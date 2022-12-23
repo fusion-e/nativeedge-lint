@@ -98,7 +98,7 @@ def deprecated_type(type_name, line):
 
 
 def get_yaml_type(node):
-    if isinstance(node,yaml.nodes.MappingNode):
+    if isinstance(node, yaml.nodes.MappingNode):
         return type(dict())
     return type(node.value).mro()[0]
 
