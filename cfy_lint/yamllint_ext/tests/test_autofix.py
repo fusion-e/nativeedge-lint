@@ -78,7 +78,7 @@ def test_fix_add_label():
             problem = LintProblem(
                 line=i+1,
                 column=0,
-                desc=' is missing a label.',
+                desc=' is missing a display_label.',
                 rule='inputs',
                 file=fix_indentation_file.name
             )
