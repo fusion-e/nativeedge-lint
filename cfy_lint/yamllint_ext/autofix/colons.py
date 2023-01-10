@@ -16,8 +16,9 @@
 from cfy_lint.yamllint_ext.autofix.utils import filelines
 import re
 
+
 def fix_colons(problem):
-    if problem.rule == 'colons': # and 'too many spaces before colon' in problem.message:
+    if problem.rule == 'colons':
         with filelines(problem.file) as lines:
             line = lines[problem.line - 1]
             new_line = re.sub(r'\s*:\s*', ': ', line)
