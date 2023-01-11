@@ -22,4 +22,6 @@ def fix_colons(problem):
         with filelines(problem.file) as lines:
             line = lines[problem.line - 1]
             new_line = re.sub(r'\s*:\s*', ': ', line)
+            if new_line[-1] is not '\n':
+                new_line = new_line.rstrip() + '\n'
             lines[problem.line - 1] = new_line
