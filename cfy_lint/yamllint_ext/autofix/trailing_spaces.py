@@ -22,3 +22,4 @@ def fix_trailing_spaces(problem):
             line = lines[problem.line - 1]
             new_line = line.rstrip() + '\n'
             lines[problem.line - 1] = new_line
+        problem.fixed = True

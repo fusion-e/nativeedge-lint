@@ -29,6 +29,7 @@ def fix_truthy(problem):
             line = replace_words(line, TRUE_PATTERN, TRUE_REPLACEMENT)
             line = replace_words(line, FALSE_PATTERN, FALSE_REPLACEMENT)
             lines[problem.line - 1] = line
+        problem.fixed = True
 
 
 def replace_words(line, pattern, replacement):

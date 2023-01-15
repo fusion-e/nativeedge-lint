@@ -25,3 +25,4 @@ def fix_deprecated_relationships(problem):
             split = problem.message.split()
             new_line = line.replace(split[-3], split[-1].rstrip('.'))
             lines[problem.line] = new_line + '\n'
+        problem.fixed = True

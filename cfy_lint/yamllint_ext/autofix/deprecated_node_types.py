@@ -25,3 +25,4 @@ def fix_deprecated_node_types(problem):
             split = problem.message.split()
             new_line = line.replace(split[-3], split[-1].rstrip('.'))
             lines[problem.line - 1] = new_line + '\n'
+        problem.fixed = True
