@@ -13,8 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from cfy_lint.yamllint_ext.autofix.utils import filelines
 import re
+
+from cfy_lint.yamllint_ext.autofix.utils import filelines
 
 
 def fix_colons(problem):
