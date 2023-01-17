@@ -13,28 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from setuptools import (setup, find_packages)
+import re
 
-setup(
-    name='cfy-lint',
-    version='0.0.23',
-    license='LICENSE',
-    packages=find_packages(),
-    description='Linter for Cloudify Blueprints',
-    entry_points={
-        "console_scripts": [
-            "cfy-lint = cfy_lint.main:lint",
-        ]
-    },
-    package_data={
-        'cfy_lint': [
-            'yamllint_ext/cloudify/__cfylint_runtime_cache/README.md',
-        ]
-    },
-    install_requires=[
-        'click',
-        'pyyaml',
-        'yamllint',
-        'packaging'
-    ]
-)
+from cfy_lint.yamllint_ext.autofix.utils import filelines
+
+
+def fix_colons(problem):
+    if problem.rule == 'colons':
+        with filelines(problem.file) as lines:
+            line = lines[problem.line - 1]
+            new_line = re.sub(r'\s*:\s*', ': ', line)
+            if new_line[-1] != '\n':
+                new_line = new_line.rstrip() + '\n'
+            lines[problem.line - 1] = new_line

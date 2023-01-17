@@ -19,6 +19,7 @@ from tempfile import NamedTemporaryFile
 
 from cfy_lint.yamllint_ext import autofix
 from cfy_lint.yamllint_ext.autofix import utils
+from cfy_lint.yamllint_ext.autofix import colons
 from cfy_lint.yamllint_ext.autofix import add_label
 from cfy_lint.yamllint_ext.autofix import indentation
 from cfy_lint.yamllint_ext.autofix import empty_lines
@@ -26,6 +27,44 @@ from cfy_lint.yamllint_ext.overrides import LintProblem
 from cfy_lint.yamllint_ext.autofix import trailing_spaces
 from cfy_lint.yamllint_ext.autofix import deprecated_node_types
 from cfy_lint.yamllint_ext.autofix import deprecated_relationships
+
+
+def test_fix_colons():
+    lines = [
+        "aws_region_name      :\n",
+        "display_label     :     'Aws Region Name'\n",
+        "type : string\n",
+        "default    : 'us-east-1'\n",
+        "constraints:      \n",
+        "- valid_values :      \n",
+    ]
+    expected = [
+        "aws_region_name:\n",
+        "display_label: 'Aws Region Name'\n",
+        "type: string\n",
+        "default: 'us-east-1'\n",
+        "constraints:\n",
+        "- valid_values:\n",
+    ]
+    fix_colons_file = get_file(lines)
+
+    try:
+        for i in range(0, len(lines)):
+            problem = LintProblem(
+                line=i,
+                column=0,
+                desc='too many spaces before colon',
+                rule='colons',
+                file=fix_colons_file.name
+            )
+            colons.fix_colons(problem)
+    finally:
+        f = open(fix_colons_file.name, 'r')
+        result_lines = f.readlines()
+        f.close()
+        os.remove(fix_colons_file.name)
+    print(result_lines)
+    assert expected == result_lines
 
 
 def test_get_space_diff():
