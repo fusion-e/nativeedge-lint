@@ -33,7 +33,17 @@ def is_list(line):
 
 def get_indented_regex(line, found):
     if is_list(line):
-        regex = r'^\s{%s}[\-\s{1}A-Za-z]' % found
+        regex = r'^\s{%s,}[\-\s{1}A-Za-z]' % found
     else:
-        regex = r'^\s{%s}[A-Za-z]' % found
+        regex = r'^\s{%s,}[A-Za-z]' % found
+    return re.compile(regex)
+
+
+def get_indented_regex(line, found):
+    regex = r'^\s{%s,}[A-Za-z]' % found
+    return re.compile(regex)
+
+
+def get_indented_regex_list(line, found):
+    regex = r'^\s{%s,}[\-\s{1}A-Za-z]' % found
     return re.compile(regex)

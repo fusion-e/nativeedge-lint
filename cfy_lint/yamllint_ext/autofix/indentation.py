@@ -14,7 +14,8 @@
 # limitations under the License.
 
 import re
-from cfy_lint.yamllint_ext.autofix.utils import (filelines, get_indented_regex)
+from cfy_lint.yamllint_ext.autofix.utils import (
+    filelines, get_indented_regex, get_indented_regex_list)
 
 
 def fix_indentation(problem):
@@ -23,10 +24,17 @@ def fix_indentation(problem):
             expected, found = get_space_diff(problem.desc)
             indented_regex = get_indented_regex(
                 lines[problem.line - 1], len(found))
+            indented_regex_list = get_indented_regex_list(
+                lines[problem.line - 1], len(found))
             idx = problem.line - 1
             while True:
-                if idx == len(lines) or not indented_regex.match(lines[idx]):
+                # if idx == len(lines) or not indented_regex.match(lines[idx]):
+                #if idx == len(lines) or not indented_regex_list.match(lines[idx]):
+                if idx == len(lines) or \
+                        not (indented_regex.match(lines[idx]) or
+                             indented_regex_list.match(lines[idx])):
                     break
+
                 lines[idx] = replace_spaces(expected, found, lines[idx])
                 idx += 1
                 continue
