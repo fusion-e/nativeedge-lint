@@ -83,6 +83,13 @@ class NodeTemplate(object):
     def relationships(self, value):
         self._relationships = value
 
+    @property
+    def is_external(self):
+        if self.properties:
+            return self.properties.get(
+                'use_external_resource', False)
+        return False
+
     def set_values(self, values):
         if 'type' in values:
             self.node_type = values['type']
@@ -124,6 +131,8 @@ class NodeTemplate(object):
                                        node_templates=None,
                                        imported=None):
         node_templates = node_templates or {}
+        if self.is_external:
+            return self._unsatisfied_relationships.items()
         if imported:
             for k, v in imported.items():
                 node_templates[k] = NodeTemplate(v)
