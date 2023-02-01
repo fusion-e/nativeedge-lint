@@ -30,4 +30,8 @@
 - RD-5870 reduce empty lines
 0.0.21: JSON Loads
 0.0.22: Fix bugs found during LSP support.
-0.0.23: RD-6463 Autofix too many spaces before/after colon.
+0.0.23:
+  - RD-6463 Autofix too many spaces before/after colon.
+  - RD-6825 external resource and resource config are exclusive.
+  - RD-6824 external resource should not lint required relationships
+  - RD-6828 Lint input keys.
