@@ -83,6 +83,9 @@ def check(token=None, context=None, node_types=None, **_):
         yield from check_terraform(
             parsed_node_template,
             parsed_node_template.line or token.line)
+        yield from check_external_resource(
+            parsed_node_template,
+            parsed_node_template.line or token.line)
 
 
 def parse_node_template(node_template_mapping, node_template_model):
@@ -467,3 +470,12 @@ def check_terratag(model, line):
                     line,
                     None,
                     'unsupported flag, {}'.format(TERRATAG_SUPPORTED_FLAGS))
+
+
+def check_external_resource(model, line):
+    if model.is_external and 'resource_config' in model.properties:
+        yield LintProblem(
+            line,
+            None,
+            'resource_config is not required, '
+            'when use_external_resource is true.')
