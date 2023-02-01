@@ -266,10 +266,14 @@ def _run(buffer,
 
             if problem.rule == 'inputs':
                 add_label = True
+                problem.fixed = True
             if problem.rule == 'empty-lines':
                 extra_empty_line = True
+                problem.fixed = True
             fix_problem(problem)
-        yield problem
+
+        if not problem.fixed:
+            yield problem
 
     if autofix and add_label:
         fix_add_label(sorted_problems)
