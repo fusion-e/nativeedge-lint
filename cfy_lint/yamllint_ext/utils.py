@@ -16,6 +16,7 @@
 import io
 import os
 import re
+import sys
 import json
 import yaml
 import pathlib
@@ -315,7 +316,11 @@ def import_cloudify_yaml(import_item, base_path=None):
                 import_item,
                 headers={'User-Agent': 'Mozilla/5.0'}
             )
-            infile = urllib.request.urlopen(page).read()
+            try:
+                infile = urllib.request.urlopen(page).read()
+            except urllib.error.HTTPError:
+                print('Error: Unable to reach URL: {}'.format(import_item))
+                sys.exit(1)
             result = yaml.safe_load(infile)
             with open(cache_item_path, 'w') as jsonfile:
                 json.dump(result, jsonfile)
