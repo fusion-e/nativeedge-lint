@@ -200,14 +200,9 @@ def get_validations(version_constraints):
     #    '<=': ['1.1'],
     # }
     for version_constraint in version_constraints:
-        for validation in validations.keys():
-            if version_constraint.startswith(validation):
-                validated_version_constraint = version_constraint.split(
-                    validation)
-                if len(validated_version_constraint) == 2:
-                    validations[validation].append(
-                        validated_version_constraint[1])
-                    continue
+        sign = re.match('[\<\>\=]+', version_constraint).group(0)
+        plugin_version = re.findall('(\\d+.\\d+.\\d+)', version_constraint)[0]
+        validations[sign].append(plugin_version)
     return validations
 
 
