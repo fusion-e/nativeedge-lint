@@ -203,8 +203,9 @@ def get_validations(version_constraints):
     # }
     try:
         for version_constraint in version_constraints:
-            sign = re.match('[\<\>\=]+', version_constraint).group(0)
-            plugin_version = re.findall('(\\d+.\\d+.\\d+)', version_constraint)[0]
+            sign = re.match('[\\<\\>\\=]+', version_constraint).group(0)
+            plugin_version = re.findall(
+                '(\\d+.\\d+.\\d+)', version_constraint)[0]
             validations[sign].append(plugin_version)
     except Exception as e:
         raise YamlLintConfigError('invalid version: %s' % e)
