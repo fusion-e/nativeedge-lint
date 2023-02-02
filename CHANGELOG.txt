@@ -36,3 +36,4 @@
   - RD-6825 external resource and resource config are exclusive.
   - RD-6824 external resource should not lint required relationships
   - RD-6828 Lint input keys.
+  - RD-6918-cfy-lint-version-parsing-error
