@@ -24,6 +24,8 @@ import urllib.request
 from urllib.parse import urlparse
 from packaging.version import parse as version_parse
 
+from yamllint.config import YamlLintConfigError
+
 from cfy_lint.yamllint_ext.cloudify.models import NodeTemplate
 from cfy_lint.yamllint_ext.constants import (
     BLUEPRINT_MODEL,
@@ -199,10 +201,13 @@ def get_validations(version_constraints):
     #    '>=': ['0.8', 0.9'],
     #    '<=': ['1.1'],
     # }
-    for version_constraint in version_constraints:
-        sign = re.match('[\<\>\=]+', version_constraint).group(0)
-        plugin_version = re.findall('(\\d+.\\d+.\\d+)', version_constraint)[0]
-        validations[sign].append(plugin_version)
+    try:
+        for version_constraint in version_constraints:
+            sign = re.match('[\<\>\=]+', version_constraint).group(0)
+            plugin_version = re.findall('(\\d+.\\d+.\\d+)', version_constraint)[0]
+            validations[sign].append(plugin_version)
+    except Exception as e:
+        raise YamlLintConfigError('invalid version: %s' % e)
     return validations
 
 
