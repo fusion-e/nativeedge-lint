@@ -26,3 +26,4 @@ def fix_colons(problem):
             if new_line[-1] != '\n':
                 new_line = new_line.rstrip() + '\n'
             lines[problem.line - 1] = new_line
+        problem.fixed = True
