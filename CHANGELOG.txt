@@ -38,3 +38,4 @@
   - RD-6828 Lint input keys.
   - RD-6918-cfy-lint-version-parsing-error
   - RD-6840 temporarily disable 3rd party required relationships check.
+0.0.24: Rerelease
