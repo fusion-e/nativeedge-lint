@@ -1,5 +1,5 @@
 ########
-# Copyright (c) 2014-2022 Cloudify Platform Ltd. All rights reserved
+# Copyright (c) 2014-2023 Cloudify Platform Ltd. All rights reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,12 +28,36 @@ ID = 'inputs'
 TYPE = 'token'
 CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
-DSL_1_3 = ['string', 'integer', 'float', 'boolean', 'list', 'dict', 'regex',
-           'textarea']
-DSL_1_4 = ['blueprint_id', 'node_id', 'deployment_id', 'capability_value',
-           'scaling_group', 'node_type', 'node_instance', 'secret_key',
-           'node_ids', 'node_template', 'node_instance_ids', 'deployment_ids',
-           'blueprint_ids']
+ALLOWED_KEYS = [
+    'type',
+    'hidden',
+    'default',
+    'required',
+    'constraints',
+    'description',
+    'display_label'
+]
+DSL_1_3 = [
+    'list',
+    'dict',
+    'regex',
+    'float',
+    'string',
+    'integer',
+    'boolean',
+    'textarea'
+]
+DSL_1_4 = [
+    'node_id',
+    'node_ids',
+    'blueprint_id',
+    'node_template',
+    'deployment_id',
+    'blueprint_ids',
+    'deployment_ids',
+    'capability_value',
+    'node_instance_ids',
+]
 DSL_1_4.extend(DSL_1_3)
 INPUTS_BY_DSL = {
     'cloudify_dsl_1_3': DSL_1_3,
@@ -87,6 +111,12 @@ def check(token=None, skip_suggestions=None, **_):
 
 def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
     suggestions = 'inputs' in skip_suggestions
+    if input_obj.invalid_keys:
+        yield LintProblem(
+            line,
+            None,
+            'the following keys are invalid for inputs: {}'.format(
+                input_obj.invalid_keys))
     if not input_obj.input_type:
         message = 'input "{}" does not specify a type. '.format(input_obj.name)
         if input_obj.default:
@@ -123,13 +153,11 @@ class CfyInput(object):
     def __init__(self, nodes):
         self._line = None
         self.name, self.mapping = self.get_input(nodes)
+        self.invalid_keys = []
         if self.name and self.mapping:
             for key in list(self.mapping.keys()):
-                if key not in ['type',
-                               'default',
-                               'description',
-                               'constraints',
-                               'display_label']:
+                if key not in ALLOWED_KEYS:
+                    self.invalid_keys.append(key)
                     del self.mapping[key]
             self.input_type = self.mapping.get('type')
             self.description = self.mapping.get('description')

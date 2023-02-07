@@ -16,12 +16,15 @@
 import io
 import os
 import re
+import sys
 import json
 import yaml
 import pathlib
 import urllib.request
 from urllib.parse import urlparse
 from packaging.version import parse as version_parse
+
+from yamllint.config import YamlLintConfigError
 
 from cfy_lint.yamllint_ext.cloudify.models import NodeTemplate
 from cfy_lint.yamllint_ext.constants import (
@@ -198,15 +201,14 @@ def get_validations(version_constraints):
     #    '>=': ['0.8', 0.9'],
     #    '<=': ['1.1'],
     # }
-    for version_constraint in version_constraints:
-        for validation in validations.keys():
-            if version_constraint.startswith(validation):
-                validated_version_constraint = version_constraint.split(
-                    validation)
-                if len(validated_version_constraint) == 2:
-                    validations[validation].append(
-                        validated_version_constraint[1])
-                    continue
+    try:
+        for version_constraint in version_constraints:
+            sign = re.match('[\\<\\>\\=]+', version_constraint).group(0)
+            plugin_version = re.findall(
+                '(\\d+.\\d+.\\d+)', version_constraint)[0]
+            validations[sign].append(plugin_version)
+    except Exception as e:
+        raise YamlLintConfigError('invalid version: %s' % e)
     return validations
 
 
@@ -315,7 +317,11 @@ def import_cloudify_yaml(import_item, base_path=None):
                 import_item,
                 headers={'User-Agent': 'Mozilla/5.0'}
             )
-            infile = urllib.request.urlopen(page).read()
+            try:
+                infile = urllib.request.urlopen(page).read()
+            except urllib.error.HTTPError:
+                print('Error: Unable to reach URL: {}'.format(import_item))
+                sys.exit(1)
             result = yaml.safe_load(infile)
             with open(cache_item_path, 'w') as jsonfile:
                 json.dump(result, jsonfile)

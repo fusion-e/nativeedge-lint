@@ -83,6 +83,13 @@ class NodeTemplate(object):
     def relationships(self, value):
         self._relationships = value
 
+    @property
+    def is_external(self):
+        if self.properties:
+            return self.properties.get(
+                'use_external_resource', False)
+        return False
+
     def set_values(self, values):
         if 'type' in values:
             self.node_type = values['type']
@@ -92,6 +99,16 @@ class NodeTemplate(object):
             self.interfaces = values['interfaces']
         if 'relationships' in values:
             self.relationships = values['relationships']
+
+    @property
+    def is_third_party(self):
+        if '.aws.' in self.node_type:
+            return True
+        elif '.azure.' in self.node_type:
+            return True
+        elif '.gcp.' in self.node_type:
+            return True
+        return False
 
     @property
     def dict(self):
@@ -124,6 +141,8 @@ class NodeTemplate(object):
                                        node_templates=None,
                                        imported=None):
         node_templates = node_templates or {}
+        if self.is_external or self.is_third_party:
+            return self._unsatisfied_relationships.items()
         if imported:
             for k, v in imported.items():
                 node_templates[k] = NodeTemplate(v)

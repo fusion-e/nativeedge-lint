@@ -30,13 +30,12 @@ def fix_indentation(problem):
                 lines[idx] = replace_spaces(expected, found, lines[idx])
                 idx += 1
                 continue
+        problem.fixed = True
 
 
 def replace_spaces(expected, found, line):
     sans_newline = line.rstrip()
     new_line = sans_newline.replace(found, expected)
-    print('Old line {}.'.format(sans_newline))
-    print('New line {}.'.format(new_line))
     if sans_newline != line:
         new_line += '\n'
     return new_line

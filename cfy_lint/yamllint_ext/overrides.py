@@ -69,6 +69,15 @@ class LintProblem(object):
         self._next = next
         self._prev = prev
         self._nextnext = nextnext
+        self._fixed = False
+
+    @property
+    def fixed(self):
+        return self._fixed
+
+    @fixed.setter
+    def fixed(self, value):
+        self._fixed = value
 
     @property
     def message(self):

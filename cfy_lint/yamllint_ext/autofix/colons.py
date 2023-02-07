@@ -13,16 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
+
 from cfy_lint.yamllint_ext.autofix.utils import filelines
 
 
-def fix_deprecated_relationships(problem):
-    if problem.rule == 'relationships' and \
-            'deprecated relationship type' in problem.message:
+def fix_colons(problem):
+    if problem.rule == 'colons':
         with filelines(problem.file) as lines:
-            line = lines[problem.line]
-            line = line.rstrip()
-            split = problem.message.split()
-            new_line = line.replace(split[-3], split[-1].rstrip('.'))
-            lines[problem.line] = new_line + '\n'
+            line = lines[problem.line - 1]
+            new_line = re.sub(r'\s*:\s*', ': ', line)
+            if new_line[-1] != '\n':
+                new_line = new_line.rstrip() + '\n'
+            lines[problem.line - 1] = new_line
         problem.fixed = True
