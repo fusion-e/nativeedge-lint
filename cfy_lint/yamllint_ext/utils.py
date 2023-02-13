@@ -29,7 +29,9 @@ from yamllint.config import YamlLintConfigError
 from cfy_lint.yamllint_ext.cloudify.models import NodeTemplate
 from cfy_lint.yamllint_ext.constants import (
     UNUSED_IMPORT,
+    UNUSED_INPUTS,
     DEFAULT_TYPES,
+    BLUEPRINT_MODEL,
     BLUEPRINT_MODEL,
     LATEST_PLUGIN_YAMLS,
     NODE_TEMPLATE_MODEL)
@@ -56,6 +58,7 @@ context = {
     'imports': [],
     'dsl_version': None,
     'inputs': {},
+    UNUSED_INPUTS: [],
     'node_templates': {},
     'node_types': {},
     'capabilities': {},
