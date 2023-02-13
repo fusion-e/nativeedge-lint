@@ -91,44 +91,55 @@ def test_get_indented_regex():
 def get_file(lines):
     fix_truthy_file = NamedTemporaryFile(delete=False)
     f = open(fix_truthy_file.name, 'w')
-    f.writelines(lines)
+    if isinstance(lines, str):
+        f.write(lines)
+    else:
+        f.writelines(lines)
     f.close()
     return f
 
 
 def test_fix_add_label():
-    lines = [
-        '  size:\n',
-        '  retry_after:\n',
-        '  env_name:\n',
+    content = """
+foo:
+  type: bar
+baz:
+  type: qux
+"""
+    expected = """
+foo:
+  display_label: Foo
+  type: bar
+baz:
+  display_label: Baz
+  type: qux
+"""
+
+    fix_indentation_file = get_file(content)
+    problems = [
+        LintProblem(
+            line=2,
+            column=0,
+            desc=' is missing a display_label.',
+            rule='inputs',
+            file=fix_indentation_file.name
+        ),
+        LintProblem(
+            line=4,
+            column=0,
+            desc=' is missing a display_label.',
+            rule='inputs',
+            file=fix_indentation_file.name
+        ),
     ]
-    expected = [
-        '  size:\n',
-        "    display_label: 'Size'\n",
-        '  retry_after:\n',
-        "    display_label: 'Retry After'\n",
-        '  env_name:\n',
-        "    display_label: 'Env Name'\n",
-    ]
-    fix_indentation_file = get_file(lines)
-    problems = []
     try:
-        for i in range(0, len(lines)):
-            problem = LintProblem(
-                line=i+1,
-                column=0,
-                desc=' is missing a display_label.',
-                rule='inputs',
-                file=fix_indentation_file.name
-            )
-            problems.insert(i, problem)
         add_label.fix_add_label(problems)
     finally:
         f = open(fix_indentation_file.name, 'r')
-        result_lines = f.readlines()
+        result = f.read()
         f.close()
         os.remove(fix_indentation_file.name)
-    assert expected == result_lines
+    assert expected == result
 
 
 def test_fix_indentation():
