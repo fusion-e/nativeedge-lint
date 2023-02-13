@@ -17,7 +17,8 @@ import os
 import re
 
 from yamllint import parser
-from cfy_lint.yamllint_ext.constants import UNUSED_IMPORT_CTX
+from cfy_lint.yamllint_ext.constants import (
+    UNUSED_INPUTS, UNUSED_IMPORT_CTX)
 from cfy_lint.yamllint_ext.generators import (
     CfyNode,
     CfyToken,
@@ -37,6 +38,7 @@ from cfy_lint.yamllint_ext.utils import (
     setup_node_templates,
 )
 from cfy_lint.yamllint_ext.autofix import fix_problem
+from cfy_lint.yamllint_ext.rules.inputs import ID as input_rule
 from cfy_lint.yamllint_ext.rules.imports import ID as import_rule
 from cfy_lint.yamllint_ext.autofix.add_label import fix_add_label
 from cfy_lint.yamllint_ext.autofix.empty_lines import fix_empty_lines
@@ -213,8 +215,12 @@ def get_cosmetic_problems(buffer,
         if import_item in context[UNUSED_IMPORT_CTX]:
             problem.rule = import_rule
             problem.level = 'error'
-
             cache.append(problem)
+
+    for _, problem in context.get(UNUSED_INPUTS, {}).items():
+        problem.rule = input_rule
+        problem.level = 'error'
+        cache.append(problem)
 
     # This is the last token/comment/line of this line, let's flush the
     # problems found (but filter them according to the directives)
