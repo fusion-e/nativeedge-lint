@@ -22,7 +22,10 @@ from urllib.parse import urlparse
 from cfy_lint.yamllint_ext import LintProblem
 
 from cfy_lint.yamllint_ext.generators import CfyNode
-from cfy_lint.yamllint_ext.utils import process_relevant_tokens, context
+from cfy_lint.yamllint_ext.utils import (
+    context as ctx,
+    process_relevant_tokens
+)
 
 VALUES = []
 
@@ -37,6 +40,7 @@ def check(token=None, **_):
     for import_item in token.node.value:
         yield from validate_string(import_item, token.line)
         yield from validate_import_items(import_item, token)
+        yield from unused_imports(import_item, token)
         token.line = token.line + 1
 
 
@@ -69,8 +73,8 @@ def validate_import_items(item, token):
         )
     elif url.scheme in ['https', 'https']:
         yield from validate_imported_dsl_version(
-            token.line, context.get('dsl_version'),
-            context.get('imported_tosca_definitions_version'))
+            token.line, ctx.get('dsl_version'),
+            ctx.get('imported_tosca_definitions_version'))
 
 
 def validate_string(item, line):
@@ -108,3 +112,17 @@ def validate_imported_dsl_version(line, dsl_version, imported_dsl):
                 "imports dsl version doesn't match blueprint {}: {} ".format(
                     dsl_version, imported_dsl)
             )
+
+
+def unused_imports(item, token):
+    if 'post_processing_problems' not in ctx:
+        ctx['post_processing_problems'] = {}
+    problem = LintProblem(
+        token.line,
+        None,
+        'unused import item: {}'.format(item.value)
+    )
+    if False:
+        yield(problem)
+    else:
+        ctx['post_processing_problems'].update({item.value: problem})

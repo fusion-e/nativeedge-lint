@@ -17,6 +17,7 @@ import os
 import re
 
 from yamllint import parser
+from cfy_lint.yamllint_ext.constants import UNUSED_IMPORT_CTX
 from cfy_lint.yamllint_ext.generators import (
     CfyNode,
     CfyToken,
@@ -36,6 +37,7 @@ from cfy_lint.yamllint_ext.utils import (
     setup_node_templates,
 )
 from cfy_lint.yamllint_ext.autofix import fix_problem
+from cfy_lint.yamllint_ext.rules.imports import ID as import_rule
 from cfy_lint.yamllint_ext.autofix.add_label import fix_add_label
 from cfy_lint.yamllint_ext.autofix.empty_lines import fix_empty_lines
 
@@ -203,16 +205,27 @@ def get_cosmetic_problems(buffer,
                     problem.level = rule_conf['level']
                     cache.append(problem)
 
-        # This is the last token/comment/line of this line, let's flush the
-        # problems found (but filter them according to the directives)
-        for problem in cache:
-            if not (disabled_for_line.is_disabled_by_directive(problem) or
-                    disabled.is_disabled_by_directive(problem)):
-                yield problem
+    # if this runs with the other loop, we will not have a chance
+    # to check usage of plugins in the blueprint, before
+    # it is reported.
+    for import_item, problem in context.get(
+            'post_processing_problems', {}).items():
+        if import_item in context[UNUSED_IMPORT_CTX]:
+            problem.rule = import_rule
+            problem.level = 'error'
 
-        disabled_for_line = disabled_for_next_line
-        disabled_for_next_line = DisableLineDirective()
-        cache = []
+            cache.append(problem)
+
+    # This is the last token/comment/line of this line, let's flush the
+    # problems found (but filter them according to the directives)
+    for problem in cache:
+        if not (disabled_for_line.is_disabled_by_directive(problem) or
+                disabled.is_disabled_by_directive(problem)):
+            yield problem
+
+    disabled_for_line = disabled_for_next_line
+    disabled_for_next_line = DisableLineDirective()
+    cache = []
 
 
 def _run(buffer,
