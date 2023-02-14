@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+UNUSED_INPUTS = 'unused_inputs'
 UNUSED_IMPORT = 'node_types_by_plugin'
 UNUSED_IMPORT_CTX = 'imported_node_types_by_plugin'
 
