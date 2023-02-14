@@ -32,6 +32,7 @@ from cfy_lint.yamllint_ext.constants import (
     UNUSED_INPUTS,
     DEFAULT_TYPES,
     BLUEPRINT_MODEL,
+    UNUSED_IMPORT_CTX,
     LATEST_PLUGIN_YAMLS,
     NODE_TEMPLATE_MODEL)
 
@@ -58,6 +59,7 @@ context = {
     'dsl_version': None,
     'inputs': {},
     UNUSED_INPUTS: {},
+    UNUSED_IMPORT_CTX: {},
     'node_templates': {},
     'node_types': {},
     'capabilities': {},
