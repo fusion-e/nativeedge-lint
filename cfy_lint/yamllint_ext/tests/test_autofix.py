@@ -20,6 +20,7 @@ from tempfile import NamedTemporaryFile
 from cfy_lint.yamllint_ext import autofix
 from cfy_lint.yamllint_ext.autofix import utils
 from cfy_lint.yamllint_ext.autofix import colons
+from cfy_lint.yamllint_ext.autofix import brackets
 from cfy_lint.yamllint_ext.autofix import add_label
 from cfy_lint.yamllint_ext.autofix import indentation
 from cfy_lint.yamllint_ext.autofix import empty_lines
@@ -160,6 +161,76 @@ def test_fix_indentation():
         f.close()
         os.remove(fix_indentation_file.name)
     assert expected == result_lines
+
+
+def test_braces():
+    lines = [
+        '{   They wanna get my      } \n',
+        '{They wanna get my gold on the ceiling}\n',
+        "{     I ain't blind, just a matter of time  }   \n",
+        '{ Before you steal it }         \n',
+        "{Its all right, ain't no guarding my high   }   \n"
+    ]
+    expected_lines = [
+        '{ They wanna get my } \n',
+        '{ They wanna get my gold on the ceiling }\n',
+        "{ I ain't blind, just a matter of time }   \n",
+        '{ Before you steal it }         \n',
+        "{ Its all right, ain't no guarding my high }   \n"
+    ]
+    fix_braces_file = get_file(lines)
+
+    try:
+        for i in range(0, len(lines)):
+            problem = LintProblem(
+                line=i,
+                column=0,
+                desc='too many spaces inside braces',
+                rule='braces',
+                file=fix_braces_file.name
+            )
+            brackets.fix_spaces_in_brackets(problem)
+    finally:
+        f = open(fix_braces_file.name, 'r')
+        result_lines = f.readlines()
+        f.close()
+        os.remove(fix_braces_file.name)
+    assert result_lines == expected_lines
+
+
+def test_brackets():
+    lines = [
+        '[   They wanna get my      ] \n',
+        '[They wanna get my gold on the ceiling]\n',
+        "[     I ain't blind, just a matter of time  ]   \n",
+        '[ Before you steal it ]         \n',
+        "[Its all right, ain't no guarding my high   ]   \n"
+    ]
+    expected_lines = [
+        '[ They wanna get my ] \n',
+        '[ They wanna get my gold on the ceiling ]\n',
+        "[ I ain't blind, just a matter of time ]   \n",
+        '[ Before you steal it ]         \n',
+        "[ Its all right, ain't no guarding my high ]   \n"
+    ]
+    fix_brackets_file = get_file(lines)
+
+    try:
+        for i in range(0, len(lines)):
+            problem = LintProblem(
+                line=i,
+                column=0,
+                desc='too many spaces inside brackets',
+                rule='brackets',
+                file=fix_brackets_file.name
+            )
+            brackets.fix_spaces_in_brackets(problem)
+    finally:
+        f = open(fix_brackets_file.name, 'r')
+        result_lines = f.readlines()
+        f.close()
+        os.remove(fix_brackets_file.name)
+    assert result_lines == expected_lines
 
 
 def test_trailing_spaces():

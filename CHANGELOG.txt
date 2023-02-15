@@ -39,3 +39,5 @@
   - RD-6918-cfy-lint-version-parsing-error
   - RD-6840 temporarily disable 3rd party required relationships check.
 0.0.24: Rerelease
+0.0.25:
+  - RD-6836 autofix for too many spaces inside brackets & braces
