@@ -385,6 +385,11 @@ def setup_types(buffer=None, data=None, base_path=None):
         return
     for imported in data.get('imports', {}):
         import_cloudify_yaml(imported, base_path=base_path)
+    add_to_node_types(data['node_types'])
+
+
+def add_to_node_types(node_types):
+    context['imported_node_types'].extend(node_types.keys())
 
 
 def setup_node_templates(elem):
