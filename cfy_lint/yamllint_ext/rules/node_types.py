@@ -17,6 +17,9 @@ from cfy_lint.yamllint_ext import LintProblem
 
 from cfy_lint.yamllint_ext.generators import CfyNode
 from cfy_lint.yamllint_ext.utils import process_relevant_tokens
+from cfy_lint.yamllint_ext.rules.node_templates import (
+    remove_node_type_from_context
+)
 
 VALUES = []
 
@@ -31,6 +34,7 @@ def check(token=None, skip_suggestions=None, **_):
     for node_type in token.node.value:
         yield from node_type_follows_naming_conventions(
             node_type[0].value, token.line, skip_suggestions)
+    remove_node_type_from_context(node_type)
 
 
 def node_type_follows_naming_conventions(value, line, skip_suggestions=None):

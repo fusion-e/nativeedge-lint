@@ -41,3 +41,6 @@
 0.0.24: Rerelease
 0.0.25:
   - RD-6836 autofix for too many spaces inside brackets & braces
+  - RD-6826 Report unused inputs.
+  - RD-6827 Report unused imports.
+  - RD-6823 Display Label Autofix no single quotes.

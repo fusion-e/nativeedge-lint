@@ -18,6 +18,7 @@ import yaml
 
 from cfy_lint.yamllint_ext import LintProblem
 from cfy_lint.yamllint_ext.generators import CfyNode
+from cfy_lint.yamllint_ext.constants import UNUSED_IMPORT_CTX
 from cfy_lint.yamllint_ext.utils import (process_relevant_tokens,
                                          INTRINSIC_FNS,
                                          context as ctx)
@@ -61,6 +62,7 @@ def check(token=None, context=None, node_types=None, **_):
             continue
         parsed_node_template = parse_node_template(
             node_template[1], context.get(node_template[0].value))
+        remove_node_type_from_context(parsed_node_template.node_type)
         yield from check_deprecated_node_type(
             parsed_node_template,
             parsed_node_template.line or token.line)
@@ -479,3 +481,10 @@ def check_external_resource(model, line):
             None,
             'resource_config is not required, '
             'when use_external_resource is true.')
+
+
+def remove_node_type_from_context(node_type):
+    if UNUSED_IMPORT_CTX in ctx:
+        for import_item in list(ctx[UNUSED_IMPORT_CTX].keys()):
+            if node_type in ctx[UNUSED_IMPORT_CTX][import_item]:
+                del ctx[UNUSED_IMPORT_CTX][import_item]

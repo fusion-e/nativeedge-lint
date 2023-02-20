@@ -13,21 +13,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 from cfy_lint.yamllint_ext.autofix.utils import filelines
+
+TYP = 'inputs'
+MSG = r'is\smissing\sa\sdisplay_label'
+INDENT = r'^\s+'
 
 
 def fix_add_label(problems):
     counter = 0
     for problem in problems:
-        if problem.rule == 'inputs' and ' is missing a display_label.' in \
-                problem.message:
+        if problem.rule == TYP and re.search(MSG, problem.message):
             with filelines(problem.file) as lines:
-                line = lines[problem.line - 1 + counter]
-                line = line.rstrip()
-                line = line.rstrip(':')
-                line = line.lstrip()
-                line = line.replace('_', ' ')
-                line = line.title()
-                line = "    display_label: '{}'\n".format(line)
-                lines.insert(problem.line + counter, line)
+                label = lines[problem.line - 1 + counter]
+                try:
+                    indentation = re.search(
+                        INDENT,
+                        lines[problem.line + counter]).group()
+                except AttributeError:
+                    indentation = ''.join(
+                        re.search(INDENT, label).group() +
+                        re.search(INDENT, label).group()
+                    )
+                label = label.strip().replace('_', ' ').replace(':', '')
+                label = '{indentation}display_label: ' \
+                        '{label}{linesep}'.format(
+                            indentation=indentation,
+                            label=label.title(),
+                            linesep='\n')
+                lines.insert(problem.line + counter, label)
                 counter += 1
