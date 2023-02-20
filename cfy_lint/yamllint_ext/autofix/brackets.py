@@ -24,12 +24,12 @@ def fix_spaces_in_brackets(problem):
         with filelines(problem.file) as lines:
             line = lines[problem.line - 1]
             if problem.rule == 'braces':
-                new_line = re.sub(r'{\s*', '{ ', line)
-                new_line = re.sub(r'\s*}', ' }', new_line)
+                new_line = re.sub(r'{\s+', '{ ', line)
+                new_line = re.sub(r'\s+}', ' }', new_line)
                 lines[problem.line - 1] = new_line
                 problem.fixed = True
             elif problem.rule == 'brackets':
-                new_line = re.sub(r'\[\s*', '[ ', line)
-                new_line = re.sub(r'\s*\]', ' ]', new_line)
+                new_line = re.sub(r'\[\s+', '[ ', line)
+                new_line = re.sub(r'\s+\]', ' ]', new_line)
                 lines[problem.line - 1] = new_line
                 problem.fixed = True

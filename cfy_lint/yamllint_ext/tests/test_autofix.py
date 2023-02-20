@@ -173,10 +173,10 @@ def test_braces():
     ]
     expected_lines = [
         '{ They wanna get my } \n',
-        '{ They wanna get my gold on the ceiling }\n',
+        '{They wanna get my gold on the ceiling}\n',
         "{ I ain't blind, just a matter of time }   \n",
         '{ Before you steal it }         \n',
-        "{ Its all right, ain't no guarding my high }   \n"
+        "{Its all right, ain't no guarding my high }   \n"
     ]
     fix_braces_file = get_file(lines)
 
@@ -208,10 +208,10 @@ def test_brackets():
     ]
     expected_lines = [
         '[ They wanna get my ] \n',
-        '[ They wanna get my gold on the ceiling ]\n',
+        '[They wanna get my gold on the ceiling]\n',
         "[ I ain't blind, just a matter of time ]   \n",
         '[ Before you steal it ]         \n',
-        "[ Its all right, ain't no guarding my high ]   \n"
+        "[Its all right, ain't no guarding my high ]   \n"
     ]
     fix_brackets_file = get_file(lines)
 
