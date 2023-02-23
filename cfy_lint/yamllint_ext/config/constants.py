@@ -58,6 +58,8 @@ rules:
     allowed-values: ['true', 'false']
     check-keys: true
   new-line-at-end-of-file: disable
+  new-lines:
+    type: platform
   inputs: enable
   imports: enable
   node_types: enable

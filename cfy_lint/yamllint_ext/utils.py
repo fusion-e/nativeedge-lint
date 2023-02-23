@@ -28,8 +28,11 @@ from yamllint.config import YamlLintConfigError
 
 from cfy_lint.yamllint_ext.cloudify.models import NodeTemplate
 from cfy_lint.yamllint_ext.constants import (
-    BLUEPRINT_MODEL,
+    UNUSED_IMPORT,
+    UNUSED_INPUTS,
     DEFAULT_TYPES,
+    BLUEPRINT_MODEL,
+    UNUSED_IMPORT_CTX,
     LATEST_PLUGIN_YAMLS,
     NODE_TEMPLATE_MODEL)
 
@@ -55,6 +58,8 @@ context = {
     'imports': [],
     'dsl_version': None,
     'inputs': {},
+    UNUSED_INPUTS: {},
+    UNUSED_IMPORT_CTX: {},
     'node_templates': {},
     'node_types': {},
     'capabilities': {},
@@ -308,6 +313,14 @@ def import_cloudify_yaml(import_item, base_path=None):
             result['node_types'] = node_types
             with open(cache_item_path, 'w') as jsonfile:
                 json.dump(node_types, jsonfile)
+        # This is kind of wasteful, but
+        # what this does is it stores the node types also
+        # per plugin import line.
+        # this enables us to analyze
+        # if a plugin is being used.
+        result[UNUSED_IMPORT] = {
+            import_item: list(result['node_types'].keys())
+        }
     if parsed_import_item.scheme in ['http', 'https']:
         if os.path.exists(cache_item_path):
             with open(cache_item_path, 'r') as jsonfile:
@@ -372,6 +385,11 @@ def setup_types(buffer=None, data=None, base_path=None):
         return
     for imported in data.get('imports', {}):
         import_cloudify_yaml(imported, base_path=base_path)
+    add_to_node_types(data.get('node_types', {}))
+
+
+def add_to_node_types(node_types):
+    context['imported_node_types'].extend(node_types.keys())
 
 
 def setup_node_templates(elem):

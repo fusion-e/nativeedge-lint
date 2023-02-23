@@ -17,6 +17,7 @@ import yaml
 
 from cfy_lint.yamllint_ext import LintProblem
 from cfy_lint.yamllint_ext.generators import CfyNode
+from cfy_lint.yamllint_ext.constants import UNUSED_INPUTS
 from cfy_lint.yamllint_ext.utils import (
     INTRINSIC_FNS,
     recurse_mapping,
@@ -81,6 +82,16 @@ def check(token=None, skip_suggestions=None, **_):
             if input_obj.not_input():
                 continue
             ctx['inputs'].update(input_obj.__dict__())
+            if input_obj.name not in ctx[UNUSED_INPUTS]:
+                ctx[UNUSED_INPUTS].update(
+                    {
+                        input_obj.name: LintProblem(
+                            token.line,
+                            None,
+                            'input {} is unused.'.format(input_obj.name)
+                        )
+                    }
+                )
             yield from validate_inputs(input_obj,
                                        input_obj.line or token.line,
                                        ctx.get("dsl_version"),
@@ -95,18 +106,24 @@ def check(token=None, skip_suggestions=None, **_):
                         None,
                         'undefined input {}'
                         .format(token.node.value[0].value))
+                elif token.node.value[0].value in ctx[UNUSED_INPUTS]:
+                    del ctx[UNUSED_INPUTS][token.node.value[0].value]
             if isinstance(token.node.value[0], tuple):
                 if token.node.value[0][0] not in ctx['inputs']:
                     yield LintProblem(
                         token.line,
                         None,
                         'undefined input "{}"'.format(token.node.value[0][0]))
+                elif token.node.value[0][0] in ctx[UNUSED_INPUTS]:
+                    del ctx[UNUSED_INPUTS][token.node.value[0][0]]
         else:
             if token.node.value not in ctx['inputs']:
                 yield LintProblem(
                     token.line,
                     None,
                     'undefined input "{}"'.format(token.node.value))
+            elif token.node.value in ctx[UNUSED_INPUTS]:
+                del ctx[UNUSED_INPUTS][token.node.value]
 
 
 def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
