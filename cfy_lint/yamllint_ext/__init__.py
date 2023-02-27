@@ -240,7 +240,8 @@ def _run(buffer,
          base_path=None,
          input_file=None,
          skip_suggestions=None,
-         autofix=False):
+         fix=None):
+    fix = fix or []
 
     assert hasattr(buffer, '__getitem__'), \
         '_run() argument must be a buffer, not a stream'
@@ -263,6 +264,7 @@ def _run(buffer,
     add_label = False
     extra_empty_line = False
     for problem in sorted_problems:
+        problem.fixes = fix
         # Insert the syntax error (if any) at the right place...
 
         if (syntax_error and syntax_error.line <= problem.line and
@@ -279,7 +281,7 @@ def _run(buffer,
 
             syntax_error = None
 
-        if autofix:
+        if problem.fix:
             input_file_path = os.path.abspath(input_file)
             problem.file = input_file_path
 
@@ -294,20 +296,20 @@ def _run(buffer,
         if not problem.fixed:
             yield problem
 
-    if autofix and add_label:
+    if add_label:
         fix_add_label(sorted_problems)
 
     # this needs to be separated from the rest of the auto fix functions since
     # it changes the line numbers of the entire file, so we do it once all
     # other tasks are done
-    if autofix and extra_empty_line:
+    if extra_empty_line:
         fix_empty_lines(problem)
 
     if syntax_error:
         yield syntax_error
 
 
-def run(input, conf, filepath=None, skip_suggestions=None, autofix=False):
+def run(input, conf, filepath=None, skip_suggestions=None, fix=None):
     """Lints a YAML source.
 
     Returns a generator of LintProblem objects.
@@ -332,7 +334,7 @@ def run(input, conf, filepath=None, skip_suggestions=None, autofix=False):
                     input_file=input.name,
                     base_path=base_path,
                     skip_suggestions=skip_suggestions,
-                    autofix=autofix)
+                    fix=fix)
     elif hasattr(input, 'read'):  # Python 2's file or Python 3's io.IOBase
         # We need to have everything in memory to parse correctly
         content = input.read()
@@ -342,6 +344,6 @@ def run(input, conf, filepath=None, skip_suggestions=None, autofix=False):
                     input_file=input.name,
                     base_path=base_path,
                     skip_suggestions=skip_suggestions,
-                    autofix=autofix)
+                    fix=fix)
     else:
         raise TypeError('input should be a string or a stream')

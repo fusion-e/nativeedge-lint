@@ -19,6 +19,8 @@ from cfy_lint.yamllint_ext.autofix.utils import filelines
 
 
 def fix_empty_lines(problem):
+    if not problem.fix_all or not problem.fix_new_lines:
+        return
     with filelines(problem.file) as lines:
         successive_blank_lines = 0
         index = 0

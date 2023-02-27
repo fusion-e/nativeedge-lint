@@ -19,6 +19,33 @@ CLICK_CONTEXT_SETTINGS = dict(
     help_option_names=['-h', '--help'])
 
 
+class FixParamType(click.types.StringParamType):
+    pass
+
+
+class FixParamValue(object):
+    def __init__(self, value):
+
+        if not isinstance(value, str):
+            raise TypeError()
+        line, rule = value.split(':')
+        self.line = int(line)
+        self.rule = rule
+
+
+def get_fix(ctx, value, **_):
+    fixes = []
+    for item in value:
+        try:
+            fixes.append(FixParamValue(item))
+        except (TypeError, ValueError) as e:
+            print('Invalid parameter for --fix.')
+            if hasattr(e, 'message'):
+                print(e.message)
+            ctx.abort()
+    return fixes
+
+
 def init():
     pass
 
@@ -83,6 +110,14 @@ class Options(object):
             is_flag=True,
             multiple=False,
             help='Fix changes in place.')
+
+        self.fix = click.option(
+            '--fix',
+            type=FixParamType(),
+            callback=get_fix,
+            multiple=True,
+            help='Fix specific lint item, format: lineno:rule, '
+                 'e.g. 21:inputs.')
 
 
 options = Options()
