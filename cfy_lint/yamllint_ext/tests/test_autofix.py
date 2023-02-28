@@ -17,6 +17,7 @@ import os
 import re
 from tempfile import NamedTemporaryFile
 
+from cfy_lint.cli import FixParamValue
 from cfy_lint.yamllint_ext import autofix
 from cfy_lint.yamllint_ext.autofix import utils
 from cfy_lint.yamllint_ext.autofix import colons
@@ -133,6 +134,9 @@ baz:
             file=fix_indentation_file.name
         ),
     ]
+    fix = FixParamValue('all=-1')
+    problems[0].fixes = [fix]
+    problems[1].fixes = [fix]
     try:
         add_label.fix_add_label(problems)
     finally:
@@ -355,6 +359,8 @@ def test_empty_lines():
                 rule='trailing-spaces',
                 file=fix_empty_lines_file.name
             )
+            fix = FixParamValue('all=-1')
+            problem.fixes = [fix]
             empty_lines.fix_empty_lines(problem)
     finally:
         f = open(fix_empty_lines_file.name, 'r')

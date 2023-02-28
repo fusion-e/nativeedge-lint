@@ -44,3 +44,5 @@
   - RD-6826 Report unused inputs.
   - RD-6827 Report unused imports.
   - RD-6823 Display Label Autofix no single quotes.
+0.0.26:
+  - RND-147 fix flag for line by line fixes.
