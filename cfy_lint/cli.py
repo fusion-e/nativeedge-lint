@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import click
+from cfy_lint import helptexts
 
 CLICK_CONTEXT_SETTINGS = dict(
     help_option_names=['-h', '--help'])
@@ -67,7 +68,7 @@ class Options(object):
             type=click.Path(),
             multiple=False,
             show_default='blueprint.yaml',
-            help='Path to the blueprint file that you want to lint.')
+            help=helptexts.bp)
 
         self.config = click.option(
             '-c',
@@ -75,7 +76,7 @@ class Options(object):
             default=None,
             type=click.Path(),
             multiple=False,
-            help='ability to use configuration file or options.')
+            help=helptexts.c)
 
         self.verbose = click.option(
             '-v',
@@ -84,7 +85,7 @@ class Options(object):
             type=click.BOOL,
             is_flag=True,
             multiple=False,
-            help='show full verbose logs')
+            help=helptexts.v)
 
         self.format = click.option(
             '-f',
@@ -92,7 +93,7 @@ class Options(object):
             default=None,
             type=click.STRING,
             multiple=False,
-            help='toggle format, options empty or "json".')
+            help=helptexts.f)
 
         self.skip_suggestions = click.option(
             '-xs',
@@ -100,7 +101,7 @@ class Options(object):
             default=None,
             type=click.STRING,
             multiple=True,
-            help='Remove suggested values for supported sections.')
+            help=helptexts.xs)
 
         self.autofix = click.option(
             '-af',
@@ -109,15 +110,14 @@ class Options(object):
             type=click.BOOL,
             is_flag=True,
             multiple=False,
-            help='Fix changes in place.')
+            help=helptexts.af)
 
         self.fix = click.option(
             '--fix',
             type=FixParamType(),
             callback=get_fix,
             multiple=True,
-            help='Fix specific lint item, format: rule=line, '
-                 'e.g. inputs=21.')
+            help=helptexts.fix)
 
 
 options = Options()
