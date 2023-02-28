@@ -24,6 +24,8 @@ INDENT = r'^\s+'
 def fix_add_label(problems):
     counter = 0
     for problem in problems:
+        if not problem.fix:
+            continue
         if problem.rule == TYP and re.search(MSG, problem.message):
             with filelines(problem.file) as lines:
                 label = lines[problem.line - 1 + counter]

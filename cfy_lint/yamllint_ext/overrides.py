@@ -70,6 +70,39 @@ class LintProblem(object):
         self._prev = prev
         self._nextnext = nextnext
         self._fixed = False
+        self._fixes = []
+        self._fix = False
+
+    @property
+    def fixes(self):
+        return self._fixes
+
+    @fixes.setter
+    def fixes(self, value):
+        self._fixes = value
+
+    @property
+    def fix_all(self):
+        for fix in self.fixes:
+            if fix.line == -1 and fix.rule == 'all':
+                return True
+        return False
+
+    @property
+    def fix(self):
+        for fix in self.fixes:
+            if fix.line == -1 and fix.rule == 'all':
+                return True
+            elif fix.line == self.line and fix.rule == self.rule:
+                return True
+        return False
+
+    @property
+    def fix_new_lines(self):
+        for fix in self.fixes:
+            if fix.rule == 'empty-lines':
+                return True
+        return False
 
     @property
     def fixed(self):

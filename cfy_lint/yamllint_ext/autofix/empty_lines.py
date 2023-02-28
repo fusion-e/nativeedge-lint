@@ -19,23 +19,24 @@ from cfy_lint.yamllint_ext.autofix.utils import filelines
 
 
 def fix_empty_lines(problem):
-    with filelines(problem.file) as lines:
-        successive_blank_lines = 0
-        index = 0
-        pattern = "^ *\n"
-        while re.match(pattern, lines[0]):
-            lines.pop(0)
+    if problem.fix_all or problem.fix_new_lines:
+        with filelines(problem.file) as lines:
+            successive_blank_lines = 0
+            index = 0
+            pattern = "^ *\n"
+            while re.match(pattern, lines[0]):
+                lines.pop(0)
 
-        while index < (len(lines)):
-            line = lines.pop(index)
-            if re.match(pattern, line):
-                successive_blank_lines += 1
-                if successive_blank_lines >= 2:
-                    continue
-            else:
-                successive_blank_lines = 0
-            lines.insert(index, line)
-            index += 1
+            while index < (len(lines)):
+                line = lines.pop(index)
+                if re.match(pattern, line):
+                    successive_blank_lines += 1
+                    if successive_blank_lines >= 2:
+                        continue
+                else:
+                    successive_blank_lines = 0
+                lines.insert(index, line)
+                index += 1
 
-        while re.match(pattern, lines[-1]):
-            lines.pop(-1)
+            while re.match(pattern, lines[-1]):
+                lines.pop(-1)

@@ -26,6 +26,15 @@ from cfy_lint.logger import logger, stream_handler
 from cfy_lint.yamllint_ext.config import YamlLintConfigExt
 
 
+def report_both_fix_autofix(af, f):
+    if af and f:
+        print('The parameters -af/--autofix and --fix are '
+              'mutually exclusive. Use --help for more info.')
+        sys.exit(1)
+    elif af:
+        f.insert(0, cli.FixParamValue('all=-1'))
+
+
 @cli.command()
 @cli.options.blueprint_path
 @cli.options.config
@@ -33,12 +42,16 @@ from cfy_lint.yamllint_ext.config import YamlLintConfigExt
 @cli.options.format
 @cli.options.skip_suggestions
 @cli.options.autofix
+@cli.options.fix
 def lint(blueprint_path,
          config,
          verbose,
          format,
          skip_suggestions=None,
-         autofix=False):
+         autofix=False,
+         fix=None):
+
+    report_both_fix_autofix(autofix, fix)
 
     yaml_config = YamlLintConfigExt(content=config, yamllint_rules=rules)
     skip_suggestions = skip_suggestions or ()
@@ -47,7 +60,7 @@ def lint(blueprint_path,
             blueprint_path,
             yaml_config,
             skip_suggestions=skip_suggestions,
-            autofix=autofix)
+            fix=fix)
     except Exception as e:
         if verbose:
             raise e
@@ -81,12 +94,12 @@ def create_report_for_file(file_path,
                            conf,
                            create_report_for_file=False,
                            skip_suggestions=None,
-                           autofix=False):
+                           fix=None):
     if not os.path.exists(file_path):
         raise RuntimeError('File path does not exist: {}.'.format(file_path))
     logger.info('Linting blueprint: {}'.format(file_path))
     with io.open(file_path, newline='') as f:
-        return run(f, conf, create_report_for_file, skip_suggestions, autofix)
+        return run(f, conf, create_report_for_file, skip_suggestions, fix)
 
 
 def formatted_message(item, format=None):
