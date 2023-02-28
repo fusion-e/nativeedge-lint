@@ -134,7 +134,7 @@ baz:
             file=fix_indentation_file.name
         ),
     ]
-    fix = FixParamValue('-1:all')
+    fix = FixParamValue('all=-1')
     problems[0].fixes = [fix]
     problems[1].fixes = [fix]
     try:
@@ -359,7 +359,7 @@ def test_empty_lines():
                 rule='trailing-spaces',
                 file=fix_empty_lines_file.name
             )
-            fix = FixParamValue('-1:all')
+            fix = FixParamValue('all=-1')
             problem.fixes = [fix]
             empty_lines.fix_empty_lines(problem)
     finally:

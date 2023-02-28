@@ -28,7 +28,7 @@ class FixParamValue(object):
 
         if not isinstance(value, str):
             raise TypeError()
-        line, rule = value.split(':')
+        rule, line = value.split('=')
         self.line = int(line)
         self.rule = rule
 
@@ -116,8 +116,8 @@ class Options(object):
             type=FixParamType(),
             callback=get_fix,
             multiple=True,
-            help='Fix specific lint item, format: lineno:rule, '
-                 'e.g. 21:inputs.')
+            help='Fix specific lint item, format: rule=line, '
+                 'e.g. inputs=21.')
 
 
 options = Options()

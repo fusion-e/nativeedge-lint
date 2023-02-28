@@ -32,7 +32,7 @@ def report_both_fix_autofix(af, f):
               'mutually exclusive. Use --help for more info.')
         sys.exit(1)
     elif af:
-        f.insert(0, cli.FixParamValue('-1:all'))
+        f.insert(0, cli.FixParamValue('all=-1'))
 
 
 @cli.command()
