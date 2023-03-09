@@ -46,3 +46,5 @@
   - RD-6823 Display Label Autofix no single quotes.
 0.0.26:
   - RND-147 fix flag for line by line fixes.
+0.0.27:
+  - Pin dependency versions.
