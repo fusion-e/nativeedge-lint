@@ -26,23 +26,32 @@ class FixParamType(click.types.StringParamType):
 
 class FixParamValue(object):
     def __init__(self, value):
-
         if not isinstance(value, str):
             raise TypeError()
-        rule, line = value.split('=')
+        try:
+            rule, line = value.split('=')
+        except ValueError:
+            raise ValueError(
+                'Fix must be in the format rule=lineno.')
         self.line = int(line)
         self.rule = rule
 
 
-def get_fix(ctx, value, **_):
+def get_fix(ctx, *args, **_):
     fixes = []
-    for item in value:
+    if not args or \
+            isinstance(args[-1], click.Option) or \
+            len(args[-1]) < 1:
+        return
+    for item in args[-1]:
         try:
             fixes.append(FixParamValue(item))
         except (TypeError, ValueError) as e:
             print('Invalid parameter for --fix.')
             if hasattr(e, 'message'):
                 print(e.message)
+            else:
+                print(str(e))
             ctx.abort()
     return fixes
 
