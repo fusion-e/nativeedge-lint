@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+
 from cfy_lint.yamllint_ext.autofix.utils import filelines
 from cfy_lint.yamllint_ext.autofix.indentation.utils import (
     get_yaml_dict,
@@ -31,6 +33,10 @@ def fix_indentation(problem):
             corrections = filter_corrections(
                 indentify_indentation_corrections(original, compare),
                 problem.line)
-            for line, correction in corrections.items():
+            for line, correction in sorted(corrections.items()):
+                if line == -1:
+                    print('Unable to autofix indentation for line {}. '
+                          'Unsupported YAML.'.format(problem.line))
+                    sys.exit(1)
                 lines[line - 1] = correction['new']
             problem.fixed = True

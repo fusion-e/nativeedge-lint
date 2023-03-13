@@ -66,7 +66,11 @@ def get_yaml_dict(path):
 
 def get_compare_file_content(data):
     file = StringIO()
-    yaml.safe_dump(data, file, default_flow_style=False, sort_keys=False)
+    yaml.safe_dump(data,
+                   file,
+                   default_flow_style=False,
+                   sort_keys=False,
+                   width=float('inf'))
     file.seek(0)
     content = file.readlines()
     file.close()
@@ -84,6 +88,9 @@ def indentify_indentation_corrections(left_content, right_content):
                 break
             lineno += 1
         return lineno, left
+
+    if not basically_equivalent_files(left_content, right_content):
+        return {-1: "Bad YAML conversion."}
 
     while True:
         right_indent = 0
@@ -133,3 +140,11 @@ def filter_corrections(corrections, line_to_fix):
             break
         line_to_fix += 1
     return new_corrections
+
+
+def basically_equivalent_files(a, b):
+    a = [l for l in a if len(l.strip())]
+    b = [l for l in b if len(l.strip())]
+    if len(a) == len(b):
+        return True
+    return False

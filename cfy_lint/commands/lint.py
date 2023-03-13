@@ -54,7 +54,6 @@ def lint(blueprint_path,
          fix=None):
 
     fix = report_both_fix_autofix(autofix, fix)
-    print(fix)
 
     yaml_config = YamlLintConfigExt(content=config, yamllint_rules=rules)
     skip_suggestions = skip_suggestions or ()
