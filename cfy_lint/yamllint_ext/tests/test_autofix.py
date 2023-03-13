@@ -14,12 +14,10 @@
 # limitations under the License.
 
 import os
-import re
 from tempfile import NamedTemporaryFile
 
 from cfy_lint.cli import FixParamValue
 from cfy_lint.yamllint_ext import autofix
-from cfy_lint.yamllint_ext.autofix import utils
 from cfy_lint.yamllint_ext.autofix import colons
 from cfy_lint.yamllint_ext.autofix import brackets
 from cfy_lint.yamllint_ext.autofix import add_label
@@ -67,27 +65,6 @@ def test_fix_colons():
         os.remove(fix_colons_file.name)
     print(result_lines)
     assert expected == result_lines
-
-
-def test_get_space_diff():
-    messages = [
-        "wrong indentation: expected 10 but found 12",
-        "wrong indentation: expected 6 but found 7",
-    ]
-
-    assert indentation.get_space_diff(messages[0]) == (10 * ' ', 12 * ' ')
-    assert indentation.get_space_diff(messages[1]) == (6 * ' ', 7 * ' ')
-
-
-def test_get_indented_regex():
-    lines = [
-        '    - foo',
-        '      bar'
-    ]
-    assert utils.get_indented_regex(
-        lines[0], 4) == re.compile(r'^\s{4}[\-\s{1}A-Za-z]')
-    assert utils.get_indented_regex(
-        lines[1], 4) == re.compile(r'^\s{4}[A-Za-z]')
 
 
 def get_file(lines):

@@ -28,7 +28,9 @@ def fix_indentation(problem):
         with filelines(problem.file) as lines:
             original = get_file_content(problem.file)
             compare = get_compare_file_content(get_yaml_dict(problem.file))
-            corrections = filter_corrections(indentify_indentation_corrections(original, compare), problem.line)
+            corrections = filter_corrections(
+                indentify_indentation_corrections(original, compare),
+                problem.line)
             for line, correction in corrections.items():
                 lines[line - 1] = correction['new']
             problem.fixed = True

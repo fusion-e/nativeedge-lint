@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import re
 from contextlib import contextmanager
 
 
@@ -29,21 +28,3 @@ def filelines(filename):
 def is_list(line):
     if line.lstrip().startswith('-'):
         return True
-
-
-def get_indented_regex(line, found):
-    if is_list(line):
-        regex = r'^\s{%s,}[\-\s{1}A-Za-z]' % found
-    else:
-        regex = r'^\s{%s,}[A-Za-z]' % found
-    return re.compile(regex)
-
-
-def get_indented_regex(line, found):
-    regex = r'^\s{%s,}[A-Za-z]' % found
-    return re.compile(regex)
-
-
-def get_indented_regex_list(line, found):
-    regex = r'^\s{%s,}[\-\s{1}A-Za-z]' % found
-    return re.compile(regex)
