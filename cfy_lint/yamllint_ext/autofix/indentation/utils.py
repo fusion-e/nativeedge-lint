@@ -143,8 +143,8 @@ def filter_corrections(corrections, line_to_fix):
 
 
 def basically_equivalent_files(a, b):
-    a = [l for l in a if len(l.strip())]
-    b = [l for l in b if len(l.strip())]
+    a = [lia for lia in a if len(lia.strip())]
+    b = [lib for lib in b if len(lib.strip())]
     if len(a) == len(b):
         return True
     return False

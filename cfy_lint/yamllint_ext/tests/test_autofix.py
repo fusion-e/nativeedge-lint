@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import os
+from mock import Mock
 from tempfile import NamedTemporaryFile
 
 from cfy_lint.cli import FixParamValue
@@ -27,6 +28,39 @@ from cfy_lint.yamllint_ext.overrides import LintProblem
 from cfy_lint.yamllint_ext.autofix import trailing_spaces
 from cfy_lint.yamllint_ext.autofix import deprecated_node_types
 from cfy_lint.yamllint_ext.autofix import deprecated_relationships
+
+
+def test_indentation_autofix():
+    relative_root = os.path.join(os.path.dirname(__file__), 'resources')
+    good_blueprint = os.path.join(relative_root, 'blueprint.yaml')
+    bad_blueprint = os.path.join(relative_root, 'bad-blueprint.yaml')
+    good_content = open(good_blueprint).readlines()
+    bad_content = open(bad_blueprint).readlines()
+    outfile = NamedTemporaryFile(mode='w', delete=False)
+    outfile.writelines(bad_content)
+    outfile.close()
+    try:
+        for line in [26, 35, 70]:
+            indentation_problem = LintProblem(
+                line=line,
+                desc='wrong indentation: expected 6 but found 4',
+                rule='indentation',
+                column=None,
+                file=outfile.name,
+            )
+            indentation_problem.fixes = [Mock(line=line, rule='indentation')]
+            indentation.fix_indentation(problem=indentation_problem)
+            if line != 70:
+                notfixed = open(outfile.name)
+                not_fixed_content = notfixed.readlines()
+                notfixed.close()
+                assert good_content != not_fixed_content
+        fixed = open(outfile.name)
+        fixed_content = fixed.readlines()
+        fixed.close()
+        assert good_content == fixed_content
+    finally:
+        os.remove(outfile.name)
 
 
 def test_fix_colons():
