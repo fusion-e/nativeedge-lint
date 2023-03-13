@@ -27,12 +27,14 @@ from cfy_lint.yamllint_ext.config import YamlLintConfigExt
 
 
 def report_both_fix_autofix(af, f):
+    f = f or []
     if af and f:
         print('The parameters -af/--autofix and --fix are '
               'mutually exclusive. Use --help for more info.')
         sys.exit(1)
     elif af:
         f.insert(0, cli.FixParamValue('all=-1'))
+    return f
 
 
 @cli.command()
@@ -51,7 +53,8 @@ def lint(blueprint_path,
          autofix=False,
          fix=None):
 
-    report_both_fix_autofix(autofix, fix)
+    fix = report_both_fix_autofix(autofix, fix)
+    print(fix)
 
     yaml_config = YamlLintConfigExt(content=config, yamllint_rules=rules)
     skip_suggestions = skip_suggestions or ()

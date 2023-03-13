@@ -20,8 +20,24 @@ inputs:
       - bar3:
           bar4: bar5
 
+  barbar:
+    type: list
+    default:
+    - bar1
+    - bar2
+    - bar3:
+      bar4: bar5
+
   baz:
     type: dict
+
+  baz2:
+      type: dict
+      default:
+            - baz2a
+            - baz2b
+            - baz2c:
+              baz2ca: baz2cb
 
   waldo:
     description: waldo input
