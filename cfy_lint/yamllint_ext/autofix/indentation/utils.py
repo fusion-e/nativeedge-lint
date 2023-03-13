@@ -2,7 +2,9 @@ import re
 import yaml
 from io import StringIO
 
-from cfy_lint.yamllint_ext.autofix.indentation.constants import INSTRINSIC_FUNCTIONS
+from cfy_lint.yamllint_ext.autofix.indentation.constants import (
+    INSTRINSIC_FUNCTIONS
+)
 
 
 class CloudifyLoader(yaml.SafeLoader):
@@ -13,16 +15,19 @@ class CloudifyLoader(yaml.SafeLoader):
         # mapping['__line__'] = node.start_mark.line + 1
         return mapping
 
+
 def repr_str(dumper, data):
     if '\n' in data:
-        return dumper.represent_scalar(u'tag:yaml.org,2002:str', data, style='>')
+        return dumper.represent_scalar(
+            u'tag:yaml.org,2002:str', data, style='>')
     return dumper.org_represent_str(data)
 
 
 def represent_intrinsic_functions(dumper, data):
     for fn in INSTRINSIC_FUNCTIONS:
         if fn in data:
-            return dumper.org_represent_str('{{ {fn}: {val} }}'.format(fn=fn, val=data[fn]))
+            return dumper.org_represent_str(
+                '{{ {fn}: {val} }}'.format(fn=fn, val=data[fn]))
     return dumper.represent_dict(data)
 
 
@@ -40,7 +45,8 @@ def increase_indent(self, flow=False, indentless=False):
 
 yaml.SafeDumper.org_represent_str = yaml.SafeDumper.represent_str
 yaml.add_representer(str, repr_str, Dumper=yaml.SafeDumper)
-yaml.add_representer(dict, represent_intrinsic_functions, Dumper=yaml.SafeDumper)
+yaml.add_representer(
+    dict, represent_intrinsic_functions, Dumper=yaml.SafeDumper)
 yaml.SafeDumper.increase_indent = increase_indent
 
 
@@ -69,31 +75,31 @@ def get_compare_file_content(data):
 
 def indentify_indentation_corrections(left_content, right_content):
     corrections = {}
-    l = r = 0
+    il = ir = 0
 
-    def get_left(l):
+    def get_left(lineno):
         while True:
-            left = left_content[l]
+            left = left_content[lineno]
             if len(left.strip()) >= 1:
                 break
-            l += 1
-        return l, left
+            lineno += 1
+        return lineno, left
 
     while True:
         right_indent = 0
-        if l >= len(left_content) or r >= len(right_content):
+        if il >= len(left_content) or ir >= len(right_content):
             break
 
-        l, left = get_left(l)
+        il, left = get_left(il)
 
-        right = right_content[r]
+        right = right_content[ir]
         right_indent = compare_indentations(left, right)
 
         if right_indent:
-            corrections.update({l + 1: right_indent})
+            corrections.update({il + 1: right_indent})
 
-        l += 1
-        r += 1
+        il += 1
+        ir += 1
 
     return corrections
 
