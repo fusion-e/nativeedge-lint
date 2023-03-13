@@ -48,3 +48,5 @@
   - RND-147 fix flag for line by line fixes.
 0.0.27:
   - Pin dependency versions.
+0.0.28:
+  - RD-6832 Autofix Indentation
