@@ -18,6 +18,7 @@ import os
 import re
 import sys
 import json
+import time
 import yaml
 import pathlib
 import urllib.request
@@ -208,7 +209,7 @@ def get_validations(version_constraints):
     # }
     try:
         for version_constraint in version_constraints:
-            sign = re.match('[\\<\\>\\=]+', version_constraint).group(0)
+            sign = re.match('[\\<\\>\\=\\!]+', version_constraint).group(0)
             plugin_version = re.findall(
                 '(\\d+.\\d+.\\d+)', version_constraint)[0]
             validations[sign].append(plugin_version)
@@ -279,19 +280,30 @@ def get_node_types_for_plugin_import(plugin_import):
 
 def get_node_types_for_plugin_version(plugin_name, plugin_version):
 
+    node_types = {}
+    offset = 0
     url = 'https://marketplace.cloudify.co/node-types?' \
           '&plugin_name={}' \
-          '&plugin_version={}'.format(plugin_name, plugin_version)
+          '&plugin_version={}' \
+          '&offset={}'.format(plugin_name, plugin_version, offset)
 
-    result = get_json_from_marketplace(url)
-    node_types = {}
-    for item in result['items']:
-        node_types[item['type']] = item
+    while True:
+        result = get_json_from_marketplace(url)
+        for item in result['items']:
+            if item['type'] not in node_types:
+                node_types[item['type']] = item
+        # Stop paginating results when the offset has been incrimented
+        # Beyond the amount of total reported results.
+        if result['pagination']['total'] <= offset:
+            break
+        offset += 100
+        url = re.sub(r'offset=\d+', 'offset={}'.format(offset), url)
 
     return node_types
 
 
-def import_cloudify_yaml(import_item, base_path=None):
+def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
+    cache_ttl = cache_ttl or 1000
     cache_item = re.sub('[^0-9a-zA-Z]+', '_', import_item)
     current_dir = pathlib.Path(__file__).parent.resolve()
     cache_dir = os.path.join(
@@ -300,6 +312,10 @@ def import_cloudify_yaml(import_item, base_path=None):
     if not os.path.exists(cache_dir):
         os.makedirs(cache_dir)
     cache_item_path = os.path.join(cache_dir, cache_item)
+    if os.path.exists(cache_item_path):
+        # Check if the file has been stale for a while
+        if os.path.getctime(cache_item_path) + cache_ttl < time.time():
+            os.remove(cache_item_path)
 
     result = {}
     parsed_import_item = urlparse(import_item)
