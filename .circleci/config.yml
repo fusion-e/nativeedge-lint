@@ -30,11 +30,32 @@ commands:
            --data GITHUB_PROJECT_URL=$GH_REPO
 
     - run: 
-        name: Trigger Jenkins Pipeline Build Cfy Lint for Linux
+        name: Trigger Jenkins Pipeline Build Cfy Lint for Linux x86_64
         command: |
            curl $CFY_BUILD_LINUX_URL \
            --user $JENKINS_USER:$JENKINS_TOKEN \
            --data ARCH=x86_64
+    
+    - run: 
+        name: Trigger Jenkins Pipeline Build Cfy Lint for Linux aarch64
+        command: |
+           curl $CFY_BUILD_LINUX_URL \
+           --user $JENKINS_USER:$JENKINS_TOKEN \
+           --data ARCH=aarch64
+
+    - run:
+        name: Trigger Jenkins Pipeline Build Cfy Lint for Macos x86_64
+        command: |
+           curl $CFY_BUILD_MACOS_URL \
+           --user $JENKINS_USER:$JENKINS_TOKEN \
+           --data ARCH=macos-x86_64
+    
+    - run:
+        name: Trigger Jenkins Pipeline Build Cfy Lint for Macos aarch64
+        command: |
+           curl $CFY_BUILD_MACOS_URL \
+           --user $JENKINS_USER:$JENKINS_TOKEN \
+           --data ARCH=macos-aarch64
 
 jobs:
 
