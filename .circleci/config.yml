@@ -22,12 +22,19 @@ commands:
   release: 
     steps:
     - run: 
-        name: Trigger Jenkins Pipeline
+        name: Trigger Jenkins Pipeline Upload to PyPi
         command: |
            curl $JENKINS_URL \
            --user $JENKINS_USER:$JENKINS_TOKEN \
            --data BRANCH=main \
            --data GITHUB_PROJECT_URL=$GH_REPO
+
+    - run: 
+        name: Trigger Jenkins Pipeline Build Cfy Lint for Linux
+        command: |
+           curl $CFY_BUILD_LINUX_URL \
+           --user $JENKINS_USER:$JENKINS_TOKEN \
+           --data ARCH=x86_64
 
 jobs:
 
@@ -46,7 +53,7 @@ workflows:
             - cfy-lint
           filters:
             branches:
-              only: main
+              only: RD-7010
           requires:
           - node/unittests_job
 
