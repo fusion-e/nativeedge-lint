@@ -18,7 +18,6 @@ from cfy_lint import helptexts
 CLICK_CONTEXT_SETTINGS = dict(
     help_option_names=['-h', '--help'])
 
-__version__ = "0.0.27"
 
 class FixParamType(click.types.StringParamType):
     pass
@@ -66,12 +65,6 @@ def group(name):
 
 def command(*args, **kwargs):
     return click.command(*args, **kwargs)
-
-@click.group()
-@click.version_option(__version__)
-def version():
-    pass
-
 
 
 class Options(object):
@@ -134,12 +127,5 @@ class Options(object):
             callback=get_fix,
             multiple=True,
             help=helptexts.fix)
-
-        self.version = click.option(
-            '--version',
-            is_flag=True,
-            multiple=False,
-            callback=version(),
-            help=helptexts.version)
 
 options = Options()

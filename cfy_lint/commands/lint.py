@@ -20,7 +20,7 @@ import json
 from re import sub
 from logging import (Formatter, StreamHandler)
 
-from cfy_lint import cli
+from cfy_lint import cli, __version__
 from cfy_lint.yamllint_ext import (run, rules)
 from cfy_lint.logger import logger, stream_handler
 from cfy_lint.yamllint_ext.config import YamlLintConfigExt
@@ -43,14 +43,15 @@ def report_both_fix_autofix(af, f):
 @cli.options.skip_suggestions
 @cli.options.autofix
 @cli.options.fix
-@cli.options.version
+@cli.click.version_option(__version__.version)
 def lint(blueprint_path,
          config,
          verbose,
          format,
          skip_suggestions=None,
          autofix=False,
-         fix=None):
+         fix=None,
+         **_):
 
     report_both_fix_autofix(autofix, fix)
 

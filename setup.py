@@ -13,11 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+import re
+import pathlib
 from setuptools import (setup, find_packages)
+
+
+def get_version():
+    current_dir = pathlib.Path(__file__).parent.resolve()
+
+    with open(os.path.join(current_dir,
+                           'cfy_lint/__version__.py'),
+              'r') as outfile:
+        var = outfile.read()
+        return re.search(r'\d+.\d+.\d+', var).group()
+
 
 setup(
     name='cfy-lint',
-    version='0.0.27',
+    version=get_version(),
     license='LICENSE',
     packages=find_packages(),
     description='Linter for Cloudify Blueprints',
