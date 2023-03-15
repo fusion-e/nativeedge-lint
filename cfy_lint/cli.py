@@ -70,6 +70,7 @@ def command(*args, **kwargs):
 
 class Options(object):
     def __init__(self):
+
         self.blueprint_path = click.option(
             '-b',
             '--blueprint-path',
