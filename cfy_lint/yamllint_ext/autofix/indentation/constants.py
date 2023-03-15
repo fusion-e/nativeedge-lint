@@ -1,5 +1,5 @@
 ########
-# Copyright (c) 2014-2022 Cloudify Platform Ltd. All rights reserved
+# Copyright (c) 2014-2023 Cloudify Platform Ltd. All rights reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,18 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from contextlib import contextmanager
-
-
-@contextmanager
-def filelines(filename):
-    with open(filename, 'r') as file:
-        lines = file.readlines()
-    yield lines
-    with open(filename, 'w') as file:
-        file.writelines(lines)
-
-
-def is_list(line):
-    if line.lstrip().startswith('-'):
-        return True
+CONCAT = 'concat'
+GET_INPUT = 'get_input'
+GET_SECRET = 'get_secret'
+GET_PROPERTY = 'get_property'
+GET_ATTRIBUTE = 'get_attribute'
+GET_CAPABILITY = 'get_capability'
+GET_ENVIRONMENT_CAPABILITY = 'get_environment_capability'
+INSTRINSIC_FUNCTIONS = [
+    CONCAT,
+    GET_INPUT,
+    GET_SECRET,
+    GET_PROPERTY,
+    GET_ATTRIBUTE,
+    GET_CAPABILITY,
+    GET_ENVIRONMENT_CAPABILITY
+]
