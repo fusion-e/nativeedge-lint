@@ -75,10 +75,10 @@ def read(rel_path):
         return fp.read()
 
 
-def get_version(rel_file='plugin.yaml'):
+def get_version(rel_file='setup.py'):
     lines = read(rel_file)
     for line in lines.splitlines():
-        if 'package_version' in line:
+        if 'version' in line:
             split_line = line.split(':')
             line_no_space = split_line[-1].replace(' ', '')
             line_no_quotes = line_no_space.replace('\'', '')
@@ -90,11 +90,10 @@ class Options(object):
 
         self.version = click.option(
             '--version',
-            '-V',
-            type=click.STRING,
+            is_flag=True,
+            multiple=False,
             callback=get_version,
-            help=helptexts.version
-        )
+            help=helptexts.version)
 
         self.blueprint_path = click.option(
             '-b',

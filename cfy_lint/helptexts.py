@@ -32,4 +32,4 @@ v = """Show verbose output, including exceptions."""
 
 xs = """Do not display suggested values for supported sections."""
 
-version = """cfy-lint version. """
+version = """cfy-lint --version. """
