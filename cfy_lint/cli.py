@@ -15,6 +15,7 @@
 
 import click
 from cfy_lint import helptexts
+
 CLICK_CONTEXT_SETTINGS = dict(
     help_option_names=['-h', '--help'])
 
