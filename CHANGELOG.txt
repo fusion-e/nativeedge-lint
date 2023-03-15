@@ -50,3 +50,4 @@
   - Pin dependency versions.
 0.0.28:
   - add cfy lint --version flag
+  - RD-6832 Autofix Indentation
