@@ -43,6 +43,7 @@ def report_both_fix_autofix(af, f):
 @cli.options.skip_suggestions
 @cli.options.autofix
 @cli.options.fix
+@cli.options.version
 def lint(blueprint_path,
          config,
          verbose,

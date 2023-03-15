@@ -13,13 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import click
 from cfy_lint import helptexts
-
 CLICK_CONTEXT_SETTINGS = dict(
     help_option_names=['-h', '--help'])
 
+__version__ = "0.0.27"
 
 class FixParamType(click.types.StringParamType):
     pass
@@ -68,33 +67,15 @@ def group(name):
 def command(*args, **kwargs):
     return click.command(*args, **kwargs)
 
+@click.group()
+@click.version_option(__version__)
+def version():
+    pass
 
-def read(rel_path):
-    here = os.path.abspath(os.path.dirname(__file__))
-    with open(os.path.join(here, rel_path), 'r') as fp:
-        return fp.read()
-
-
-def get_version(rel_file='setup.py'):
-    lines = read(rel_file)
-    for line in lines.splitlines():
-        if 'version' in line:
-            split_line = line.split(':')
-            line_no_space = split_line[-1].replace(' ', '')
-            line_no_quotes = line_no_space.replace('\'', '')
-            return line_no_quotes.strip('\n')
-    raise RuntimeError('Unable to find version string.')
 
 
 class Options(object):
     def __init__(self):
-
-        self.version = click.option(
-            '--version',
-            is_flag=True,
-            multiple=False,
-            callback=get_version,
-            help=helptexts.version)
 
         self.blueprint_path = click.option(
             '-b',
@@ -154,5 +135,11 @@ class Options(object):
             multiple=True,
             help=helptexts.fix)
 
+        self.version = click.option(
+            '--version',
+            is_flag=True,
+            multiple=False,
+            callback=version(),
+            help=helptexts.version)
 
 options = Options()
