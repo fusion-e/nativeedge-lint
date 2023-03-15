@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import click
 from cfy_lint import helptexts
 
@@ -68,8 +69,33 @@ def command(*args, **kwargs):
     return click.command(*args, **kwargs)
 
 
+def read(rel_path):
+    here = os.path.abspath(os.path.dirname(__file__))
+    with open(os.path.join(here, rel_path), 'r') as fp:
+        return fp.read()
+
+
+def get_version(rel_file='plugin.yaml'):
+    lines = read(rel_file)
+    for line in lines.splitlines():
+        if 'package_version' in line:
+            split_line = line.split(':')
+            line_no_space = split_line[-1].replace(' ', '')
+            line_no_quotes = line_no_space.replace('\'', '')
+            return line_no_quotes.strip('\n')
+    raise RuntimeError('Unable to find version string.')
+
 class Options(object):
     def __init__(self):
+
+        self.version = click.option(
+            '--version',
+            '-V',
+            type=click.STRING,
+            callback=get_version,
+            help=helptexts.version
+        )
+
         self.blueprint_path = click.option(
             '-b',
             '--blueprint-path',
