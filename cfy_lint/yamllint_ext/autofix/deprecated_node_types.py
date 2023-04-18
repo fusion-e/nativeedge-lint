@@ -26,3 +26,16 @@ def fix_deprecated_node_types(problem):
             new_line = line.replace(split[-3], split[-1].rstrip('.'))
             lines[problem.line - 1] = new_line + '\n'
         problem.fixed = True
+    if problem.rule == 'node_templates' and \
+            'has deprecated property' in problem.message:
+        words = problem.message.split()
+        target = words[-4].replace('"', '').replace('.', '') + ":"
+        line_number = problem.line - 1
+        with filelines(problem.file) as lines:
+            while target not in lines[line_number]:
+                line_number += 1
+            line = lines[line_number]
+            line = line.rstrip()
+            new_line = line.replace(target, "client_config:")
+            lines[line_number] = new_line + '\n'
+        problem.fixed = True
