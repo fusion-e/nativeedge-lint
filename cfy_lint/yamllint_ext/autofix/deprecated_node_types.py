@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
+
 from cfy_lint.yamllint_ext.autofix.utils import filelines
 
 
@@ -29,7 +31,10 @@ def fix_deprecated_node_types(problem):
     if problem.rule == 'node_templates' and \
             'has deprecated property' in problem.message:
         words = problem.message.split()
+        pattern = re.compile('(azure|aws|gcp)_config')
         target = words[-4].replace('"', '').replace('.', '') + ":"
+        if not pattern.search(target):
+            return
         line_number = problem.line - 1
         with filelines(problem.file) as lines:
             while target not in lines[line_number]:

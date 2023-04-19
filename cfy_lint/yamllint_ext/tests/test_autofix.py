@@ -654,7 +654,7 @@ def test_relationships_types():
     assert result_lines == expected_lines
 
 
-def test_clinet_config():
+def test_client_config():
     lines = [
         '  vm:\n'
         '    type: cloudify.nodes.aws.ec2.Instances\n'
