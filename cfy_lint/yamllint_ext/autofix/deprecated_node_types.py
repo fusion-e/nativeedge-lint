@@ -15,7 +15,7 @@
 
 import re
 
-from cfy_lint.yamllint_ext.autofix.utils import filelines
+from cfy_lint.yamllint_ext.autofix.utils import filelines, get_eol
 
 
 def fix_deprecated_node_types(problem):
@@ -23,10 +23,10 @@ def fix_deprecated_node_types(problem):
             'deprecated node type' in problem.message:
         with filelines(problem.file) as lines:
             line = lines[problem.line - 1]
-            line = line.rstrip()
+            line, eol = get_eol(line)
             split = problem.message.split()
             new_line = line.replace(split[-3], split[-1].rstrip('.'))
-            lines[problem.line - 1] = new_line + '\n'
+            lines[problem.line - 1] = new_line + eol
         problem.fixed = True
     if problem.rule == 'node_templates' and \
             'has deprecated property' in problem.message:
@@ -40,7 +40,7 @@ def fix_deprecated_node_types(problem):
             while target not in lines[line_number]:
                 line_number += 1
             line = lines[line_number]
-            line = line.rstrip()
-            new_line = line.replace(target, "client_config:")
-            lines[line_number] = new_line + '\n'
+            line, eol = get_eol(line)
+            new_line = re.sub(target, "client_config:", line)
+            lines[line_number] = new_line + eol
         problem.fixed = True
