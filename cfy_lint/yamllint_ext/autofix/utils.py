@@ -33,7 +33,7 @@ def is_list(line):
 def get_eol(line):
     """Gets the end of a line."""
     stripped = line.rstrip()
-    eol = '';
+    eol = ''
     for i in range(0, len(line)):
         try:
             assert stripped[i] == line[i]
