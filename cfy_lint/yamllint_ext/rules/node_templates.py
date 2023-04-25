@@ -224,16 +224,23 @@ def check_gcp_config(model, line):
 
 
 def check_azure_config(model, line):
-    if 'client_config' not in model.properties or \
-            'azure_config' in model.properties:
+    if 'azure_config' in model.properties:
+        yield LintProblem(
+            line,
+            None,
+            'The node template "{}" has deprecated property "azure_config". '
+            'please use "client_config".'.format(model.name)
+        )
+    elif 'client_config' not in model.properties:
         yield LintProblem(
             line,
             None,
             'The node template "{}" '
             'does not provide required property "client_config".'.format(
                 model.name))
-    client_config = model.properties.get('client_config', {})
-    if not all(x in AZURE_VALID_KEY for x in client_config.keys()):
+    # client_config = model.properties.get('client_config', {})
+    elif not all(x in AZURE_VALID_KEY for x in
+                 model.properties.get('client_config', {}).keys()):
         if 'get_input' not in model.properties['client_config'] and \
                 'get_secret' not in model.properties['client_config']:
             yield LintProblem(line,
@@ -244,15 +251,23 @@ def check_azure_config(model, line):
 
 
 def check_aws_config(model, line):
-    if 'client_config' not in model.properties:
+    if 'aws_config' in model.properties:
+        yield LintProblem(
+            line,
+            None,
+            'The node template "{}" has deprecated property "aws_config". '
+            'please use "client_config".'.format(model.name)
+        )
+    elif 'client_config' not in model.properties:
         yield LintProblem(
             line,
             None,
             'The node template "{}" '
             'does not provide required property "client_config".'.format(
                 model.name))
-    client_config = model.properties.get('client_config')
-    if not all(x in AWS_VALID_KEY for x in client_config.keys()):
+    # client_config = model.properties.get('client_config')
+    elif not all(x in AWS_VALID_KEY for x in
+                 model.properties.get('client_config').keys()):
         if 'get_input' not in model.properties['client_config'] and \
                 'get_secret' not in model.properties['client_config']:
             yield LintProblem(line,

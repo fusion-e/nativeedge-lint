@@ -97,7 +97,6 @@ def test_fix_colons():
         result_lines = f.readlines()
         f.close()
         os.remove(fix_colons_file.name)
-    print(result_lines)
     assert expected == result_lines
 
 
@@ -652,4 +651,38 @@ def test_relationships_types():
         f.close()
         os.remove(fix_trailing_spaces_file.name)
 
+    assert result_lines == expected_lines
+
+
+def test_client_config():
+    lines = [
+        '  vm:\n'
+        '    type: cloudify.nodes.aws.ec2.Instances\n'
+        '    properties:\n'
+        '      aws_config: *client_config\n'
+    ]
+    expected_lines = [
+        '  vm:\n',
+        '    type: cloudify.nodes.aws.ec2.Instances\n',
+        '    properties:\n',
+        '      client_config: *client_config\n'
+    ]
+    fix_clinet_config_file = get_file(lines)
+
+    try:
+        for i in range(0, len(lines)):
+            problem = LintProblem(
+                line=i,
+                column=0,
+                desc='The node template "vm" has deprecated property '
+                     '"aws_config". please use "client_config"',
+                rule='node_templates',
+                file=fix_clinet_config_file.name
+            )
+            deprecated_node_types.fix_deprecated_node_types(problem)
+    finally:
+        f = open(fix_clinet_config_file.name, 'r')
+        result_lines = f.readlines()
+        f.close()
+        os.remove(fix_clinet_config_file.name)
     assert result_lines == expected_lines

@@ -170,6 +170,7 @@ def test_node_templates():
         result = get_gen_as_list(rules.node_templates.check,
                                  {'token': elem, 'context': context})
 
+        print(result)
         assert isinstance(result[0], LintProblem)
         assert 'deprecated node type' in result[0].message
         assert isinstance(result[1], LintProblem)
@@ -177,7 +178,7 @@ def test_node_templates():
         assert isinstance(result[2], LintProblem)
         assert 'undefined target' in result[2].message
         assert isinstance(result[3], LintProblem)
-        assert 'required property' in result[3].message
+        assert 'deprecated property' in result[3].message
 
 
 def test_node_types():
