@@ -16,7 +16,6 @@
 from cfy_lint.yamllint_ext.autofix.truthy import fix_truthy
 from cfy_lint.yamllint_ext.autofix.colons import fix_colons
 from cfy_lint.yamllint_ext.autofix.indentation import fix_indentation
-from cfy_lint.yamllint_ext.autofix.unused_import import fix_unused_import
 from cfy_lint.yamllint_ext.autofix.brackets import fix_spaces_in_brackets
 from cfy_lint.yamllint_ext.autofix.trailing_spaces import fix_trailing_spaces
 from cfy_lint.yamllint_ext.autofix.deprecated_node_types import \
@@ -34,4 +33,3 @@ def fix_problem(problem):
         fix_deprecated_relationships(problem)
         fix_colons(problem)
         fix_spaces_in_brackets(problem)
-        fix_unused_import(problem)

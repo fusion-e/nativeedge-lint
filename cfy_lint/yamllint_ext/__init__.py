@@ -42,6 +42,7 @@ from cfy_lint.yamllint_ext.rules.inputs import ID as input_rule
 from cfy_lint.yamllint_ext.rules.imports import ID as import_rule
 from cfy_lint.yamllint_ext.autofix.add_label import fix_add_label
 from cfy_lint.yamllint_ext.autofix.empty_lines import fix_empty_lines
+from cfy_lint.yamllint_ext.autofix.unused_import import fix_unused_import
 
 PROBLEM_LEVELS = {
     0: None,
@@ -292,7 +293,7 @@ def _run(buffer,
             if problem.rule == 'empty-lines':
                 extra_empty_line = True
                 problem.fixed = True
-            if problem.rule == 'import':
+            if problem.rule == 'imports':
                 unused_import = True
                 problem.fixed = True
             fix_problem(problem)
