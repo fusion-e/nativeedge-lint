@@ -263,6 +263,7 @@ def _run(buffer,
     sorted_problems = sorted(problems, key=lambda x: x.line)
     add_label = False
     extra_empty_line = False
+    unused_import = False
     for problem in sorted_problems:
         problem.fixes = fix
         # Insert the syntax error (if any) at the right place...
@@ -291,6 +292,9 @@ def _run(buffer,
             if problem.rule == 'empty-lines':
                 extra_empty_line = True
                 problem.fixed = True
+            if problem.rule == 'import':
+                unused_import = True
+                problem.fixed = True
             fix_problem(problem)
 
         if not problem.fixed:
@@ -299,6 +303,8 @@ def _run(buffer,
     if add_label:
         fix_add_label(sorted_problems)
 
+    if unused_import:
+        fix_unused_import(sorted_problems)
     # this needs to be separated from the rest of the auto fix functions since
     # it changes the line numbers of the entire file, so we do it once all
     # other tasks are done
