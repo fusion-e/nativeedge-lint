@@ -19,9 +19,9 @@ from cfy_lint.yamllint_ext.autofix.utils import filelines
 TYP = 'imports'
 MSG = r' unused import item'
 
+
 def fix_unused_import(problems):
     for problem in reversed(problems):
         if problem.rule == TYP and re.search(MSG, problem.message):
             with filelines(problem.file) as lines:
                 lines.pop(problem.line - 1)
-                
