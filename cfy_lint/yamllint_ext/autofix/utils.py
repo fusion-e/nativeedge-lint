@@ -38,5 +38,6 @@ def get_eol(line):
         try:
             assert stripped[i] == line[i]
         except IndexError:
-            eol += line[i]
+            if line[i] != ' ':
+                eol += line[i]
     return stripped, eol
