@@ -51,4 +51,7 @@
 0.0.28:
   - add cfy lint --version flag
   - RD-6832 Autofix Indentation
+0.0.29:
+  - Fix eol identitification.
   - RND-472 cfy lint autofix unused import 
+  - GCP deprecated types.
