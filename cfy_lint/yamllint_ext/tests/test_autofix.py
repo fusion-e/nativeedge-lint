@@ -64,40 +64,76 @@ def test_indentation_autofix():
 
 
 def test_fix_colons():
-    lines = [
-        "aws_region_name      :\n",
-        "display_label     :     'Aws Region Name'\n",
-        "type : string\n",
-        "default    : 'us-east-1'\n",
-        "constraints:      \n",
-        "- valid_values :      \n",
-    ]
     expected = [
-        "aws_region_name:\n",
-        "display_label: 'Aws Region Name'\n",
+        "aws_region_name: z\n",
+        "display_label: Aws Region Name\n",
         "type: string\n",
-        "default: 'us-east-1'\n",
-        "constraints:\n",
-        "- valid_values:\n",
+        "default: us-east-1\n",
+        "constraints: f\n",
+        "valid_values:",
     ]
+    lines = """aws_region_name      :z
+display_label     :     Aws Region Name
+type : string
+default    : us-east-1
+constraints:      f
+valid_values :
+"""
+
     fix_colons_file = get_file(lines)
 
     try:
-        for i in range(0, len(lines)):
-            problem = LintProblem(
-                line=i,
+        problems = [
+            LintProblem(
+                line=1,
                 column=0,
                 desc='too many spaces before colon',
                 rule='colons',
                 file=fix_colons_file.name
-            )
+            ),
+            LintProblem(
+                line=2,
+                column=0,
+                desc='too many spaces before colon',
+                rule='colons',
+                file=fix_colons_file.name
+            ),
+            LintProblem(
+                line=3,
+                column=0,
+                desc='too many spaces before colon',
+                rule='colons',
+                file=fix_colons_file.name
+            ),
+            LintProblem(
+                line=4,
+                column=0,
+                desc='too many spaces before colon',
+                rule='colons',
+                file=fix_colons_file.name
+            ),
+            LintProblem(
+                line=5,
+                column=0,
+                desc='too many spaces before colon',
+                rule='colons',
+                file=fix_colons_file.name
+            ),
+            LintProblem(
+                line=6,
+                column=0,
+                desc='too many spaces before colon',
+                rule='colons',
+                file=fix_colons_file.name
+            ),
+        ]
+        for problem in problems:
             colons.fix_colons(problem)
     finally:
         f = open(fix_colons_file.name, 'r')
         result_lines = f.readlines()
         f.close()
         os.remove(fix_colons_file.name)
-    print(result_lines)
     assert expected == result_lines
 
 
@@ -652,4 +688,38 @@ def test_relationships_types():
         f.close()
         os.remove(fix_trailing_spaces_file.name)
 
+    assert result_lines == expected_lines
+
+
+def test_client_config():
+    lines = [
+        '  vm:\n'
+        '    type: cloudify.nodes.aws.ec2.Instances\n'
+        '    properties:\n'
+        '      aws_config: *client_config\n'
+    ]
+    expected_lines = [
+        '  vm:\n',
+        '    type: cloudify.nodes.aws.ec2.Instances\n',
+        '    properties:\n',
+        '      client_config: *client_config\n'
+    ]
+    fix_clinet_config_file = get_file(lines)
+
+    try:
+        for i in range(0, len(lines)):
+            problem = LintProblem(
+                line=i,
+                column=0,
+                desc='The node template "vm" has deprecated property '
+                     '"aws_config". please use "client_config"',
+                rule='node_templates',
+                file=fix_clinet_config_file.name
+            )
+            deprecated_node_types.fix_deprecated_node_types(problem)
+    finally:
+        f = open(fix_clinet_config_file.name, 'r')
+        result_lines = f.readlines()
+        f.close()
+        os.remove(fix_clinet_config_file.name)
     assert result_lines == expected_lines

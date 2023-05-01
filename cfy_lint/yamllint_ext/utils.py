@@ -289,15 +289,16 @@ def get_node_types_for_plugin_version(plugin_name, plugin_version):
 
     while True:
         result = get_json_from_marketplace(url)
-        for item in result['items']:
-            if item['type'] not in node_types:
-                node_types[item['type']] = item
-        # Stop paginating results when the offset has been incrimented
-        # Beyond the amount of total reported results.
-        if result['pagination']['total'] <= offset:
-            break
-        offset += 100
-        url = re.sub(r'offset=\d+', 'offset={}'.format(offset), url)
+        if 'items' in result:
+            for item in result['items']:
+                if item['type'] not in node_types:
+                    node_types[item['type']] = item
+            # Stop paginating results when the offset has been incrimented
+            # Beyond the amount of total reported results.
+            if result['pagination']['total'] <= offset:
+                break
+            offset += 100
+            url = re.sub(r'offset=\d+', 'offset={}'.format(offset), url)
 
     return node_types
 

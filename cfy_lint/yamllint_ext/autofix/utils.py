@@ -28,3 +28,16 @@ def filelines(filename):
 def is_list(line):
     if line.lstrip().startswith('-'):
         return True
+
+
+def get_eol(line):
+    """Gets the end of a line."""
+    stripped = line.rstrip()
+    eol = ''
+    for i in range(0, len(line)):
+        try:
+            assert stripped[i] == line[i]
+        except IndexError:
+            if line[i] != ' ':
+                eol += line[i]
+    return stripped, eol

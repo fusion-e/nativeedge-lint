@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from cfy_lint.yamllint_ext.autofix.utils import filelines
+from cfy_lint.yamllint_ext.autofix.utils import filelines, get_eol
 
 
 def fix_deprecated_relationships(problem):
@@ -21,8 +21,8 @@ def fix_deprecated_relationships(problem):
             'deprecated relationship type' in problem.message:
         with filelines(problem.file) as lines:
             line = lines[problem.line]
-            line = line.rstrip()
+            line, eol = get_eol(line)
             split = problem.message.split()
             new_line = line.replace(split[-3], split[-1].rstrip('.'))
-            lines[problem.line] = new_line + '\n'
+            lines[problem.line] = new_line + eol
         problem.fixed = True
