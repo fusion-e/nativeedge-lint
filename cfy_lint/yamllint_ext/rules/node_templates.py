@@ -211,16 +211,6 @@ def check_gcp_config(model, line):
             'does not provide required property "client_config".'.format(
                 model.name)
         )
-    elif not all(x in ['auth', 'zone']
-                 for x in model.properties['client_config']):
-        yield LintProblem(
-            line,
-            None,
-            'The node template "{}" '
-            'does not provide required client config values '
-            '["auth", "zone"].'.format(
-                model.name)
-        )
 
 
 def check_azure_config(model, line):
