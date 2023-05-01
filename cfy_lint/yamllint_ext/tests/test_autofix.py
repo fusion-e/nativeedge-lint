@@ -64,14 +64,6 @@ def test_indentation_autofix():
 
 
 def test_fix_colons():
-    # lines = [
-    #     "aws_region_name      :\n",
-    #     "display_label     :     'Aws Region Name'\n",
-    #     "type : string\n",
-    #     "default    : 'us-east-1'\n",
-    #     "constraints:      \n",
-    #     "- valid_values :      \n",
-    # ]
     expected = [
         "aws_region_name: z\n",
         "display_label: Aws Region Name\n",
@@ -142,9 +134,6 @@ valid_values :
         result_lines = f.readlines()
         f.close()
         os.remove(fix_colons_file.name)
-    print("hiiiiii")
-    print(result_lines)
-    print(expected)
     assert expected == result_lines
 
 
@@ -338,8 +327,6 @@ def test_trailing_spaces():
         result_lines = f.readlines()
         f.close()
         os.remove(fix_trailing_spaces_file.name)
-    # print(result_lines)
-    # print(expected_lines)
     assert result_lines == expected_lines
 
 
