@@ -13,13 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from cfy_lint.yamllint_ext.autofix.utils import filelines
+from cfy_lint.yamllint_ext.autofix.utils import filelines, get_eol
 
 
 def fix_trailing_spaces(problem):
     if problem.rule == 'trailing-spaces':
         with filelines(problem.file) as lines:
             line = lines[problem.line - 1]
-            new_line = line.rstrip() + '\n'
-            lines[problem.line - 1] = new_line
+            new_line, eol = get_eol(line)
+            lines[problem.line - 1] = new_line + eol
         problem.fixed = True

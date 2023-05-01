@@ -64,33 +64,70 @@ def test_indentation_autofix():
 
 
 def test_fix_colons():
-    lines = [
-        "aws_region_name      :\n",
-        "display_label     :     'Aws Region Name'\n",
-        "type : string\n",
-        "default    : 'us-east-1'\n",
-        "constraints:      \n",
-        "- valid_values :      \n",
-    ]
     expected = [
-        "aws_region_name:\n",
-        "display_label: 'Aws Region Name'\n",
+        "aws_region_name: z\n",
+        "display_label: Aws Region Name\n",
         "type: string\n",
-        "default: 'us-east-1'\n",
-        "constraints:\n",
-        "- valid_values:\n",
+        "default: us-east-1\n",
+        "constraints: f\n",
+        "valid_values:",
     ]
+    lines = """aws_region_name      :z
+display_label     :     Aws Region Name
+type : string
+default    : us-east-1
+constraints:      f
+valid_values :
+"""
+
     fix_colons_file = get_file(lines)
 
     try:
-        for i in range(0, len(lines)):
-            problem = LintProblem(
-                line=i,
+        problems = [
+            LintProblem(
+                line=1,
                 column=0,
                 desc='too many spaces before colon',
                 rule='colons',
                 file=fix_colons_file.name
-            )
+            ),
+            LintProblem(
+                line=2,
+                column=0,
+                desc='too many spaces before colon',
+                rule='colons',
+                file=fix_colons_file.name
+            ),
+            LintProblem(
+                line=3,
+                column=0,
+                desc='too many spaces before colon',
+                rule='colons',
+                file=fix_colons_file.name
+            ),
+            LintProblem(
+                line=4,
+                column=0,
+                desc='too many spaces before colon',
+                rule='colons',
+                file=fix_colons_file.name
+            ),
+            LintProblem(
+                line=5,
+                column=0,
+                desc='too many spaces before colon',
+                rule='colons',
+                file=fix_colons_file.name
+            ),
+            LintProblem(
+                line=6,
+                column=0,
+                desc='too many spaces before colon',
+                rule='colons',
+                file=fix_colons_file.name
+            ),
+        ]
+        for problem in problems:
             colons.fix_colons(problem)
     finally:
         f = open(fix_colons_file.name, 'r')

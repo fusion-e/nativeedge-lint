@@ -14,7 +14,7 @@
 # limitations under the License.
 
 from cfy_lint.logger import logger
-from cfy_lint.yamllint_ext.autofix.utils import filelines
+from cfy_lint.yamllint_ext.autofix.utils import filelines, get_eol
 
 TRUE_PATTERN = 'TRUE'
 FALSE_PATTERN = 'FALSE'
@@ -33,7 +33,7 @@ def fix_truthy(problem):
 
 
 def replace_words(line, pattern, replacement):
-    clean_line = line.rstrip()
+    clean_line, eol = get_eol(line)
     new_words = []
     for word in clean_line.split(' '):
         if word.upper() == pattern:
@@ -41,5 +41,5 @@ def replace_words(line, pattern, replacement):
             word = word.upper().replace(pattern, replacement)
         new_words.append(word)
     if clean_line != line:
-        new_words[-1] += '\n'
+        new_words[-1] += eol
     return ' '.join(new_words)
