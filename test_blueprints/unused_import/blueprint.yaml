@@ -1,0 +1,26 @@
+tosca_definitions_version: cloudify_dsl_1_4
+
+imports:
+  - cloudify/types/types.yaml
+  - plugin:cloudify-gcp-plugin
+  - import1.yaml
+  - import2.yaml
+  - import3.yaml
+
+node_types:
+
+  cloudify.nodes.types.New:
+    derived_from: cloudify.nodes.Root
+    properties:
+      foo:
+        type: string
+
+relationships:
+
+  cloudify.relationships.types.New:
+    derived_from: cloudify.relationships.depends_on
+
+node_templates:
+
+  bar:
+    type: cloudify.nodes.Types.Used

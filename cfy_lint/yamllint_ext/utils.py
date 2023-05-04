@@ -361,7 +361,9 @@ def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
         with open(os.path.join(base_path, import_item), 'r') as stream:
             result = yaml.safe_load(stream)
         print('****')
+        print('Import item sending result to make_list_types {}'.format(import_item))
         store_used = make_list_types(result)
+        print(store_used)
         print('****')
 
     elif os.path.exists(import_item):
@@ -403,8 +405,17 @@ def make_list_types(content_file):
     for k, v in content_file.items():
         if 'node_templates' == k:
                 values.extend(find_values_by_key(v, keys))
-        if 'node_types' == k:
-                values.extend(find_values_by_key(v, keys))
+        elif 'node_types' == k:
+                # This is to get foo:
+                # node_types:
+                #   foo:
+                #      derived_from: bar
+                #
+                values.extend(v.keys())
+                # This is to get bar:
+                values.extend(find_values_by_key(v, ['derived_from']))
+        else:
+            print('Skipping: ... {} '.format(k))
     print(values)
 
 
@@ -417,10 +428,12 @@ def find_values_by_key(yaml_data, keys):
     :return: List of all values associated with the given key.
     """
     values = []
+
     if isinstance(yaml_data, dict):
         for k, v in yaml_data.items():
             if k in keys:
-                values.append(v)
+                if v not in values:
+                    values.append(v)
             elif isinstance(v, (dict, list)):
                 nested_values = find_values_by_key(v, keys)
                 if nested_values:
@@ -433,7 +446,7 @@ def find_values_by_key(yaml_data, keys):
                     values.extend(nested_values)
             elif i in keys:
                 values.append(i)
-    return values
+    return list(set(values))
 
 
 def setup_types(buffer=None, data=None, base_path=None):

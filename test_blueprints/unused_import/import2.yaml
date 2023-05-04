@@ -1,0 +1,9 @@
+tosca_definitions_version: cloudify_dsl_1_4
+
+node_types:
+
+  cloudify.nodes.Type.UsedElsewhere:
+    derived_from: cloudify.nodes.Root
+
+  cloudify.nodes.Types.Unused2:
+    derived_from: cloudify.nodes.Root
