@@ -17,6 +17,7 @@ import io
 import os
 import sys
 import json
+import urllib
 from re import sub
 from logging import (Formatter, StreamHandler)
 
@@ -81,17 +82,25 @@ def lint(blueprint_path,
         logger.addHandler(new_logging_handler)
 
     cnt = 0
-    for item in report:
-        message = formatted_message(item, format)
-        if cnt == 0:
-            logger.info('The following linting errors were found: ')
-            cnt += 1
-        if item.level == 'warning':
-            logger.warning(message)
-        elif item.level == 'error':
-            logger.error(message)
+    try:
+        for item in report:
+            message = formatted_message(item, format)
+            if cnt == 0:
+                logger.info('The following linting errors were found: ')
+                cnt += 1
+            if item.level == 'warning':
+                logger.warning(message)
+            elif item.level == 'error':
+                logger.error(message)
+            else:
+                logger.info(message)
+    except urllib.error.URLError as e:
+        if verbose:
+            raise e
         else:
-            logger.info(message)
+            exception_str = str(e)
+        logger.error(exception_str)
+        sys.exit(1)
 
 
 def create_report_for_file(file_path,

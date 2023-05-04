@@ -141,7 +141,9 @@ def skip_inputs_in_node_templates(top_level):
 def get_json_from_marketplace(url):
     try:
         resp = urllib.request.urlopen(url)
-    except urllib.error.HTTPError:
+    except (urllib.error.HTTPError, urllib.error.URLError) as e:
+        if isinstance(e, urllib.error.URLError):
+            raise urllib.error.URLError("Connection Error")
         return {}
     body = resp.read()
     return json.loads(body)
