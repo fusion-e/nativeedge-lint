@@ -17,6 +17,7 @@ import io
 import os
 import sys
 import json
+import urllib
 from re import sub
 from logging import (Formatter, StreamHandler)
 
@@ -93,7 +94,7 @@ def lint(blueprint_path,
                 logger.error(message)
             else:
                 logger.info(message)
-    except Exception as e:
+    except urllib.error.URLError as e:
         if verbose:
             raise e
         else:
