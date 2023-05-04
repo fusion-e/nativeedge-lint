@@ -59,6 +59,7 @@ context = {
     'imports': [],
     'dsl_version': None,
     'inputs': {},
+    'imported_node_types': [],
     UNUSED_INPUTS: {},
     UNUSED_IMPORT_CTX: {},
     'node_templates': {},
@@ -358,23 +359,28 @@ def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
     elif import_item == 'cloudify/types/types.yaml':
         result = DEFAULT_TYPES
     elif base_path and os.path.exists(os.path.join(base_path, import_item)):
+        # TODO What's the difference between this and 
+        # "elif os.path.exists(import_item)""
         with open(os.path.join(base_path, import_item), 'r') as stream:
             result = yaml.safe_load(stream)
-        print('****')
-        print('Import item sending result to make_list_types {}'.format(import_item))
-        store_used = make_list_types(result)
-        print(store_used)
-        print('****')
 
     elif os.path.exists(import_item):
         with open(import_item, 'r') as stream:
             result = yaml.safe_load(stream)
     result = result or {}
+    print('****')
+    print('Import item sending result to make_list_types {}'.format(import_item))
+    # TODO: See if we need to separate node_types and node_templates.
+    store_used = make_list_types(result)
+    print(store_used)
+    add_to_imported_node_types(store_used)
+    print('****')
+
     for k in result.keys():
         left = 'imported_{}'.format(k)
         if left not in context:
             if isinstance(result[k], dict) and left in ['imported_node_types']:
-                context[left] = list(result[k].keys())
+                add_to_imported_node_types(list(result[k].keys()))
             else:
                 context[left] = result[k]
         elif isinstance(context[left], list):
@@ -458,6 +464,7 @@ def setup_types(buffer=None, data=None, base_path=None):
         return
     for imported in data.get('imports', {}):
         import_cloudify_yaml(imported, base_path=base_path)
+    # TODO: Try to understand what I was thinking here.
     add_to_node_types(data.get('node_types', {}))
 
 
@@ -596,3 +603,12 @@ def update_dict_values_recursive(default_dict, name_file_config):
             if value:
                 default_dict[key] = value
     return default_dict
+
+
+def add_to_imported_node_types(add_me):
+    if isinstance(add_me, list):
+        for item in add_me:
+            if item not in context['imported_node_types']:
+                context['imported_node_types'].append(item)
+    elif add_me not in context['imported_node_types']:
+        context['imported_node_types'].append(add_me)
