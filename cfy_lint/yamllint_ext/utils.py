@@ -21,7 +21,6 @@ import json
 import time
 import yaml
 import pathlib
-import requests
 import urllib.request
 from urllib.parse import urlparse
 from packaging.version import parse as version_parse
@@ -145,7 +144,6 @@ def get_json_from_marketplace(url):
     except (urllib.error.HTTPError, urllib.error.URLError) as e:
         if isinstance(e, urllib.error.URLError):
             raise urllib.error.URLError("Connection Error")
-            # raise requests.exceptions.HTTPError("connection error")
         return {}
     body = resp.read()
     return json.loads(body)
