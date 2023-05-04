@@ -360,6 +360,10 @@ def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
     elif base_path and os.path.exists(os.path.join(base_path, import_item)):
         with open(os.path.join(base_path, import_item), 'r') as stream:
             result = yaml.safe_load(stream)
+        print('****')
+        store_used = make_list_types(result)
+        print('****')
+
     elif os.path.exists(import_item):
         with open(import_item, 'r') as stream:
             result = yaml.safe_load(stream)
@@ -391,6 +395,45 @@ def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
                         result=result[k]))
         else:
             context[left].update(result[k])
+
+
+def make_list_types(content_file):
+    values = []
+    keys = ['type', 'derived_from']
+    for k, v in content_file.items():
+        if 'node_templates' == k:
+                values.extend(find_values_by_key(v, keys))
+        if 'node_types' == k:
+                values.extend(find_values_by_key(v, keys))
+    print(values)
+
+
+def find_values_by_key(yaml_data, keys):
+    """
+    Find all values associated with a given key in YAML data.
+
+    :param yaml_data: YAML data to search through.
+    :param keys: List of keys to look for in the YAML data.
+    :return: List of all values associated with the given key.
+    """
+    values = []
+    if isinstance(yaml_data, dict):
+        for k, v in yaml_data.items():
+            if k in keys:
+                values.append(v)
+            elif isinstance(v, (dict, list)):
+                nested_values = find_values_by_key(v, keys)
+                if nested_values:
+                    values.extend(nested_values)
+    elif isinstance(yaml_data, list):
+        for i in yaml_data:
+            if isinstance(i, (dict, list)):
+                nested_values = find_values_by_key(i, keys)
+                if nested_values:
+                    values.extend(nested_values)
+            elif i in keys:
+                values.append(i)
+    return values
 
 
 def setup_types(buffer=None, data=None, base_path=None):
