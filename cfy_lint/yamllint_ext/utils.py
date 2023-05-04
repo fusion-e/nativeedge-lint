@@ -376,6 +376,14 @@ def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
     add_to_imported_node_types(store_used)
     print('****')
 
+    if UNUSED_IMPORT not in result:
+        result[UNUSED_IMPORT] = {}
+
+    if import_item not in result[UNUSED_IMPORT]:
+        result[UNUSED_IMPORT] = {
+            import_item: store_used
+        }
+
     for k in result.keys():
         left = 'imported_{}'.format(k)
         if left not in context:
@@ -470,6 +478,7 @@ def setup_types(buffer=None, data=None, base_path=None):
 
 def add_to_node_types(node_types):
     context['imported_node_types'].extend(node_types.keys())
+    print('There are all the node types: {}'.format(context['imported_node_types']))
 
 
 def setup_node_templates(elem):

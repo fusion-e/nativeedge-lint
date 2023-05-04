@@ -491,5 +491,5 @@ def check_external_resource(model, line):
 def remove_node_type_from_context(node_type):
     if UNUSED_IMPORT_CTX in ctx:
         for import_item in list(ctx[UNUSED_IMPORT_CTX].keys()):
-            if node_type in ctx[UNUSED_IMPORT_CTX][import_item]:
+            if ctx[UNUSED_IMPORT_CTX][import_item] and node_type in ctx[UNUSED_IMPORT_CTX][import_item]:
                 del ctx[UNUSED_IMPORT_CTX][import_item]

@@ -6,6 +6,13 @@ imports:
   - import1.yaml
   - import2.yaml
   - import3.yaml
+  - import4.yaml
+
+inputs:
+
+  notused:
+    type: string
+    display_label: Not Used
 
 node_types:
 
@@ -24,3 +31,5 @@ node_templates:
 
   bar:
     type: cloudify.nodes.Types.Used
+
+  
