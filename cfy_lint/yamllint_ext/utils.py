@@ -462,12 +462,16 @@ def mapping_is_one_length_intrisic_function_mapping_node(mapping):
 
 
 def recurse_mapping(mapping):
+    print("enter recurseive function")
     if isinstance(mapping, dict):
+        print("entered dict part")
         new_dict = {}
         for k, v in mapping.items():
             new_dict[k] = recurse_mapping(v)
         return new_dict
     elif isinstance(mapping, (list, tuple)):
+        print("entered list part")
+        print("mapping = {}".format(mapping))
         new_list = []
         if mapping_is_two_length_intrinsic_function(mapping):
             return recurse_mapping({mapping[0].value: mapping[1].value})
@@ -484,11 +488,15 @@ def recurse_mapping(mapping):
                 }
             )
         for item in mapping:
+            print("skipped all ifs and adding to a list the end result")
             new_list.append(recurse_mapping(item))
         return new_list
     elif not isinstance(mapping, yaml.nodes.Node):
         return mapping
     elif isinstance(mapping, yaml.nodes.ScalarNode):
+        print("entered elif with just value")
+        print("mapping = {}".format(mapping))
+        print("value = {}".format(mapping.value))
         return mapping.value
     elif isinstance(mapping, yaml.nodes.SequenceNode):
         new_list = []

@@ -76,7 +76,10 @@ def check(token=None, skip_suggestions=None, **_):
                     None,
                     'Bad inputs format. '
                     'Input should be a key not a list item.')
+            # here we create the input object and in it the mapping
             input_obj = CfyInput(item)
+            # we check in the block from line 142 the deafult filed of mapping to determin
+            print("input_obj has in its mapping {}".format(input_obj.mapping['default']))
             if not input_obj.name and not input_obj.mapping:
                 continue
             if input_obj.not_input():
@@ -169,6 +172,7 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
 class CfyInput(object):
     def __init__(self, nodes):
         self._line = None
+        # we create the mapping 
         self.name, self.mapping = self.get_input(nodes)
         self.invalid_keys = []
         if self.name and self.mapping:
@@ -207,6 +211,7 @@ class CfyInput(object):
             name = None
             mapping = None
         else:
+            print("we send to get input mapping:\n{}".format(nodes[1]))
             name = self.get_input_name(nodes[0])
             mapping = self.get_input_mapping(nodes[1])
         return name, mapping
@@ -226,9 +231,12 @@ class CfyInput(object):
         }
         if isinstance(node, yaml.nodes.MappingNode):
             for tup in node.value:
+                # print("tup[0] = {}".format(tup[0]))
+                # print("tup[1] = {}".format(tup[1]))
                 if not len(tup) == 2:
                     continue
                 mapping_name = tup[0].value
+                print("here we send to get the mapping value:\n{}".format(tup[1]))
                 mapping_value = self.get_mapping_value(
                     mapping_name, tup[1].value)
                 mapping[mapping_name] = mapping_value
@@ -238,4 +246,5 @@ class CfyInput(object):
         if name not in ['default', 'constraints']:
             return value
         else:
+            print("here we start constracting it recursivly")
             return recurse_mapping(value)
