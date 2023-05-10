@@ -141,6 +141,7 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                 for key in input_obj.default.keys():
                     if key in INTRINSIC_FNS:
                         input_obj.default = None
+                        message += 'The correct type could be "string".'
                 if isinstance(input_obj.default, dict) and not suggestions:
                     message += 'The correct type could be "dict".'
             if isinstance(input_obj.default, str) and not suggestions:
