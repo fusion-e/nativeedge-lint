@@ -79,7 +79,8 @@ def check(token=None, skip_suggestions=None, **_):
             input_obj = CfyInput(item)
             if not input_obj.name and not input_obj.mapping:
                 continue
-            if input_obj.not_input() and not isinstance(input_obj.default, bool):
+            if input_obj.not_input() and not isinstance(
+                    input_obj.default, bool):
                 continue
             ctx['inputs'].update(input_obj.__dict__())
             if input_obj.name not in ctx[UNUSED_INPUTS]:
