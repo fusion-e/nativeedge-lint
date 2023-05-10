@@ -491,6 +491,8 @@ def recurse_mapping(mapping):
     elif not isinstance(mapping, yaml.nodes.Node):
         return mapping
     elif isinstance(mapping, yaml.nodes.ScalarNode):
+        if 'bool' in mapping.tag:
+            return bool(mapping.value.lower() == "true")
         return mapping.value
     elif isinstance(mapping, yaml.nodes.SequenceNode):
         new_list = []

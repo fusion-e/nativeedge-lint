@@ -79,7 +79,8 @@ def check(token=None, skip_suggestions=None, **_):
             input_obj = CfyInput(item)
             if not input_obj.name and not input_obj.mapping:
                 continue
-            if input_obj.not_input():
+            if input_obj.not_input() and not isinstance(
+                    input_obj.default, bool):
                 continue
             ctx['inputs'].update(input_obj.__dict__())
             if input_obj.name not in ctx[UNUSED_INPUTS]:
@@ -149,6 +150,8 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                 message += 'The correct type could be "boolean".'
             if isinstance(input_obj.default, list) and not suggestions:
                 message += 'The correct type could be "list".'
+        elif isinstance(input_obj.default, bool) and not suggestions:
+            message += 'The correct type could be "boolean".'
         yield LintProblem(line, None, message)
     elif input_obj.input_type not in INPUTS_BY_DSL.get(dsl, []):
         yield LintProblem(
@@ -230,7 +233,7 @@ class CfyInput(object):
                     continue
                 mapping_name = tup[0].value
                 mapping_value = self.get_mapping_value(
-                    mapping_name, tup[1].value)
+                    mapping_name, tup[1])
                 mapping[mapping_name] = mapping_value
         return mapping
 
