@@ -1,0 +1,13 @@
+tosca_definitions_version: cloudify_dsl_1_4
+
+
+node_types:
+
+  cloudify.nodes.types.Import3:
+    derived_from: cloudify.nodes.Root
+
+
+node_templates:
+
+  baz:
+    type: cloudify.nodes.type.UsedElseWhere
