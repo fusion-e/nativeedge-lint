@@ -64,6 +64,18 @@ INPUTS_BY_DSL = {
     'cloudify_dsl_1_3': DSL_1_3,
     'cloudify_dsl_1_4': DSL_1_4
 }
+STR_INTRINSIC_FNS = [
+    'concat',
+    'string_lower',
+    'string_upper',
+    'string_replace'
+]
+DICT_INTRINSIC_FNS = [
+    'merge'
+]
+INT_INTRINSIC_FNS = [
+    'string_find'
+]
 
 
 @process_relevant_tokens(CfyNode, ['inputs', 'get_input'])
@@ -142,6 +154,12 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                 for key in input_obj.default.keys():
                     if key in INTRINSIC_FNS:
                         input_obj.default = None
+                        if key in STR_INTRINSIC_FNS:
+                            message += 'The correct type could be "string".'
+                        if key in DICT_INTRINSIC_FNS:
+                            message += 'The correct type could be "dict".'
+                        if key in INT_INTRINSIC_FNS:
+                            message += 'The correct type could be "int".'
                 if isinstance(input_obj.default, dict) and not suggestions:
                     message += 'The correct type could be "dict".'
             if isinstance(input_obj.default, str) and not suggestions:
