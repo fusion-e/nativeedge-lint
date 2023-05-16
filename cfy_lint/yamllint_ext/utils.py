@@ -306,31 +306,33 @@ def get_node_types_for_plugin_version(plugin_name, plugin_version):
 
 
 def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
-    cache_ttl = cache_ttl or 1000
+    cache_ttl = cache_ttl or 86400
     cache_item = re.sub('[^0-9a-zA-Z]+', '_', import_item)
     current_dir = pathlib.Path(__file__).parent.resolve()
-    cache_dir = os.path.join(
+    cache_dir = pathlib.Path(os.path.join(
         current_dir,
-        'cloudify/__cfylint_runtime_cache')
-    if not os.path.exists(cache_dir):
-        os.makedirs(cache_dir)
-    cache_item_path = os.path.join(cache_dir, cache_item)
-    if os.path.exists(cache_item_path):
+        'cloudify/__cfylint_runtime_cache')).resolve()
+    cache_dir
+    if not cache_dir.exists():
+        os.makedirs(cache_dir.absolute())
+    cache_item_path = pathlib.Path(
+        os.path.join(cache_dir.absolute(), cache_item))
+    if cache_item_path.exists():
         # Check if the file has been stale for a while
-        if os.path.getctime(cache_item_path) + cache_ttl < time.time():
+        if cache_item_path.stat().st_ctime + cache_ttl < time.time():
             os.remove(cache_item_path)
 
     result = {}
     parsed_import_item = urlparse(import_item)
     if parsed_import_item.scheme == 'plugin':
-        if os.path.exists(cache_item_path):
-            with open(cache_item_path, 'r') as jsonfile:
+        if cache_item_path.exists():
+            with open(cache_item_path.absolute(), 'r') as jsonfile:
                 result['node_types'] = json.load(jsonfile)
         else:
             node_types = get_node_types_for_plugin_import(
                 import_item)
             result['node_types'] = node_types
-            with open(cache_item_path, 'w') as jsonfile:
+            with open(cache_item_path.absolute(), 'w') as jsonfile:
                 json.dump(node_types, jsonfile)
         # This is kind of wasteful, but
         # what this does is it stores the node types also
@@ -341,8 +343,8 @@ def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
             import_item: list(result['node_types'].keys())
         }
     if parsed_import_item.scheme in ['http', 'https']:
-        if os.path.exists(cache_item_path):
-            with open(cache_item_path, 'r') as jsonfile:
+        if cache_item_path.exists():
+            with open(cache_item_path.absolute(), 'r') as jsonfile:
                 result = json.load(jsonfile)
         else:
             page = urllib.request.Request(
@@ -355,7 +357,7 @@ def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
                 print('Error: Unable to reach URL: {}'.format(import_item))
                 sys.exit(1)
             result = yaml.safe_load(infile)
-            with open(cache_item_path, 'w') as jsonfile:
+            with open(cache_item_path.absolute(), 'w') as jsonfile:
                 json.dump(result, jsonfile)
     elif import_item == 'cloudify/types/types.yaml':
         result = DEFAULT_TYPES
