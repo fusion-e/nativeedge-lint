@@ -59,6 +59,7 @@ def get_cosmetic_problems(buffer,
                           filepath,
                           base_path=None,
                           skip_suggestions=None):
+
     setup_types(buffer, base_path=base_path)
 
     rules = conf.enabled_rules(filepath)
@@ -265,7 +266,9 @@ def _run(buffer,
     add_label = False
     extra_empty_line = False
     unused_import = False
+
     for problem in sorted_problems:
+
         problem.fixes = fix
         # Insert the syntax error (if any) at the right place...
 

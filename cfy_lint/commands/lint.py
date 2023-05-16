@@ -38,6 +38,15 @@ def report_both_fix_autofix(af, f):
     return f
 
 
+def format_json(format):
+    if format == 'json':
+        logger.removeHandler(stream_handler)
+        new_logging_handler = StreamHandler()
+        new_logging_formatter = Formatter(fmt='%(message)s')
+        new_logging_handler.setFormatter(new_logging_formatter)
+        logger.addHandler(new_logging_handler)
+
+
 @cli.command()
 @cli.options.blueprint_path
 @cli.options.config
@@ -57,6 +66,7 @@ def lint(blueprint_path,
          **_):
 
     fix = report_both_fix_autofix(autofix, fix)
+    format_json(format)
 
     yaml_config = YamlLintConfigExt(content=config, yamllint_rules=rules)
     skip_suggestions = skip_suggestions or ()
@@ -73,13 +83,6 @@ def lint(blueprint_path,
             exception_str = str(e)
         logger.error(exception_str)
         sys.exit(1)
-
-    if format == 'json':
-        logger.removeHandler(stream_handler)
-        new_logging_handler = StreamHandler()
-        new_logging_formatter = Formatter(fmt='%(message)s')
-        new_logging_handler.setFormatter(new_logging_formatter)
-        logger.addHandler(new_logging_handler)
 
     cnt = 0
     try:

@@ -55,3 +55,4 @@
   - Fix eol identitification.
   - RND-472 cfy lint autofix unused import 
   - GCP deprecated types.
+  - RND-616 Fix bug in cache that was slowing down cfy-lint.
