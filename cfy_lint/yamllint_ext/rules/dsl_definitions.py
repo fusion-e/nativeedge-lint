@@ -38,7 +38,8 @@ def check(token=None, **_):
                 None,
                 'dsl definition should be a string and '
                 'should not start with a numeric character: {}'
-                .format(dsl_definition[0].value)
+                .format(dsl_definition[0].value),
+                fixable=False
             )
         if not isinstance(dsl_definition[1], yaml.nodes.MappingNode):
             yield LintProblem(
@@ -46,5 +47,6 @@ def check(token=None, **_):
                 None,
                 'dsl definition {} content must be a dict: {}'
                 .format(dsl_definition[0].value,
-                        type(dsl_definition[1].value))
+                        type(dsl_definition[1].value)),
+                fixable=False
             )

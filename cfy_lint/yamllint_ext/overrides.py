@@ -54,7 +54,8 @@ class LintProblem(object):
                  token=None,
                  next=None,
                  prev=None,
-                 nextnext=None):
+                 nextnext=None,
+                 fixable=None):
         #: Line on which the problem was found (starting at 1)
         self.line = line
         #: Column on which the problem was found (starting at 1)
@@ -72,6 +73,24 @@ class LintProblem(object):
         self._fixed = False
         self._fixes = []
         self._fix = False
+        self._fixable = fixable
+        if self.fixable:
+            self.desc = self.desc + " (fixable)"
+        else:
+            self.desc = self.desc + " (not fixable)"
+
+
+    @property
+    def fixable(self):
+        return self._fixable
+
+    @fixable.setter
+    def fixes(self, value):
+        self._fixable = value
+        if self.fixable:
+            self.desc = self.desc + " (fixable)"
+        else:
+            self.desc = self.desc + " (not fixable)"
 
     @property
     def fixes(self):
