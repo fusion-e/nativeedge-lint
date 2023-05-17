@@ -155,7 +155,9 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
             line,
             None,
             'Input of type {} is not supported by DSL {}.'.format(
-                input_obj.input_type, dsl))
+                input_obj.input_type, dsl
+            )
+        )
     elif not input_obj.display_label:
         yield LintProblem(
             line,

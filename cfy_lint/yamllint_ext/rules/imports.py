@@ -120,7 +120,8 @@ def unused_imports(item, token):
     problem = LintProblem(
         token.line,
         None,
-        'unused import item: {}'.format(item.value)
+        'unused import item: {}'.format(item.value),
+        fixable=True
     )
     if False:
         yield(problem)

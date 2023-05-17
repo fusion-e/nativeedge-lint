@@ -22,10 +22,14 @@ def spaces_after(token, prev, next, min=-1, max=-1,
         spaces = next.start_mark.pointer - token.end_mark.pointer
         if max != - 1 and spaces > max:
             return LintProblem(token.start_mark.line + 1,
-                               next.start_mark.column, max_desc)
+                               next.start_mark.column,
+                               max_desc,
+                               fixable=True)
         elif min != - 1 and spaces < min:
             return LintProblem(token.start_mark.line + 1,
-                               next.start_mark.column + 1, min_desc)
+                               next.start_mark.column + 1,
+                               min_desc,
+                               fixable=True)
 
 
 def spaces_before(token, prev, next, min=-1, max=-1,
@@ -37,10 +41,14 @@ def spaces_before(token, prev, next, min=-1, max=-1,
         spaces = token.start_mark.pointer - prev.end_mark.pointer
         if max != - 1 and spaces > max:
             return LintProblem(token.start_mark.line + 1,
-                               token.start_mark.column, max_desc)
+                               token.start_mark.column,
+                               max_desc,
+                               fixable=True)
         elif min != - 1 and spaces < min:
             return LintProblem(token.start_mark.line + 1,
-                               token.start_mark.column + 1, min_desc)
+                               token.start_mark.column + 1,
+                               min_desc,
+                               fixable=True)
 
 
 class LintProblem(object):
