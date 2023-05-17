@@ -75,8 +75,7 @@ def check(token=None, skip_suggestions=None, **_):
                     token.line,
                     None,
                     'Bad inputs format. '
-                    'Input should be a key not a list item.',
-                    fixable=False
+                    'Input should be a key not a list item.'
                     )
             input_obj = CfyInput(item)
             if not input_obj.name and not input_obj.mapping:
@@ -90,8 +89,7 @@ def check(token=None, skip_suggestions=None, **_):
                         input_obj.name: LintProblem(
                             token.line,
                             None,
-                            'input {} is unused.'.format(input_obj.name),
-                            fixable=False
+                            'input {} is unused.'.format(input_obj.name)
                         )
                     }
                 )
@@ -108,8 +106,7 @@ def check(token=None, skip_suggestions=None, **_):
                         token.line,
                         None,
                         'undefined input {}'
-                        .format(token.node.value[0].value),
-                        fixable=False
+                        .format(token.node.value[0].value)
                         )
                 elif token.node.value[0].value in ctx[UNUSED_INPUTS]:
                     del ctx[UNUSED_INPUTS][token.node.value[0].value]
@@ -118,8 +115,7 @@ def check(token=None, skip_suggestions=None, **_):
                     yield LintProblem(
                         token.line,
                         None,
-                        'undefined input "{}"'.format(token.node.value[0][0]),
-                        fixable=False
+                        'undefined input "{}"'.format(token.node.value[0][0])
                         )
                 elif token.node.value[0][0] in ctx[UNUSED_INPUTS]:
                     del ctx[UNUSED_INPUTS][token.node.value[0][0]]
@@ -128,8 +124,7 @@ def check(token=None, skip_suggestions=None, **_):
                 yield LintProblem(
                     token.line,
                     None,
-                    'undefined input "{}"'.format(token.node.value),
-                    fixable=False
+                    'undefined input "{}"'.format(token.node.value)
                     )
             elif token.node.value in ctx[UNUSED_INPUTS]:
                 del ctx[UNUSED_INPUTS][token.node.value]
@@ -142,8 +137,7 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
             line,
             None,
             'the following keys are invalid for inputs: {}'.format(
-                input_obj.invalid_keys),
-            fixable=False
+                input_obj.invalid_keys)
             )
     if not input_obj.input_type:
         message = 'input "{}" does not specify a type. '.format(input_obj.name)
@@ -160,16 +154,13 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                 message += 'The correct type could be "boolean".'
             if isinstance(input_obj.default, list) and not suggestions:
                 message += 'The correct type could be "list".'
-        yield LintProblem(line, None, message, fixable=False)
+        yield LintProblem(line, None, message)
     elif input_obj.input_type not in INPUTS_BY_DSL.get(dsl, []):
         yield LintProblem(
             line,
             None,
             'Input of type {} is not supported by DSL {}.'.format(
-                input_obj.input_type, dsl
-            ),
-            fixable=False
-        )
+                input_obj.input_type, dsl))
     elif not input_obj.display_label:
         yield LintProblem(
             line,

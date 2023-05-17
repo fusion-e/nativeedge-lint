@@ -61,7 +61,7 @@ class LintProblem(object):
         #: Column on which the problem was found (starting at 1)
         self.column = column or 0
         #: Human-readable description of the problem
-        self.desc = desc
+        self._desc = desc
         #: Identifier of the rule that detected the problem
         self.rule = rule
         self.level = None
@@ -74,12 +74,15 @@ class LintProblem(object):
         self._fixes = []
         self._fix = False
         self._fixable = fixable
+
+
+    @property
+    def desc(self):
         if self.fixable:
-            self.desc = self.desc + " (fixable)"
+            return self._desc + " (fixable)"
         else:
-            self.desc = self.desc + " (not fixable)"
-
-
+            return self._desc + " (not fixable)"
+    
     @property
     def fixable(self):
         return self._fixable
@@ -87,10 +90,6 @@ class LintProblem(object):
     @fixable.setter
     def fixes(self, value):
         self._fixable = value
-        if self.fixable:
-            self.desc = self.desc + " (fixable)"
-        else:
-            self.desc = self.desc + " (not fixable)"
 
     @property
     def fixes(self):

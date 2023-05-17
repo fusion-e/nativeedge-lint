@@ -53,8 +53,7 @@ def validate_supported_dsl_version(value, line):
         yield LintProblem(
             line,
             None,
-            "dsl_version not supported: {} ".format(value),
-            fixable=False
+            "dsl_version not supported: {} ".format(value)
         )
 
 
