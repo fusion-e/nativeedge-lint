@@ -75,20 +75,19 @@ class LintProblem(object):
         self._fix = False
         self._fixable = fixable
 
-
     @property
     def desc(self):
         if self.fixable:
             return self._desc + " (fixable)"
         else:
             return self._desc + " (not fixable)"
-    
+
     @property
     def fixable(self):
         return self._fixable
 
     @fixable.setter
-    def fixes(self, value):
+    def fixable(self, value):
         self._fixable = value
 
     @property

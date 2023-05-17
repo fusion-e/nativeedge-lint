@@ -75,8 +75,7 @@ def check(token=None, skip_suggestions=None, **_):
                     token.line,
                     None,
                     'Bad inputs format. '
-                    'Input should be a key not a list item.'
-                    )
+                    'Input should be a key not a list item.')
             input_obj = CfyInput(item)
             if not input_obj.name and not input_obj.mapping:
                 continue
@@ -106,8 +105,7 @@ def check(token=None, skip_suggestions=None, **_):
                         token.line,
                         None,
                         'undefined input {}'
-                        .format(token.node.value[0].value)
-                        )
+                        .format(token.node.value[0].value))
                 elif token.node.value[0].value in ctx[UNUSED_INPUTS]:
                     del ctx[UNUSED_INPUTS][token.node.value[0].value]
             if isinstance(token.node.value[0], tuple):
@@ -115,8 +113,7 @@ def check(token=None, skip_suggestions=None, **_):
                     yield LintProblem(
                         token.line,
                         None,
-                        'undefined input "{}"'.format(token.node.value[0][0])
-                        )
+                        'undefined input "{}"'.format(token.node.value[0][0]))
                 elif token.node.value[0][0] in ctx[UNUSED_INPUTS]:
                     del ctx[UNUSED_INPUTS][token.node.value[0][0]]
         else:
@@ -124,8 +121,7 @@ def check(token=None, skip_suggestions=None, **_):
                 yield LintProblem(
                     token.line,
                     None,
-                    'undefined input "{}"'.format(token.node.value)
-                    )
+                    'undefined input "{}"'.format(token.node.value))
             elif token.node.value in ctx[UNUSED_INPUTS]:
                 del ctx[UNUSED_INPUTS][token.node.value]
 
@@ -137,8 +133,7 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
             line,
             None,
             'the following keys are invalid for inputs: {}'.format(
-                input_obj.invalid_keys)
-            )
+                input_obj.invalid_keys))
     if not input_obj.input_type:
         message = 'input "{}" does not specify a type. '.format(input_obj.name)
         if input_obj.default:

@@ -79,8 +79,7 @@ def validate_import_items(item, token):
 
 def validate_string(item, line):
     if not isinstance(item, yaml.nodes.ScalarNode):
-        yield LintProblem(
-            line, None, 'import is not a string.')
+        yield LintProblem(line, None, 'import is not a string.')
 
 
 def check_openstack_plugin_version(url, line):
@@ -111,7 +110,8 @@ def validate_imported_dsl_version(line, dsl_version, imported_dsl):
                 line,
                 None,
                 "imports dsl version doesn't match blueprint {}: {} ".format(
-                    dsl_version, imported_dsl))
+                    dsl_version, imported_dsl)
+            )
 
 
 def unused_imports(item, token):
