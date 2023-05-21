@@ -59,6 +59,7 @@ context = {
     'imports': [],
     'dsl_version': None,
     'inputs': {},
+    'imported_node_types': [],
     UNUSED_INPUTS: {},
     UNUSED_IMPORT_CTX: {},
     'node_templates': {},
@@ -359,11 +360,31 @@ def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
         result = DEFAULT_TYPES
     elif base_path and os.path.exists(os.path.join(base_path, import_item)):
         with open(os.path.join(base_path, import_item), 'r') as stream:
-            result = yaml.safe_load(stream)
+            print('********************************************************')
+            result = yaml.safe_load(stream)   
+            print('import_item: {}'.format(import_item))
+            store_used = make_list_types(result)
+            print('store_used: {}'.format(store_used))
+
+            unused_import = context[UNUSED_IMPORT_CTX].keys()
+
+            need_to_del = []
+            for type in store_used:
+                for k in unused_import:
+                    if type in context[UNUSED_IMPORT_CTX][k]:
+                        need_to_del.append(k)
+            
+            for d in need_to_del:
+                del context[UNUSED_IMPORT_CTX][d]       
+
+            add_to_imported_node_types(store_used)
+
     elif os.path.exists(import_item):
         with open(import_item, 'r') as stream:
             result = yaml.safe_load(stream)
-    result = result or {}
+        result = result or {}
+ 
+
     for k in result.keys():
         left = 'imported_{}'.format(k)
         if left not in context:
@@ -393,6 +414,45 @@ def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
             context[left].update(result[k])
 
 
+def make_list_types(content_file):
+    values = []
+    keys = ['type', 'derived_from']
+    for k, v in content_file.items():
+        if 'node_templates' == k:
+                values.extend(find_values_by_key(v, keys))
+        if 'node_types' == k:
+                values.extend(v.keys())
+                values.extend(find_values_by_key(v, ['derived_from']))
+    return values
+
+
+def find_values_by_key(yaml_data, keys):
+    """
+    Find all values associated with a given key in YAML data.
+    :param yaml_data: YAML data to search through.
+    :param keys: List of keys to look for in the YAML data.
+    :return: List of all values associated with the given key.
+    """
+    values = []
+    if isinstance(yaml_data, dict):
+        for k, v in yaml_data.items():
+            if k in keys:
+                values.append(v)
+            elif isinstance(v, (dict, list)):
+                nested_values = find_values_by_key(v, keys)
+                if nested_values:
+                    values.extend(nested_values)
+    elif isinstance(yaml_data, list):
+        for i in yaml_data:
+            if isinstance(i, (dict, list)):
+                nested_values = find_values_by_key(i, keys)
+                if nested_values:
+                    values.extend(nested_values)
+            elif i in keys:
+                values.append(i)
+    return values
+
+
 def setup_types(buffer=None, data=None, base_path=None):
     try:
         data = data or yaml.safe_load(buffer)
@@ -404,6 +464,14 @@ def setup_types(buffer=None, data=None, base_path=None):
         import_cloudify_yaml(imported, base_path=base_path)
     add_to_node_types(data.get('node_types', {}))
 
+
+def add_to_imported_node_types(add_me):
+    if isinstance(add_me, list):
+        for item in add_me:
+            if item not in context['imported_node_types']:
+                context['imported_node_types'].append(item)
+    elif add_me not in context['imported_node_types']:
+        context['imported_node_types'].append(add_me)
 
 def add_to_node_types(node_types):
     context['imported_node_types'].extend(node_types.keys())
