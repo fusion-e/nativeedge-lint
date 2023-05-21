@@ -42,7 +42,6 @@ from cfy_lint.yamllint_ext.rules.inputs import ID as input_rule
 from cfy_lint.yamllint_ext.rules.imports import ID as import_rule
 from cfy_lint.yamllint_ext.autofix.add_label import fix_add_label
 from cfy_lint.yamllint_ext.autofix.empty_lines import fix_empty_lines
-from cfy_lint.yamllint_ext.autofix.unused_import import fix_unused_import
 
 PROBLEM_LEVELS = {
     0: None,
@@ -293,9 +292,6 @@ def _run(buffer,
             if problem.rule == 'empty-lines':
                 extra_empty_line = True
                 problem.fixed = True
-            if problem.rule == 'imports':
-                unused_import = True
-                problem.fixed = True
             fix_problem(problem)
 
         if not problem.fixed:
@@ -304,8 +300,6 @@ def _run(buffer,
     if add_label:
         fix_add_label(sorted_problems)
 
-    if unused_import:
-        fix_unused_import(sorted_problems)
     # this needs to be separated from the rest of the auto fix functions since
     # it changes the line numbers of the entire file, so we do it once all
     # other tasks are done

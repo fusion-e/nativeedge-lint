@@ -360,11 +360,8 @@ def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
         result = DEFAULT_TYPES
     elif base_path and os.path.exists(os.path.join(base_path, import_item)):
         with open(os.path.join(base_path, import_item), 'r') as stream:
-            print('********************************************************')
             result = yaml.safe_load(stream)   
-            print('import_item: {}'.format(import_item))
             store_used = make_list_types(result)
-            print('store_used: {}'.format(store_used))
 
             unused_import = context[UNUSED_IMPORT_CTX].keys()
 
