@@ -585,7 +585,6 @@ def test_deprecated_node_types():
         result_lines = f.readlines()
         f.close()
         os.remove(fix_trailing_spaces_file.name)
-        print(result_lines)
     assert result_lines == expected_lines
 
 
