@@ -1,6 +1,0 @@
-tosca_definitions_version: cloudify_dsl_1_4
-
-node_types:
-
-  cloudify.nodes.type.NeverUsed:
-    type: string
