@@ -25,7 +25,6 @@ def fix_deprecated_node_types(problem):
             line = lines[problem.line - 1]
             line, eol = get_eol(line)
             split = problem.message.split()
-            print(split)
             new_line = line.replace(split[-4], split[-2].rstrip('.'))
             lines[problem.line - 1] = new_line + eol
         problem.fixed = True
