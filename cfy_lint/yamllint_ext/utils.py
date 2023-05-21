@@ -360,27 +360,15 @@ def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
         result = DEFAULT_TYPES
     elif base_path and os.path.exists(os.path.join(base_path, import_item)):
         with open(os.path.join(base_path, import_item), 'r') as stream:
-            result = yaml.safe_load(stream)   
-            store_used = make_list_types(result)
-
-            unused_import = context[UNUSED_IMPORT_CTX].keys()
-
-            need_to_del = []
-            for type in store_used:
-                for k in unused_import:
-                    if type in context[UNUSED_IMPORT_CTX][k]:
-                        need_to_del.append(k)
-            
-            for d in need_to_del:
-                del context[UNUSED_IMPORT_CTX][d]       
-
-            add_to_imported_node_types(store_used)
+            result = yaml.safe_load(stream)
+            node_types_used = make_list_types(result)
+            delete_imports_from_unused_ctx(node_types_used)
+            add_to_imported_node_types(node_types_used)
 
     elif os.path.exists(import_item):
         with open(import_item, 'r') as stream:
             result = yaml.safe_load(stream)
         result = result or {}
- 
 
     for k in result.keys():
         left = 'imported_{}'.format(k)
@@ -411,15 +399,30 @@ def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
             context[left].update(result[k])
 
 
+def delete_imports_from_unused_ctx(node_types_used):
+    need_to_del = []
+    unused_import = context[UNUSED_IMPORT_CTX].keys()
+    for type in node_types_used:
+        for k in unused_import:
+            if type in context[UNUSED_IMPORT_CTX][k]:
+                need_to_del.append(k)
+
+    for d in need_to_del:
+        del context[UNUSED_IMPORT_CTX][d]
+
+    if 'plugin:cloudify-fabric-plugin' in context[UNUSED_IMPORT_CTX].keys():
+        del context[UNUSED_IMPORT_CTX]['plugin:cloudify-fabric-plugin']
+
+
 def make_list_types(content_file):
     values = []
     keys = ['type', 'derived_from']
     for k, v in content_file.items():
         if 'node_templates' == k:
-                values.extend(find_values_by_key(v, keys))
+            values.extend(find_values_by_key(v, keys))
         if 'node_types' == k:
-                values.extend(v.keys())
-                values.extend(find_values_by_key(v, ['derived_from']))
+            values.extend(v.keys())
+            values.extend(find_values_by_key(v, ['derived_from']))
     return values
 
 
@@ -462,13 +465,14 @@ def setup_types(buffer=None, data=None, base_path=None):
     add_to_node_types(data.get('node_types', {}))
 
 
-def add_to_imported_node_types(add_me):
-    if isinstance(add_me, list):
-        for item in add_me:
+def add_to_imported_node_types(node_types_used):
+    if isinstance(node_types_used, list):
+        for item in node_types_used:
             if item not in context['imported_node_types']:
                 context['imported_node_types'].append(item)
-    elif add_me not in context['imported_node_types']:
-        context['imported_node_types'].append(add_me)
+    elif node_types_used not in context['imported_node_types']:
+        context['imported_node_types'].append(node_types_used)
+
 
 def add_to_node_types(node_types):
     context['imported_node_types'].extend(node_types.keys())

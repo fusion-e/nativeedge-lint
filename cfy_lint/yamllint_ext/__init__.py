@@ -263,7 +263,6 @@ def _run(buffer,
     sorted_problems = sorted(problems, key=lambda x: x.line)
     add_label = False
     extra_empty_line = False
-    unused_import = False
     for problem in sorted_problems:
         problem.fixes = fix
         # Insert the syntax error (if any) at the right place...
