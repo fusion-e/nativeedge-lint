@@ -95,7 +95,7 @@ def deprecated_type(type_name, line):
             "Replace usage of {} with {}.".format(
                 type_name,
                 constants.deprecated_relationship_types[type_name]),
-                fixable=True)
+            fixable=True)
 
 
 def get_yaml_type(node):

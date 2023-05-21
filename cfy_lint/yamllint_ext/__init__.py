@@ -207,7 +207,7 @@ def get_cosmetic_problems(buffer,
                 rule_conf = conf.rules[rule.ID]
                 for problem in rule.check(rule_conf, elem):
                     problem.rule = rule.ID
-                    if problem.rule in ['trailing-spaces','empty-lines']:
+                    if problem.rule in ['trailing-spaces', 'empty-lines']:
                         problem.fixable = True
                     problem.level = rule_conf['level']
                     cache.append(problem)

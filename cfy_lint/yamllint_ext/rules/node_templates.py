@@ -115,7 +115,7 @@ def check_deprecated_node_type(model, line):
             "Replace usage of {} with {}.".format(
                 model.node_type,
                 deprecated_node_types[model.node_type]),
-                fixable=True)
+            fixable=True)
 
 
 def check_intrinsic_functions(data, line):
