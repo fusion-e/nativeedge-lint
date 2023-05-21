@@ -32,7 +32,7 @@ def fix_deprecated_node_types(problem):
             'has deprecated property' in problem.message:
         words = problem.message.split()
         pattern = re.compile('(azure|aws|gcp)_config')
-        target = words[-4].replace('"', '').replace('.', '') + ":"
+        target = words[-5].replace('"', '').replace('.', '') + ":"
         if not pattern.search(target):
             return
         line_number = problem.line - 1
