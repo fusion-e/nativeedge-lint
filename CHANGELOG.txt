@@ -55,3 +55,5 @@
   - Fix eol identitification.
   - RND-472 cfy lint autofix unused import 
   - GCP deprecated types.
+0.0.30:
+  - update unused import, and exception for fabric
