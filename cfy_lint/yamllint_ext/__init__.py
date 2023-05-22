@@ -294,7 +294,8 @@ def _run(buffer,
             if problem.rule == 'empty-lines':
                 extra_empty_line = True
                 problem.fixed = True
-            if problem.rule == 'imports':
+            if problem.rule == 'imports' and \
+                    "unused import item:" in problem.message:
                 unused_import = True
                 problem.fixed = True
             fix_problem(problem)
