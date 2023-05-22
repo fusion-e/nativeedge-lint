@@ -97,6 +97,6 @@ DEFAULT_RELATIONSHIPS = [
 ]
 
 DEFAULT_TYPES = {
-    'node_types': DEFAULT_NODE_TYPES,
-    'relationships': DEFAULT_RELATIONSHIPS,
+    'node_types': {key: {} for key in DEFAULT_NODE_TYPES},
+    'relationships': {key: {} for key in DEFAULT_RELATIONSHIPS},
 }
