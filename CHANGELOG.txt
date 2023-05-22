@@ -57,3 +57,4 @@
   - GCP deprecated types.
 0.0.30:
   - update unused import, and exception for fabric
+  - RND-616 Fix bug in cache that was slowing down cfy-lint.

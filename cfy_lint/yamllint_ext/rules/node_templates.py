@@ -114,7 +114,8 @@ def check_deprecated_node_type(model, line):
             "deprecated node type. "
             "Replace usage of {} with {}.".format(
                 model.node_type,
-                deprecated_node_types[model.node_type]))
+                deprecated_node_types[model.node_type]),
+            fixable=True)
 
 
 def check_intrinsic_functions(data, line):
@@ -201,7 +202,8 @@ def check_gcp_config(model, line):
             line,
             None,
             'The node template "{}" has deprecated property "gcp_config". '
-            'please use "client_config".'.format(model.name)
+            'please use "client_config".'.format(model.name),
+            fixable=True
         )
     elif 'client_config' not in model.properties:
         yield LintProblem(
@@ -219,7 +221,8 @@ def check_azure_config(model, line):
             line,
             None,
             'The node template "{}" has deprecated property "azure_config". '
-            'please use "client_config".'.format(model.name)
+            'please use "client_config".'.format(model.name),
+            fixable=True
         )
     elif 'client_config' not in model.properties:
         yield LintProblem(
@@ -246,7 +249,8 @@ def check_aws_config(model, line):
             line,
             None,
             'The node template "{}" has deprecated property "aws_config". '
-            'please use "client_config".'.format(model.name)
+            'please use "client_config".'.format(model.name),
+            fixable=True
         )
     elif 'client_config' not in model.properties:
         yield LintProblem(

@@ -58,6 +58,7 @@ def get_cosmetic_problems(buffer,
                           filepath,
                           base_path=None,
                           skip_suggestions=None):
+
     setup_types(buffer, base_path=base_path)
 
     rules = conf.enabled_rules(filepath)
@@ -170,6 +171,8 @@ def get_cosmetic_problems(buffer,
                                       context[rule.ID])
                 for problem in problems:
                     problem.rule = rule.ID
+                    if problem.rule in ['truthy']:
+                        problem.fixable = True
                     problem.level = rule_conf['level']
                     cache.append(problem)
 
@@ -204,6 +207,8 @@ def get_cosmetic_problems(buffer,
                 rule_conf = conf.rules[rule.ID]
                 for problem in rule.check(rule_conf, elem):
                     problem.rule = rule.ID
+                    if problem.rule in ['trailing-spaces', 'empty-lines']:
+                        problem.fixable = True
                     problem.level = rule_conf['level']
                     cache.append(problem)
 
@@ -264,6 +269,7 @@ def _run(buffer,
     add_label = False
     extra_empty_line = False
     for problem in sorted_problems:
+
         problem.fixes = fix
         # Insert the syntax error (if any) at the right place...
 
