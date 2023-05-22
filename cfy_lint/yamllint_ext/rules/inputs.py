@@ -64,6 +64,18 @@ INPUTS_BY_DSL = {
     'cloudify_dsl_1_3': DSL_1_3,
     'cloudify_dsl_1_4': DSL_1_4
 }
+STR_INTRINSIC_FNS = [
+    'concat',
+    'string_lower',
+    'string_upper',
+    'string_replace'
+]
+DICT_INTRINSIC_FNS = [
+    'merge'
+]
+INT_INTRINSIC_FNS = [
+    'string_find'
+]
 
 
 @process_relevant_tokens(CfyNode, ['inputs', 'get_input'])
@@ -79,7 +91,8 @@ def check(token=None, skip_suggestions=None, **_):
             input_obj = CfyInput(item)
             if not input_obj.name and not input_obj.mapping:
                 continue
-            if input_obj.not_input():
+            if input_obj.not_input() and not isinstance(
+                    input_obj.default, bool):
                 continue
             ctx['inputs'].update(input_obj.__dict__())
             if input_obj.name not in ctx[UNUSED_INPUTS]:
@@ -141,6 +154,12 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                 for key in input_obj.default.keys():
                     if key in INTRINSIC_FNS:
                         input_obj.default = None
+                        if key in STR_INTRINSIC_FNS:
+                            message += 'The correct type could be "string".'
+                        if key in DICT_INTRINSIC_FNS:
+                            message += 'The correct type could be "dict".'
+                        if key in INT_INTRINSIC_FNS:
+                            message += 'The correct type could be "int".'
                 if isinstance(input_obj.default, dict) and not suggestions:
                     message += 'The correct type could be "dict".'
             if isinstance(input_obj.default, str) and not suggestions:
@@ -149,6 +168,8 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                 message += 'The correct type could be "boolean".'
             if isinstance(input_obj.default, list) and not suggestions:
                 message += 'The correct type could be "list".'
+        elif isinstance(input_obj.default, bool) and not suggestions:
+            message += 'The correct type could be "boolean".'
         yield LintProblem(line, None, message)
     elif input_obj.input_type not in INPUTS_BY_DSL.get(dsl, []):
         yield LintProblem(
@@ -162,7 +183,8 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
         yield LintProblem(
             line,
             None,
-            'Input {} is missing a display_label.'.format(input_obj.name)
+            'Input {} is missing a display_label.'.format(input_obj.name),
+            fixable=True
         )
 
 
@@ -230,7 +252,7 @@ class CfyInput(object):
                     continue
                 mapping_name = tup[0].value
                 mapping_value = self.get_mapping_value(
-                    mapping_name, tup[1].value)
+                    mapping_name, tup[1])
                 mapping[mapping_name] = mapping_value
         return mapping
 

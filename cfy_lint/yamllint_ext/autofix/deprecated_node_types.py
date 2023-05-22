@@ -25,14 +25,14 @@ def fix_deprecated_node_types(problem):
             line = lines[problem.line - 1]
             line, eol = get_eol(line)
             split = problem.message.split()
-            new_line = line.replace(split[-3], split[-1].rstrip('.'))
+            new_line = line.replace(split[-4], split[-2].rstrip('.'))
             lines[problem.line - 1] = new_line + eol
         problem.fixed = True
     if problem.rule == 'node_templates' and \
             'has deprecated property' in problem.message:
         words = problem.message.split()
         pattern = re.compile('(azure|aws|gcp)_config')
-        target = words[-4].replace('"', '').replace('.', '') + ":"
+        target = words[-5].replace('"', '').replace('.', '') + ":"
         if not pattern.search(target):
             return
         line_number = problem.line - 1

@@ -59,6 +59,7 @@ context = {
     'imports': [],
     'dsl_version': None,
     'inputs': {},
+    'imported_node_types': [],
     UNUSED_INPUTS: {},
     UNUSED_IMPORT_CTX: {},
     'node_templates': {},
@@ -141,7 +142,9 @@ def skip_inputs_in_node_templates(top_level):
 def get_json_from_marketplace(url):
     try:
         resp = urllib.request.urlopen(url)
-    except urllib.error.HTTPError:
+    except (urllib.error.HTTPError, urllib.error.URLError) as e:
+        if isinstance(e, urllib.error.URLError):
+            raise urllib.error.URLError("Connection Error")
         return {}
     body = resp.read()
     return json.loads(body)
@@ -304,31 +307,33 @@ def get_node_types_for_plugin_version(plugin_name, plugin_version):
 
 
 def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
-    cache_ttl = cache_ttl or 1000
+    cache_ttl = cache_ttl or 86400
     cache_item = re.sub('[^0-9a-zA-Z]+', '_', import_item)
     current_dir = pathlib.Path(__file__).parent.resolve()
-    cache_dir = os.path.join(
+    cache_dir = pathlib.Path(os.path.join(
         current_dir,
-        'cloudify/__cfylint_runtime_cache')
-    if not os.path.exists(cache_dir):
-        os.makedirs(cache_dir)
-    cache_item_path = os.path.join(cache_dir, cache_item)
-    if os.path.exists(cache_item_path):
+        'cloudify/__cfylint_runtime_cache')).resolve()
+    cache_dir
+    if not cache_dir.exists():
+        os.makedirs(cache_dir.absolute())
+    cache_item_path = pathlib.Path(
+        os.path.join(cache_dir.absolute(), cache_item))
+    if cache_item_path.exists():
         # Check if the file has been stale for a while
-        if os.path.getctime(cache_item_path) + cache_ttl < time.time():
+        if cache_item_path.stat().st_ctime + cache_ttl < time.time():
             os.remove(cache_item_path)
 
     result = {}
     parsed_import_item = urlparse(import_item)
     if parsed_import_item.scheme == 'plugin':
-        if os.path.exists(cache_item_path):
-            with open(cache_item_path, 'r') as jsonfile:
+        if cache_item_path.exists():
+            with open(cache_item_path.absolute(), 'r') as jsonfile:
                 result['node_types'] = json.load(jsonfile)
         else:
             node_types = get_node_types_for_plugin_import(
                 import_item)
             result['node_types'] = node_types
-            with open(cache_item_path, 'w') as jsonfile:
+            with open(cache_item_path.absolute(), 'w') as jsonfile:
                 json.dump(node_types, jsonfile)
         # This is kind of wasteful, but
         # what this does is it stores the node types also
@@ -339,8 +344,8 @@ def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
             import_item: list(result['node_types'].keys())
         }
     if parsed_import_item.scheme in ['http', 'https']:
-        if os.path.exists(cache_item_path):
-            with open(cache_item_path, 'r') as jsonfile:
+        if cache_item_path.exists():
+            with open(cache_item_path.absolute(), 'r') as jsonfile:
                 result = json.load(jsonfile)
         else:
             page = urllib.request.Request(
@@ -353,17 +358,22 @@ def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
                 print('Error: Unable to reach URL: {}'.format(import_item))
                 sys.exit(1)
             result = yaml.safe_load(infile)
-            with open(cache_item_path, 'w') as jsonfile:
+            with open(cache_item_path.absolute(), 'w') as jsonfile:
                 json.dump(result, jsonfile)
     elif import_item == 'cloudify/types/types.yaml':
         result = DEFAULT_TYPES
     elif base_path and os.path.exists(os.path.join(base_path, import_item)):
         with open(os.path.join(base_path, import_item), 'r') as stream:
             result = yaml.safe_load(stream)
+            node_types_used = make_list_types(result)
+            delete_imports_from_unused_ctx(node_types_used)
+            add_to_imported_node_types(node_types_used)
+
     elif os.path.exists(import_item):
         with open(import_item, 'r') as stream:
             result = yaml.safe_load(stream)
-    result = result or {}
+        result = result or {}
+
     for k in result.keys():
         left = 'imported_{}'.format(k)
         if left not in context:
@@ -393,6 +403,60 @@ def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
             context[left].update(result[k])
 
 
+def delete_imports_from_unused_ctx(node_types_used):
+    need_to_del = []
+    unused_import = context[UNUSED_IMPORT_CTX].keys()
+    for type in node_types_used:
+        for k in unused_import:
+            if type in context[UNUSED_IMPORT_CTX][k]:
+                need_to_del.append(k)
+
+    for d in need_to_del:
+        del context[UNUSED_IMPORT_CTX][d]
+
+    if 'plugin:cloudify-fabric-plugin' in context[UNUSED_IMPORT_CTX].keys():
+        del context[UNUSED_IMPORT_CTX]['plugin:cloudify-fabric-plugin']
+
+
+def make_list_types(content_file):
+    values = []
+    keys = ['type', 'derived_from']
+    for k, v in content_file.items():
+        if 'node_templates' == k:
+            values.extend(find_values_by_key(v, keys))
+        if 'node_types' == k:
+            values.extend(v.keys())
+            values.extend(find_values_by_key(v, ['derived_from']))
+    return values
+
+
+def find_values_by_key(yaml_data, keys):
+    """
+    Find all values associated with a given key in YAML data.
+    :param yaml_data: YAML data to search through.
+    :param keys: List of keys to look for in the YAML data.
+    :return: List of all values associated with the given key.
+    """
+    values = []
+    if isinstance(yaml_data, dict):
+        for k, v in yaml_data.items():
+            if k in keys:
+                values.append(v)
+            elif isinstance(v, (dict, list)):
+                nested_values = find_values_by_key(v, keys)
+                if nested_values:
+                    values.extend(nested_values)
+    elif isinstance(yaml_data, list):
+        for i in yaml_data:
+            if isinstance(i, (dict, list)):
+                nested_values = find_values_by_key(i, keys)
+                if nested_values:
+                    values.extend(nested_values)
+            elif i in keys:
+                values.append(i)
+    return values
+
+
 def setup_types(buffer=None, data=None, base_path=None):
     try:
         data = data or yaml.safe_load(buffer)
@@ -403,6 +467,15 @@ def setup_types(buffer=None, data=None, base_path=None):
     for imported in data.get('imports', {}):
         import_cloudify_yaml(imported, base_path=base_path)
     add_to_node_types(data.get('node_types', {}))
+
+
+def add_to_imported_node_types(node_types_used):
+    if isinstance(node_types_used, list):
+        for item in node_types_used:
+            if item not in context['imported_node_types']:
+                context['imported_node_types'].append(item)
+    elif node_types_used not in context['imported_node_types']:
+        context['imported_node_types'].append(node_types_used)
 
 
 def add_to_node_types(node_types):
@@ -489,6 +562,8 @@ def recurse_mapping(mapping):
     elif not isinstance(mapping, yaml.nodes.Node):
         return mapping
     elif isinstance(mapping, yaml.nodes.ScalarNode):
+        if 'bool' in mapping.tag:
+            return bool(mapping.value.lower() == "true")
         return mapping.value
     elif isinstance(mapping, yaml.nodes.SequenceNode):
         new_list = []

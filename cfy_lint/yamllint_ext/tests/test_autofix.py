@@ -576,7 +576,8 @@ def test_deprecated_node_types():
                 desc='deprecated node type. Replace usage of {} with '
                      '{}'.format(lines[i], expected_lines[i]),
                 rule='node_templates',
-                file=fix_trailing_spaces_file.name
+                file=fix_trailing_spaces_file.name,
+                fixable=True
             )
             deprecated_node_types.fix_deprecated_node_types(problem)
     finally:
@@ -679,7 +680,8 @@ def test_relationships_types():
                 desc='deprecated relationship type. Replace usage '
                      'of {} with {}'.format(lines[i], expected_lines[i]),
                 rule='relationships',
-                file=fix_trailing_spaces_file.name
+                file=fix_trailing_spaces_file.name,
+                fixable=True
             )
             deprecated_relationships.fix_deprecated_relationships(problem)
     finally:
@@ -714,7 +716,8 @@ def test_client_config():
                 desc='The node template "vm" has deprecated property '
                      '"aws_config". please use "client_config"',
                 rule='node_templates',
-                file=fix_clinet_config_file.name
+                file=fix_clinet_config_file.name,
+                fixable=True
             )
             deprecated_node_types.fix_deprecated_node_types(problem)
     finally:
