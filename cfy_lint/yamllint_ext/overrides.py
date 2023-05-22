@@ -22,10 +22,14 @@ def spaces_after(token, prev, next, min=-1, max=-1,
         spaces = next.start_mark.pointer - token.end_mark.pointer
         if max != - 1 and spaces > max:
             return LintProblem(token.start_mark.line + 1,
-                               next.start_mark.column, max_desc)
+                               next.start_mark.column,
+                               max_desc,
+                               fixable=True)
         elif min != - 1 and spaces < min:
             return LintProblem(token.start_mark.line + 1,
-                               next.start_mark.column + 1, min_desc)
+                               next.start_mark.column + 1,
+                               min_desc,
+                               fixable=True)
 
 
 def spaces_before(token, prev, next, min=-1, max=-1,
@@ -37,10 +41,14 @@ def spaces_before(token, prev, next, min=-1, max=-1,
         spaces = token.start_mark.pointer - prev.end_mark.pointer
         if max != - 1 and spaces > max:
             return LintProblem(token.start_mark.line + 1,
-                               token.start_mark.column, max_desc)
+                               token.start_mark.column,
+                               max_desc,
+                               fixable=True)
         elif min != - 1 and spaces < min:
             return LintProblem(token.start_mark.line + 1,
-                               token.start_mark.column + 1, min_desc)
+                               token.start_mark.column + 1,
+                               min_desc,
+                               fixable=True)
 
 
 class LintProblem(object):
@@ -54,13 +62,14 @@ class LintProblem(object):
                  token=None,
                  next=None,
                  prev=None,
-                 nextnext=None):
+                 nextnext=None,
+                 fixable=None):
         #: Line on which the problem was found (starting at 1)
         self.line = line
         #: Column on which the problem was found (starting at 1)
         self.column = column or 0
         #: Human-readable description of the problem
-        self.desc = desc
+        self._desc = desc
         #: Identifier of the rule that detected the problem
         self.rule = rule
         self.level = None
@@ -72,6 +81,22 @@ class LintProblem(object):
         self._fixed = False
         self._fixes = []
         self._fix = False
+        self._fixable = fixable
+
+    @property
+    def desc(self):
+        if self.fixable:
+            return self._desc + " (fixable)"
+        else:
+            return self._desc + " (not fixable)"
+
+    @property
+    def fixable(self):
+        return self._fixable
+
+    @fixable.setter
+    def fixable(self, value):
+        self._fixable = value
 
     @property
     def fixes(self):
