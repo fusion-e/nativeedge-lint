@@ -287,7 +287,7 @@ def _run(buffer,
             input_file_path = os.path.abspath(input_file)
             problem.file = input_file_path
 
-            if problem.rule == 'inputs':
+            if problem.rule == 'inputs' and 'is missing a display_label' in problem.message:
                 add_label = True
                 problem.fixed = True
             if problem.rule == 'empty-lines':
