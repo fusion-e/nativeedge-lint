@@ -188,19 +188,31 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                 if key in INTRINSIC_FNS:
                     message = "intrinsic function"
                     if key in STR_INTRINSIC_FNS and not \
-                        isinstance(get_type(input_obj), str):
-                        message = 'input "{}" specify a type {}, The correct \
- type is "string".'.format(input_obj.name, get_type_name(input_obj))
-                    if key in INT_INTRINSIC_FNS and not \
-                        isinstance(get_type(input_obj), int):
-                        message = 'input "{}" specify a type {}, The correct \
-type is "int".'.format(input_obj.name, get_type_name(input_obj))
+                        isinstance(
+                                   get_type(input_obj),
+                                   str):
+                        message = 'input "{}" specify a type {}, The correct'\
+                            ' type is "string".'.format(
+                                input_obj.name,
+                                get_type_name(input_obj))
+                    if key in INT_INTRINSIC_FNS and not\
+                        isinstance(
+                                   get_type(input_obj),
+                                   int):
+                        message = 'input "{}" specify a type {}, The correct'\
+                            ' type is "int".'.format(
+                                input_obj.name,
+                                get_type_name(input_obj))
 
-        if not isinstance(input_obj.default, get_type(input_obj)) and not \
-            message:
-            message = 'input "{}" specify a type {}, However this doesn\'t \
-match deafult of type {}.'.format(
-                input_obj.name, get_type_name(input_obj) ,input_obj.default)
+        if not message and not isinstance(
+                                    input_obj.default,
+                                    get_type(input_obj)):
+            message = 'input "{}" specify a type {}, However this'\
+                ' doesn\'t match deafult of type {}.'.format(
+                    input_obj.name,
+                    get_type_name(input_obj),
+                    input_obj.default)
+
         if message and message not in ["intrinsic function"]:
             yield LintProblem(line, None, message)
     elif not input_obj.display_label:
@@ -217,6 +229,7 @@ def get_type_name(input_obj):
         return input_obj.input_type.value
     else:
         raise TypeError()
+
 
 def get_type(input_obj):
     return locate(get_type_name(input_obj))
