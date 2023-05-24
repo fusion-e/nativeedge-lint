@@ -216,7 +216,7 @@ def get_type_name(input_obj):
     if isinstance(input_obj.input_type, yaml.nodes.ScalarNode):
         return input_obj.input_type.value
     else:
-        return None
+        raise TypeError()
 
 def get_type(input_obj):
     return locate(get_type_name(input_obj))
