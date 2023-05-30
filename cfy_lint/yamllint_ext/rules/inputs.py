@@ -15,6 +15,8 @@
 
 import yaml
 
+from pydoc import locate
+
 from cfy_lint.yamllint_ext import LintProblem
 from cfy_lint.yamllint_ext.generators import CfyNode
 from cfy_lint.yamllint_ext.constants import UNUSED_INPUTS
@@ -171,14 +173,48 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
         elif isinstance(input_obj.default, bool) and not suggestions:
             message += 'The correct type could be "boolean".'
         yield LintProblem(line, None, message)
-    elif input_obj.input_type not in INPUTS_BY_DSL.get(dsl, []):
+    elif get_type_name(input_obj) not in INPUTS_BY_DSL.get(dsl, []):
         yield LintProblem(
             line,
             None,
             'Input of type {} is not supported by DSL {}.'.format(
-                input_obj.input_type, dsl
+                get_type_name(input_obj), dsl
             )
         )
+    elif get_type(input_obj) and input_obj.default:
+        message = ''
+        if isinstance(input_obj.default, dict):
+            for key in input_obj.default.keys():
+                if key in INTRINSIC_FNS:
+                    message = "intrinsic function"
+                    if key in STR_INTRINSIC_FNS and not \
+                        isinstance(
+                                   get_type(input_obj),
+                                   str):
+                        message = 'input "{}" specify a type {}, The correct'\
+                            ' type is "string".'.format(
+                                input_obj.name,
+                                get_type_name(input_obj))
+                    if key in INT_INTRINSIC_FNS and not\
+                        isinstance(
+                                   get_type(input_obj),
+                                   int):
+                        message = 'input "{}" specify a type {}, The correct'\
+                            ' type is "int".'.format(
+                                input_obj.name,
+                                get_type_name(input_obj))
+
+        if not message and not isinstance(
+                                    input_obj.default,
+                                    get_type(input_obj)):
+            message = 'input "{}" specify a type {}, However this'\
+                ' doesn\'t match deafult of type {}.'.format(
+                    input_obj.name,
+                    get_type_name(input_obj),
+                    input_obj.default)
+
+        if message and message not in ["intrinsic function"]:
+            yield LintProblem(line, None, message)
     elif not input_obj.display_label:
         yield LintProblem(
             line,
@@ -186,6 +222,17 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
             'Input {} is missing a display_label.'.format(input_obj.name),
             fixable=True
         )
+
+
+def get_type_name(input_obj):
+    if isinstance(input_obj.input_type, yaml.nodes.ScalarNode):
+        return input_obj.input_type.value
+    else:
+        raise TypeError()
+
+
+def get_type(input_obj):
+    return locate(get_type_name(input_obj))
 
 
 class CfyInput(object):
