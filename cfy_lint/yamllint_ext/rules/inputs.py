@@ -59,10 +59,15 @@ DSL_1_4 = [
     'capability_value',
     'node_instance_ids',
 ]
+DSL_1_5 = [
+    'operation_name'
+]
 DSL_1_4.extend(DSL_1_3)
+DSL_1_5.extend(DSL_1_4)
 INPUTS_BY_DSL = {
     'cloudify_dsl_1_3': DSL_1_3,
-    'cloudify_dsl_1_4': DSL_1_4
+    'cloudify_dsl_1_4': DSL_1_4,
+    'cloudify_dsl_1_5': DSL_1_5
 }
 
 
@@ -158,7 +163,7 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                 input_obj.input_type, dsl
             )
         )
-    elif not input_obj.display_label and dsl == 'cloudify_dsl_1_4':
+    elif not input_obj.display_label and dsl != 'cloudify_dsl_1_3':
         yield LintProblem(
             line,
             None,
@@ -169,6 +174,13 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
             line,
             None,
             'Display_label is not supported by DSL {}.'.format(dsl)
+        )
+    elif input_obj.display_label in DSL_1_5 and dsl != 'cloudify_dsl_1_5':
+        yield LintProblem(
+            line,
+            None,
+            '{label} is not supported by DSL {dsl}.'.format(
+            label=input_obj.display_label, sdl=dsl)
         )
 
 

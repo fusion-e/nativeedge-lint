@@ -102,9 +102,6 @@ def check_openstack_plugin_version(url, line):
 
 
 def validate_imported_dsl_version(line, dsl_version, imported_dsl):
-    print('***1: {}'.format(imported_dsl))
-    print('***2: {}'.format(dsl_version))
-
     if isinstance(imported_dsl, list):
         imported_dsl = imported_dsl.pop(0)
     for dsl in imported_dsl:
