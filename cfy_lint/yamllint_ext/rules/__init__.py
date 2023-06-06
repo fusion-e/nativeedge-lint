@@ -23,6 +23,7 @@ from . import capabilities
 from . import relationships
 from . import node_templates
 from . import dsl_definitions
+from . import blueprint_labels
 
 _CLOUDIFY_RULES = {
     inputs.ID: inputs,
@@ -32,7 +33,9 @@ _CLOUDIFY_RULES = {
     capabilities.ID: capabilities,
     relationships.ID: relationships,
     node_templates.ID: node_templates,
-    dsl_definitions.ID: dsl_definitions
+    dsl_definitions.ID: dsl_definitions,
+    blueprint_labels.ID: blueprint_labels
+
 }
 ruleset.update(_CLOUDIFY_RULES)
 

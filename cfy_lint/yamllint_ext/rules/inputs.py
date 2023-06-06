@@ -16,6 +16,7 @@
 import yaml
 
 from cfy_lint.yamllint_ext import LintProblem
+from cfy_lint.yamllint_ext.rules import constants
 from cfy_lint.yamllint_ext.generators import CfyNode
 from cfy_lint.yamllint_ext.constants import UNUSED_INPUTS
 from cfy_lint.yamllint_ext.utils import (
@@ -38,37 +39,6 @@ ALLOWED_KEYS = [
     'description',
     'display_label'
 ]
-DSL_1_3 = [
-    'list',
-    'dict',
-    'regex',
-    'float',
-    'string',
-    'integer',
-    'boolean',
-    'textarea'
-]
-DSL_1_4 = [
-    'node_id',
-    'node_ids',
-    'blueprint_id',
-    'node_template',
-    'deployment_id',
-    'blueprint_ids',
-    'deployment_ids',
-    'capability_value',
-    'node_instance_ids',
-]
-DSL_1_5 = [
-    'operation_name'
-]
-DSL_1_4.extend(DSL_1_3)
-DSL_1_5.extend(DSL_1_4)
-INPUTS_BY_DSL = {
-    'cloudify_dsl_1_3': DSL_1_3,
-    'cloudify_dsl_1_4': DSL_1_4,
-    'cloudify_dsl_1_5': DSL_1_5
-}
 
 
 @process_relevant_tokens(CfyNode, ['inputs', 'get_input'])
@@ -155,7 +125,7 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
             if isinstance(input_obj.default, list) and not suggestions:
                 message += 'The correct type could be "list".'
         yield LintProblem(line, None, message)
-    elif input_obj.input_type not in INPUTS_BY_DSL.get(dsl, []):
+    elif input_obj.input_type not in constants.INPUTS_BY_DSL.get(dsl, []):
         yield LintProblem(
             line,
             None,
@@ -175,7 +145,8 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
             None,
             'Display_label is not supported by DSL {}.'.format(dsl)
         )
-    elif input_obj.display_label in DSL_1_5 and dsl != 'cloudify_dsl_1_5':
+    elif input_obj.display_label in (constants.DSL_1_5 and
+                                     dsl != 'cloudify_dsl_1_5'):
         yield LintProblem(
             line,
             None,
