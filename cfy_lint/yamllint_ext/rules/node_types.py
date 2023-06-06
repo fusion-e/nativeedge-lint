@@ -13,10 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import yaml
+
 from cfy_lint.yamllint_ext import LintProblem
 
 from cfy_lint.yamllint_ext.generators import CfyNode
-from cfy_lint.yamllint_ext.utils import process_relevant_tokens
+from cfy_lint.yamllint_ext.utils import (
+    process_relevant_tokens,
+    context as ctx
+    )
 from cfy_lint.yamllint_ext.rules.node_templates import (
     remove_node_type_from_context
 )
@@ -28,13 +33,102 @@ TYPE = 'token'
 CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
+DSL_1_3 = [
+    'list',
+    'dict',
+    'regex',
+    'float',
+    'string',
+    'integer',
+    'boolean',
+    'textarea'
+]
+DSL_1_4 = [
+    'node_id',
+    'node_ids',
+    'blueprint_id',
+    'node_template',
+    'deployment_id',
+    'blueprint_ids',
+    'deployment_ids',
+    'capability_value',
+    'node_instance_ids',
+]
+DSL_1_5 = [
+    'operation_name'
+]
+DSL_1_4.extend(DSL_1_3)
+DSL_1_5.extend(DSL_1_4)
+INPUTS_BY_DSL = {
+    'cloudify_dsl_1_3': DSL_1_3,
+    'cloudify_dsl_1_4': DSL_1_4,
+    'cloudify_dsl_1_5': DSL_1_5
+}
+
 
 @process_relevant_tokens(CfyNode, 'node_types')
 def check(token=None, skip_suggestions=None, **_):
     for node_type in token.node.value:
+        types = get_type_and_check_dsl(node_type)
+        dsl = ctx.get("dsl_version")
+        for value in types:
+            if value not in INPUTS_BY_DSL.get(dsl, []):
+                yield LintProblem(
+                    token.line,
+                    None,
+                    'Type {} is not supported by DSL {}.'.format(value, dsl)
+                )
         yield from node_type_follows_naming_conventions(
             node_type[0].value, token.line, skip_suggestions)
     remove_node_type_from_context(node_type)
+
+
+def recurse_node_template(mapping):
+    if isinstance(mapping, yaml.nodes.ScalarNode):
+        return mapping.value
+    if isinstance(mapping, yaml.nodes.MappingNode):
+        mapping_list = []
+        for item in mapping.value:
+            mapping_list.append(recurse_node_template(item))
+        mapping_dict = {}
+        for item in mapping_list:
+            try:
+                mapping_dict[item[0]] = item[1]
+            except KeyError:
+                mapping_dict.update(item)
+        return mapping_dict
+    elif isinstance(mapping, tuple):
+        if len(mapping) == 2 and isinstance(mapping[0], yaml.nodes.ScalarNode):
+            return {
+                mapping[0].value: recurse_node_template(mapping[1])
+            }
+        else:
+            new_list = []
+            for item in mapping:
+                new_list.append(recurse_node_template(item))
+            return new_list
+    elif isinstance(mapping, yaml.nodes.SequenceNode):
+        new_list = []
+        for item in mapping.value:
+            new_list.append(recurse_node_template(item))
+        return new_list
+
+
+def get_values_by_key_type(dictionary):
+    values = []
+    if 'type' in dictionary:
+        values.append(dictionary['type'])
+    for value in dictionary.values():
+        if isinstance(value, dict):
+            nested_values = get_values_by_key_type(value)
+            values.extend(nested_values)
+    return values
+
+
+def get_type_and_check_dsl(node_type):
+    node_type = recurse_node_template(node_type)
+    types = get_values_by_key_type(node_type)
+    return(types)
 
 
 def node_type_follows_naming_conventions(value, line, skip_suggestions=None):

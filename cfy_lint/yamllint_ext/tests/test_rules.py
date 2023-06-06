@@ -95,12 +95,12 @@ def test_dsl_definition():
 
 def test_dsl_versions():
     dsl_version_content = """
-    tosca_definitions_version: cloudify_dsl_1_5
+    tosca_definitions_version: cloudify_dsl_1_6
     """
     elem = get_mock_cfy_node(dsl_version_content, 'tosca_definitions_version')
     result = get_gen_as_list(rules.dsl_version.check, {'token': elem})
     assert isinstance(result[0], LintProblem)
-    assert "dsl_version not supported: cloudify_dsl_1_5" in \
+    assert "dsl_version not supported: cloudify_dsl_1_6" in \
            result[0].message
 
 

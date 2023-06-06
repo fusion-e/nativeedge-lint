@@ -180,7 +180,7 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
             line,
             None,
             '{label} is not supported by DSL {dsl}.'.format(
-            label=input_obj.display_label, sdl=dsl)
+                label=input_obj.display_label, dsl=dsl)
         )
 
 
