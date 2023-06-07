@@ -203,7 +203,6 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                             ' type is "int".'.format(
                                 input_obj.name,
                                 get_type_name(input_obj))
-
         if not message and not isinstance(
                                     input_obj.default,
                                     get_type(input_obj)):
@@ -232,7 +231,11 @@ def get_type_name(input_obj):
 
 
 def get_type(input_obj):
-    return locate(get_type_name(input_obj))
+    type_name = get_type_name(input_obj)
+    if type_name == 'string':
+        return type("string")
+    else:
+        return globals().get('__builtins__').get(type_name)
 
 
 class CfyInput(object):
