@@ -540,3 +540,34 @@ def update_dict_values_recursive(default_dict, name_file_config):
             if value:
                 default_dict[key] = value
     return default_dict
+
+
+def recurse_get_readable_object(mapping):
+    if isinstance(mapping, yaml.nodes.ScalarNode):
+        return mapping.value
+    if isinstance(mapping, yaml.nodes.MappingNode):
+        mapping_list = []
+        for item in mapping.value:
+            mapping_list.append(recurse_get_readable_object(item))
+        mapping_dict = {}
+        for item in mapping_list:
+            try:
+                mapping_dict[item[0]] = item[1]
+            except KeyError:
+                mapping_dict.update(item)
+        return mapping_dict
+    elif isinstance(mapping, tuple):
+        if len(mapping) == 2 and isinstance(mapping[0], yaml.nodes.ScalarNode):
+            return {
+                mapping[0].value: recurse_get_readable_object(mapping[1])
+            }
+        else:
+            new_list = []
+            for item in mapping:
+                new_list.append(recurse_get_readable_object(item))
+            return new_list
+    elif isinstance(mapping, yaml.nodes.SequenceNode):
+        new_list = []
+        for item in mapping.value:
+            new_list.append(recurse_get_readable_object(item))
+        return new_list

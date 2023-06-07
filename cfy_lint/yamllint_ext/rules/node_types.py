@@ -13,13 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import yaml
-
 from cfy_lint.yamllint_ext import LintProblem
 from cfy_lint.yamllint_ext.rules import constants
 from cfy_lint.yamllint_ext.generators import CfyNode
 from cfy_lint.yamllint_ext.utils import (
     process_relevant_tokens,
+    recurse_get_readable_object,
     context as ctx
     )
 from cfy_lint.yamllint_ext.rules.node_templates import (
@@ -51,37 +50,6 @@ def check(token=None, skip_suggestions=None, **_):
     remove_node_type_from_context(node_type)
 
 
-def recurse_node_type(mapping):
-    if isinstance(mapping, yaml.nodes.ScalarNode):
-        return mapping.value
-    if isinstance(mapping, yaml.nodes.MappingNode):
-        mapping_list = []
-        for item in mapping.value:
-            mapping_list.append(recurse_node_type(item))
-        mapping_dict = {}
-        for item in mapping_list:
-            try:
-                mapping_dict[item[0]] = item[1]
-            except KeyError:
-                mapping_dict.update(item)
-        return mapping_dict
-    elif isinstance(mapping, tuple):
-        if len(mapping) == 2 and isinstance(mapping[0], yaml.nodes.ScalarNode):
-            return {
-                mapping[0].value: recurse_node_type(mapping[1])
-            }
-        else:
-            new_list = []
-            for item in mapping:
-                new_list.append(recurse_node_type(item))
-            return new_list
-    elif isinstance(mapping, yaml.nodes.SequenceNode):
-        new_list = []
-        for item in mapping.value:
-            new_list.append(recurse_node_type(item))
-        return new_list
-
-
 def get_values_by_key_type(dictionary):
     values = []
     if 'type' in dictionary:
@@ -94,7 +62,7 @@ def get_values_by_key_type(dictionary):
 
 
 def get_type_and_check_dsl(node_type):
-    node_type = recurse_node_type(node_type)
+    node_type = recurse_get_readable_object(node_type)
     types = get_values_by_key_type(node_type)
     return(types)
 

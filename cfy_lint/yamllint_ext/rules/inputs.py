@@ -145,8 +145,9 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
             None,
             'Display_label is not supported by DSL {}.'.format(dsl)
         )
-    elif input_obj.display_label in (constants.DSL_1_5 and
-                                     dsl != 'cloudify_dsl_1_5'):
+    elif input_obj.display_label and (
+        input_obj.display_label in constants.DSL_1_5) and (
+        dsl != 'cloudify_dsl_1_5'):
         yield LintProblem(
             line,
             None,

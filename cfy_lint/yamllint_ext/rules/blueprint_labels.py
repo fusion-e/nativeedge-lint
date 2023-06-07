@@ -13,11 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import yaml
-
 from cfy_lint.yamllint_ext import LintProblem
 from cfy_lint.yamllint_ext.generators import CfyNode
-from cfy_lint.yamllint_ext.utils import process_relevant_tokens
+from cfy_lint.yamllint_ext.utils import (
+    process_relevant_tokens,
+    recurse_get_readable_object
+    )
 
 VALUES = []
 
@@ -35,7 +36,7 @@ def check(token=None, **_):
                 None,
                 'Should be written in this form blueprint_labels')
     for item in token.node.value:
-        d = recurse_node_type(item)
+        d = recurse_get_readable_object(item)
         if not isinstance(d, dict):
             yield LintProblem(
                 token.line,
@@ -59,34 +60,3 @@ def check(token=None, **_):
                             token.line,
                             None,
                             'The value of the "values" is should be a list')
-
-
-def recurse_node_type(mapping):
-    if isinstance(mapping, yaml.nodes.ScalarNode):
-        return mapping.value
-    if isinstance(mapping, yaml.nodes.MappingNode):
-        mapping_list = []
-        for item in mapping.value:
-            mapping_list.append(recurse_node_type(item))
-        mapping_dict = {}
-        for item in mapping_list:
-            try:
-                mapping_dict[item[0]] = item[1]
-            except KeyError:
-                mapping_dict.update(item)
-        return mapping_dict
-    elif isinstance(mapping, tuple):
-        if len(mapping) == 2 and isinstance(mapping[0], yaml.nodes.ScalarNode):
-            return {
-                mapping[0].value: recurse_node_type(mapping[1])
-            }
-        else:
-            new_list = []
-            for item in mapping:
-                new_list.append(recurse_node_type(item))
-            return new_list
-    elif isinstance(mapping, yaml.nodes.SequenceNode):
-        new_list = []
-        for item in mapping.value:
-            new_list.append(recurse_node_type(item))
-        return new_list
