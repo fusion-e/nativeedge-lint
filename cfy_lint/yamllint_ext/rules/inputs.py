@@ -1,3 +1,4 @@
+
 ########
 # Copyright (c) 2014-2023 Cloudify Platform Ltd. All rights reserved
 #
@@ -12,9 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import yaml
-
+from pydoc import locate
 from cfy_lint.yamllint_ext import LintProblem
 from cfy_lint.yamllint_ext.rules import constants
 from cfy_lint.yamllint_ext.generators import CfyNode
@@ -23,9 +23,7 @@ from cfy_lint.yamllint_ext.utils import (
     INTRINSIC_FNS,
     recurse_mapping,
     context as ctx, process_relevant_tokens)
-
 VALUES = []
-
 ID = 'inputs'
 TYPE = 'token'
 CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
@@ -39,7 +37,18 @@ ALLOWED_KEYS = [
     'description',
     'display_label'
 ]
-
+STR_INTRINSIC_FNS = [
+    'concat',
+    'string_lower',
+    'string_upper',
+    'string_replace'
+]
+DICT_INTRINSIC_FNS = [
+    'merge'
+]
+INT_INTRINSIC_FNS = [
+    'string_find'
+]
 
 @process_relevant_tokens(CfyNode, ['inputs', 'get_input'])
 def check(token=None, skip_suggestions=None, **_):
@@ -54,7 +63,8 @@ def check(token=None, skip_suggestions=None, **_):
             input_obj = CfyInput(item)
             if not input_obj.name and not input_obj.mapping:
                 continue
-            if input_obj.not_input():
+            if input_obj.not_input() and not isinstance(
+                    input_obj.default, bool):
                 continue
             ctx['inputs'].update(input_obj.__dict__())
             if input_obj.name not in ctx[UNUSED_INPUTS]:
@@ -71,7 +81,6 @@ def check(token=None, skip_suggestions=None, **_):
                                        input_obj.line or token.line,
                                        ctx.get("dsl_version"),
                                        skip_suggestions)
-
     if token.prev.node.value == 'get_input':
         if isinstance(token.node.value, list):
             if isinstance(token.node.value[0], yaml.nodes.ScalarNode):
@@ -100,7 +109,6 @@ def check(token=None, skip_suggestions=None, **_):
             elif token.node.value in ctx[UNUSED_INPUTS]:
                 del ctx[UNUSED_INPUTS][token.node.value]
 
-
 def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
     suggestions = 'inputs' in skip_suggestions
     if input_obj.invalid_keys:
@@ -116,6 +124,12 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                 for key in input_obj.default.keys():
                     if key in INTRINSIC_FNS:
                         input_obj.default = None
+                        if key in STR_INTRINSIC_FNS:
+                            message += 'The correct type could be "string".'
+                        if key in DICT_INTRINSIC_FNS:
+                            message += 'The correct type could be "dict".'
+                        if key in INT_INTRINSIC_FNS:
+                            message += 'The correct type could be "int".'
                 if isinstance(input_obj.default, dict) and not suggestions:
                     message += 'The correct type could be "dict".'
             if isinstance(input_obj.default, str) and not suggestions:
@@ -124,20 +138,62 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                 message += 'The correct type could be "boolean".'
             if isinstance(input_obj.default, list) and not suggestions:
                 message += 'The correct type could be "list".'
+        elif isinstance(input_obj.default, bool) and not suggestions:
+            message += 'The correct type could be "boolean".'
         yield LintProblem(line, None, message)
-    elif input_obj.input_type not in constants.INPUTS_BY_DSL.get(dsl, []):
+    elif get_type_name(input_obj) not in constants.INPUTS_BY_DSL.get(dsl, []):
         yield LintProblem(
             line,
             None,
             'Input of type {} is not supported by DSL {}.'.format(
-                input_obj.input_type, dsl
+                get_type_name(input_obj), dsl
             )
         )
     elif not input_obj.display_label and dsl != 'cloudify_dsl_1_3':
         yield LintProblem(
             line,
             None,
-            'Input {} is missing a display_label.'.format(input_obj.name)
+            'Input {} is missing a display_label.'.format(input_obj.name),
+            fixable=True
+        )
+    elif get_type(input_obj) and input_obj.default:
+        message = ''
+        if isinstance(input_obj.default, dict):
+            for key in input_obj.default.keys():
+                if key in INTRINSIC_FNS:
+                    message = "intrinsic function"
+                    if key in STR_INTRINSIC_FNS and not \
+                        isinstance(
+                                   get_type(input_obj),
+                                   str):
+                        message = 'input "{}" specify a type {}, The correct'\
+                            ' type is "string".'.format(
+                                input_obj.name,
+                                get_type_name(input_obj))
+                    if key in INT_INTRINSIC_FNS and not\
+                        isinstance(
+                                   get_type(input_obj),
+                                   int):
+                        message = 'input "{}" specify a type {}, The correct'\
+                            ' type is "int".'.format(
+                                input_obj.name,
+                                get_type_name(input_obj))
+        if not message and not isinstance(
+                                    input_obj.default,
+                                    get_type(input_obj)):
+            message = 'input "{}" specify a type {}, However this'\
+                ' doesn\'t match deafult of type {}.'.format(
+                    input_obj.name,
+                    get_type_name(input_obj),
+                    input_obj.default)
+        if message and message not in ["intrinsic function"]:
+            yield LintProblem(line, None, message)
+    elif not input_obj.display_label:
+        yield LintProblem(
+            line,
+            None,
+            'Input {} is missing a display_label.'.format(input_obj.name),
+            fixable=True
         )
     elif input_obj.display_label and dsl == 'cloudify_dsl_1_3':
         yield LintProblem(
@@ -155,6 +211,14 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                 label=input_obj.display_label, dsl=dsl)
         )
 
+def get_type_name(input_obj):
+    if isinstance(input_obj.input_type, yaml.nodes.ScalarNode):
+        return input_obj.input_type.value
+    else:
+        raise TypeError()
+
+def get_type(input_obj):
+    return locate(get_type_name(input_obj))
 
 class CfyInput(object):
     def __init__(self, nodes):
@@ -171,27 +235,21 @@ class CfyInput(object):
             self._default = self.mapping.get('default')
             self.constraints = self.mapping.get('constraints')
             self.display_label = self.mapping.get('display_label')
-
     @property
     def default(self):
         return self._default
-
     @default.setter
     def default(self, value):
         self._default = value
-
     @property
     def line(self):
         return self._line
-
     def not_input(self):
         return all([not k for k in self.mapping.values()])
-
     def __dict__(self):
         return {
             self.name: self.mapping
         }
-
     def get_input(self, nodes):
         if not isinstance(nodes, tuple) or len(nodes) != 2:
             name = None
@@ -200,12 +258,10 @@ class CfyInput(object):
             name = self.get_input_name(nodes[0])
             mapping = self.get_input_mapping(nodes[1])
         return name, mapping
-
     def get_input_name(self, node):
         if isinstance(node, yaml.nodes.ScalarNode):
             self._line = node.end_mark.line + 1
             return node.value
-
     def get_input_mapping(self, node):
         mapping = {
             'type': None,
@@ -220,10 +276,9 @@ class CfyInput(object):
                     continue
                 mapping_name = tup[0].value
                 mapping_value = self.get_mapping_value(
-                    mapping_name, tup[1].value)
+                    mapping_name, tup[1])
                 mapping[mapping_name] = mapping_value
         return mapping
-
     def get_mapping_value(self, name, value):
         if name not in ['default', 'constraints']:
             return value
