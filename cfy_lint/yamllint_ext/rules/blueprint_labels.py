@@ -58,7 +58,7 @@ def check(token=None, **_):
                         yield LintProblem(
                             token.line,
                             None,
-                            'The value of the "values" is should be a list')  
+                            'The value of the "values" is should be a list')
 
 
 def recurse_node_type(mapping):
