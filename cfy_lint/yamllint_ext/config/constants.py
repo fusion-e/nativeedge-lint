@@ -68,4 +68,5 @@ rules:
   relationships: enable
   node_templates: enable
   dsl_definitions: enable
+  blueprint_labels: enable
 """
