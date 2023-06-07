@@ -176,7 +176,6 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
             '{label} is not supported by DSL {dsl}.'.format(
                 label=input_obj.display_label, dsl=dsl)
         )
-    
     elif get_type(input_obj) and input_obj.default:
         message = ''
         if isinstance(input_obj.default, dict):
