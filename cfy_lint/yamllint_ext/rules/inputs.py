@@ -16,6 +16,7 @@
 import yaml
 
 from cfy_lint.yamllint_ext import LintProblem
+from cfy_lint.yamllint_ext.rules import constants
 from cfy_lint.yamllint_ext.generators import CfyNode
 from cfy_lint.yamllint_ext.constants import UNUSED_INPUTS
 from cfy_lint.yamllint_ext.utils import (
@@ -38,32 +39,6 @@ ALLOWED_KEYS = [
     'description',
     'display_label'
 ]
-DSL_1_3 = [
-    'list',
-    'dict',
-    'regex',
-    'float',
-    'string',
-    'integer',
-    'boolean',
-    'textarea'
-]
-DSL_1_4 = [
-    'node_id',
-    'node_ids',
-    'blueprint_id',
-    'node_template',
-    'deployment_id',
-    'blueprint_ids',
-    'deployment_ids',
-    'capability_value',
-    'node_instance_ids',
-]
-DSL_1_4.extend(DSL_1_3)
-INPUTS_BY_DSL = {
-    'cloudify_dsl_1_3': DSL_1_3,
-    'cloudify_dsl_1_4': DSL_1_4
-}
 STR_INTRINSIC_FNS = [
     'concat',
     'string_lower',
@@ -171,13 +146,33 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
         elif isinstance(input_obj.default, bool) and not suggestions:
             message += 'The correct type could be "boolean".'
         yield LintProblem(line, None, message)
-    elif get_type_name(input_obj) not in INPUTS_BY_DSL.get(dsl, []):
+    elif get_type_name(input_obj) not in constants.INPUTS_BY_DSL.get(dsl, []):
         yield LintProblem(
             line,
             None,
             'Input of type {} is not supported by DSL {}.'.format(
                 get_type_name(input_obj), dsl
             )
+        )
+    elif not input_obj.display_label and dsl != 'cloudify_dsl_1_3':
+        yield LintProblem(
+            line,
+            None,
+            'Input {} is missing a display_label.'.format(input_obj.name)
+        )
+    elif input_obj.display_label and dsl == 'cloudify_dsl_1_3':
+        yield LintProblem(
+            line,
+            None,
+            'Display_label is not supported by DSL {}.'.format(dsl)
+        )
+    elif input_obj.display_label and dsl != 'cloudify_dsl_1_5' and (
+            input_obj.display_label in constants.DSL_1_5):
+        yield LintProblem(
+            line,
+            None,
+            '{label} is not supported by DSL {dsl}.'.format(
+                label=input_obj.display_label, dsl=dsl)
         )
     elif get_type(input_obj) and input_obj.default:
         message = ''
@@ -210,7 +205,6 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                     input_obj.name,
                     get_type_name(input_obj),
                     input_obj.default)
-
         if message and message not in ["intrinsic function"]:
             yield LintProblem(line, None, message)
     elif not input_obj.display_label:
