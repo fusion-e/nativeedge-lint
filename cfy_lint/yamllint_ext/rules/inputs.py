@@ -15,8 +15,6 @@
 
 import yaml
 
-from pydoc import locate
-
 from cfy_lint.yamllint_ext import LintProblem
 from cfy_lint.yamllint_ext.rules import constants
 from cfy_lint.yamllint_ext.generators import CfyNode
@@ -198,17 +196,15 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                             ' type is "int".'.format(
                                 input_obj.name,
                                 get_type_name(input_obj))
-        # print(input_obj.default)
-        # print(get_type_name(input_obj))
-        # if not message and not isinstance(
-        #                             input_obj.default,
-        #                             get_type_name(input_obj)):
-        #     message = 'input "{}" specify a type {}, However this'\
-        #         ' doesn\'t match deafult of type {}.'.format(
-        #             input_obj.name,
-        #             get_type_name(input_obj),
-        #             input_obj.default)
 
+        if not message and not isinstance(
+                                    input_obj.default,
+                                    get_type(input_obj)):
+            message = 'input "{}" specify a type {}, However this'\
+                ' doesn\'t match deafult of type {}.'.format(
+                    input_obj.name,
+                    get_type_name(input_obj),
+                    input_obj.default)
         if message and message not in ["intrinsic function"]:
             yield LintProblem(line, None, message)
     elif not input_obj.display_label:
@@ -228,7 +224,11 @@ def get_type_name(input_obj):
 
 
 def get_type(input_obj):
-    return locate(get_type_name(input_obj))
+    type_name = get_type_name(input_obj)
+    if type_name == 'string':
+        return type("string")
+    else:
+        return globals().get('__builtins__').get(type_name)
 
 
 class CfyInput(object):
