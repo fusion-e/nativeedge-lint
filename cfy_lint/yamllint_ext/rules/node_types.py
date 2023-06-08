@@ -16,7 +16,7 @@
 from cfy_lint.yamllint_ext import LintProblem
 
 from cfy_lint.yamllint_ext.generators import CfyNode
-from cfy_lint.yamllint_ext.utils import process_relevant_tokens
+from cfy_lint.yamllint_ext.utils import process_relevant_tokens, check_node_imported
 from cfy_lint.yamllint_ext.rules.node_templates import (
     remove_node_type_from_context
 )
@@ -32,8 +32,9 @@ DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 @process_relevant_tokens(CfyNode, 'node_types')
 def check(token=None, skip_suggestions=None, **_):
     for node_type in token.node.value:
-        yield from node_type_follows_naming_conventions(
-            node_type[0].value, token.line, skip_suggestions)
+        if check_node_imported(node_type[0].value):
+            yield from node_type_follows_naming_conventions(
+                node_type[0].value, token.line, skip_suggestions)
     remove_node_type_from_context(node_type)
 
 
@@ -45,7 +46,7 @@ def node_type_follows_naming_conventions(value, line, skip_suggestions=None):
         yield LintProblem(
             line,
             None,
-            "node types should following naming convention cloudify.nodes.*: "
+            "node types should follow naming convention cloudify.nodes.*: "
             "{}".format(value))
     if not good_camel_case(last_key, split_node_type) and not suggestions:
         new_value = '.'.join(

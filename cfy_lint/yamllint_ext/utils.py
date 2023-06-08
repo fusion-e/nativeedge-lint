@@ -615,3 +615,10 @@ def update_dict_values_recursive(default_dict, name_file_config):
             if value:
                 default_dict[key] = value
     return default_dict
+
+
+def check_node_imported(node_name):
+    for keys in context['imported_node_types_by_plugin']:
+        if node_name in context['imported_node_types_by_plugin'][keys]:
+            return True
+    return False

@@ -15,8 +15,6 @@
 
 import yaml
 
-from pydoc import locate
-
 from cfy_lint.yamllint_ext import LintProblem
 from cfy_lint.yamllint_ext.generators import CfyNode
 from cfy_lint.yamllint_ext.constants import UNUSED_INPUTS
