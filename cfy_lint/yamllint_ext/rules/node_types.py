@@ -16,7 +16,10 @@
 from cfy_lint.yamllint_ext import LintProblem
 
 from cfy_lint.yamllint_ext.generators import CfyNode
-from cfy_lint.yamllint_ext.utils import process_relevant_tokens, check_node_imported
+from cfy_lint.yamllint_ext.utils import (
+    process_relevant_tokens,
+    check_node_imported
+)
 from cfy_lint.yamllint_ext.rules.node_templates import (
     remove_node_type_from_context
 )

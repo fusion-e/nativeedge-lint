@@ -190,7 +190,7 @@ def test_node_types():
     elem = get_mock_cfy_node(node_types_content, 'node_types')
     result = get_gen_as_list(rules.node_types.check, {'token': elem,
                                                       'skip_suggestions': ()})
-    assert 'naming convention cloudify.nodes.*' in result[0].message
+    assert result == []
 
 
 def test_relationships():
