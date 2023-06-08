@@ -15,8 +15,6 @@
 
 import yaml
 
-from pydoc import locate
-
 from cfy_lint.yamllint_ext import LintProblem
 from cfy_lint.yamllint_ext.generators import CfyNode
 from cfy_lint.yamllint_ext.constants import UNUSED_INPUTS
@@ -232,7 +230,11 @@ def get_type_name(input_obj):
 
 
 def get_type(input_obj):
-    return locate(get_type_name(input_obj))
+    type_name = get_type_name(input_obj)
+    if type_name == 'string':
+        return type("string")
+    else:
+        return globals().get('__builtins__').get(type_name)
 
 
 class CfyInput(object):

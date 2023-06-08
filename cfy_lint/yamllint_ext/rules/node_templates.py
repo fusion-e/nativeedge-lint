@@ -21,7 +21,8 @@ from cfy_lint.yamllint_ext.generators import CfyNode
 from cfy_lint.yamllint_ext.constants import UNUSED_IMPORT_CTX
 from cfy_lint.yamllint_ext.utils import (process_relevant_tokens,
                                          INTRINSIC_FNS,
-                                         context as ctx)
+                                         context as ctx,
+                                         find_values_by_key)
 from cfy_lint.yamllint_ext.rules.constants import (
     GCP_TYPES,
     AWS_TYPES,
@@ -86,6 +87,9 @@ def check(token=None, context=None, node_types=None, **_):
             parsed_node_template,
             parsed_node_template.line or token.line)
         yield from check_external_resource(
+            parsed_node_template,
+            parsed_node_template.line or token.line)
+        yield from check_get_attribute(
             parsed_node_template,
             parsed_node_template.line or token.line)
 
@@ -497,3 +501,28 @@ def remove_node_type_from_context(node_type):
         for import_item in list(ctx[UNUSED_IMPORT_CTX].keys()):
             if node_type in ctx[UNUSED_IMPORT_CTX][import_item]:
                 del ctx[UNUSED_IMPORT_CTX][import_item]
+
+
+def check_get_attribute(model, line):
+    properties = model.properties
+    relationships = get_target_list_relationships(model, line)
+    for item, value in properties.items():
+        attribute = find_values_by_key(value, 'get_attribute')
+        for attr in attribute:
+            if attr[0] not in relationships:
+                yield LintProblem(
+                    line,
+                    None,
+                    "The node template '{name}' uses an intrinsic function "
+                    "with target node_template '{target}', but does not "
+                    "provide a relationship. Add a relationship under '{name}'"
+                    "with target '{target}'."
+                    .format(name=model.name, target=attr[0]))
+
+
+def get_target_list_relationships(model, line):
+    relationships = model.relationships
+    target_list = []
+    for rel in relationships:
+        target_list.append(rel.get('target'))
+    return target_list
