@@ -795,7 +795,6 @@ TERRATAG_SUPPORTED_FLAGS = [
     'filter'
 ]
 
-
 AWS_TYPE_WITH_TAGS = [
     # BaseType
     'cloudify.nodes.aws.ec2.BaseType',
@@ -821,3 +820,39 @@ AWS_TYPE_WITH_TAGS = [
     'cloudify.nodes.aws.ec2.SpotInstances',
     'cloudify.nodes.aws.ec2.ElasticIP',
 ]
+
+DSL_1_3 = [
+    'list',
+    'dict',
+    'regex',
+    'float',
+    'string',
+    'integer',
+    'boolean',
+    'textarea'
+]
+
+DSL_1_4 = [
+    'node_id',
+    'node_ids',
+    'blueprint_id',
+    'node_template',
+    'deployment_id',
+    'blueprint_ids',
+    'deployment_ids',
+    'capability_value',
+    'node_instance_ids',
+]
+
+DSL_1_5 = [
+    'operation_name'
+]
+
+DSL_1_4.extend(DSL_1_3)
+DSL_1_5.extend(DSL_1_4)
+
+INPUTS_BY_DSL = {
+    'cloudify_dsl_1_3': DSL_1_3,
+    'cloudify_dsl_1_4': DSL_1_4,
+    'cloudify_dsl_1_5': DSL_1_5
+}
