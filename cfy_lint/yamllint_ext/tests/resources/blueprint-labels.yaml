@@ -4,12 +4,15 @@ imports:
   - cloudify/types/types.yaml
 
 inputs:
-  environment: 
+
+  environment:
+    type: string
     default: aws
 
 blueprint-labels:
-  env: 
-    values: 
+
+  env:
+    values:
       - { get_input: environment }
   arch:
     values:

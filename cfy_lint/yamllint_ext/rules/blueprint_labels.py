@@ -32,9 +32,10 @@ DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 def check(token=None, **_):
     if token.prev.node.value == 'blueprint-labels':
         yield LintProblem(
-                token.line,
+                token.prev.line,
                 None,
-                'Should be written in this form blueprint_labels')
+                'The blueprint_labels key should be written '
+                'with an underscore not a dash.')
     for item in token.node.value:
         d = recurse_get_readable_object(item)
         if not isinstance(d, dict):
