@@ -475,7 +475,7 @@ def remove_node_type_from_context(node_type):
             if node_type in ctx[UNUSED_IMPORT_CTX][import_item]:
                 del ctx[UNUSED_IMPORT_CTX][import_item]
 
- 
+
 def check_get_attribute(model, line):
     properties = model.properties
     relationships = get_target_list_relationships(model, line)
@@ -508,5 +508,5 @@ def check_supports_tagging(model, line):
                 line,
                 None,
                 'The node template {node} with {type} does not provide Tags '
-                'parameter in resource_config. A best practice is to provide '
+                'parameter in properties. A best practice is to provide '
                 'Tags.'.format(node=model.name, type=model.node_type))
