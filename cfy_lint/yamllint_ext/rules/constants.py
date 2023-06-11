@@ -816,19 +816,6 @@ AWS_TYPE_WITH_TAGS = [
     'cloudify.nodes.aws.ec2.RouteTable',
     'cloudify.nodes.aws.ec2.EBSVolume',
 
-    # cloudify_tagging
-    'cloudify.nodes.aws.elb.LoadBalancer',
-    'loudify.nodes.aws.elb.Classic.LoadBalancer',
-    'cloudify.nodes.aws.elb.Classic.HealthCheck',
-    'cloudify.nodes.aws.elb.Listener',
-    'cloudify.nodes.aws.elb.Classic.Listener',
-    'cloudify.nodes.aws.elb.Rule',
-    'cloudify.nodes.aws.elb.TargetGroup',
-    'cloudify.nodes.aws.elb.Classic.Policy',
-    'cloudify.nodes.aws.ec2.Instances',
-    'cloudify.nodes.aws.eks.Cluster',
-    'cloudify.nodes.aws.eks.NodeGroup',
-
     # tags_property
     'cloudify.nodes.aws.ec2.Instances',
     'cloudify.nodes.aws.ec2.SpotInstances',

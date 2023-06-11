@@ -505,9 +505,10 @@ def remove_node_type_from_context(node_type):
 
 def check_supports_tagging(model, line):
     if model.node_type in AWS_TYPE_WITH_TAGS:
-        yield LintProblem(
-            line,
-            None,
-            'The node template {node} with {type} does not provide Tags '
-            'parameter in resource_config. A best practice is to provide Tags.'
-            .format(node=model.name, type=model.node_type))
+        if 'Tags' not in model.properties:
+            yield LintProblem(
+                line,
+                None,
+                'The node template {node} with {type} does not provide Tags '
+                'parameter in resource_config. A best practice is to provide '
+                'Tags.'.format(node=model.name, type=model.node_type))
