@@ -794,3 +794,43 @@ TERRATAG_SUPPORTED_FLAGS = [
     'verbose',
     'filter'
 ]
+
+
+AWS_TYPE_WITH_TAGS = [
+    # BaseType
+    'cloudify.nodes.aws.ec2.BaseType',
+    'cloudify.nodes.aws.ec2.Vpc',
+    'cloudify.nodes.aws.ec2.VpcPeering',
+    'cloudify.nodes.aws.ec2.Subnet',
+    'cloudify.nodes.aws.ec2.SecurityGroup',
+    'cloudify.nodes.aws.ec2.NATGateway',
+    'cloudify.nodes.aws.ec2.Interface',
+    'cloudify.nodes.aws.ec2.SpotFleetRequest',
+    'cloudify.nodes.aws.ec2.Keypair',
+    'cloudify.nodes.aws.ec2.NetworkACL',
+    'cloudify.nodes.aws.ec2.VPNGateway',
+    'cloudify.nodes.aws.ec2.CustomerGateway',
+    'cloudify.nodes.aws.ec2.InternetGateway',
+    'cloudify.nodes.aws.ec2.TransitGateway',
+    'cloudify.nodes.aws.ec2.TransitGatewayRouteTable',
+    'cloudify.nodes.aws.ec2.RouteTable',
+    'cloudify.nodes.aws.ec2.EBSVolume',
+
+    # cloudify_tagging
+    'cloudify.nodes.aws.elb.LoadBalancer',
+    'loudify.nodes.aws.elb.Classic.LoadBalancer',
+    'cloudify.nodes.aws.elb.Classic.HealthCheck',
+    'cloudify.nodes.aws.elb.Listener',
+    'cloudify.nodes.aws.elb.Classic.Listener',
+    'cloudify.nodes.aws.elb.Rule',
+    'cloudify.nodes.aws.elb.TargetGroup',
+    'cloudify.nodes.aws.elb.Classic.Policy',
+    'cloudify.nodes.aws.ec2.Instances',
+    'cloudify.nodes.aws.eks.Cluster',
+    'cloudify.nodes.aws.eks.NodeGroup',
+
+    # tags_property
+    'cloudify.nodes.aws.ec2.Instances',
+    'cloudify.nodes.aws.ec2.SpotInstances',
+    'cloudify.nodes.aws.ec2.ElasticIP',
+]
