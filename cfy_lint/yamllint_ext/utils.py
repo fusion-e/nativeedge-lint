@@ -617,6 +617,13 @@ def update_dict_values_recursive(default_dict, name_file_config):
     return default_dict
 
 
+def check_node_imported(node_name):
+    for keys in context['imported_node_types_by_plugin']:
+        if node_name in context['imported_node_types_by_plugin'][keys]:
+            return True
+    return False
+
+
 def recurse_get_readable_object(mapping):
     if isinstance(mapping, yaml.nodes.ScalarNode):
         return mapping.value

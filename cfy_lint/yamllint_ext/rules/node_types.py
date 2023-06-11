@@ -18,6 +18,7 @@ from cfy_lint.yamllint_ext.rules import constants
 from cfy_lint.yamllint_ext.generators import CfyNode
 from cfy_lint.yamllint_ext.utils import (
     process_relevant_tokens,
+    check_node_imported,
     recurse_get_readable_object,
     context as ctx
     )
@@ -45,8 +46,9 @@ def check(token=None, skip_suggestions=None, **_):
                     None,
                     'Type {} is not supported by DSL {}.'.format(value, dsl)
                 )
-        yield from node_type_follows_naming_conventions(
-            node_type[0].value, token.line, skip_suggestions)
+        if check_node_imported(node_type[0].value):
+            yield from node_type_follows_naming_conventions(
+                node_type[0].value, token.line, skip_suggestions)
     remove_node_type_from_context(node_type)
 
 
@@ -63,8 +65,7 @@ def get_values_by_key_type(dictionary):
 
 def get_type_and_check_dsl(node_type):
     node_type = recurse_get_readable_object(node_type)
-    types = get_values_by_key_type(node_type)
-    return(types)
+    return get_values_by_key_type(node_type)
 
 
 def node_type_follows_naming_conventions(value, line, skip_suggestions=None):
@@ -75,7 +76,7 @@ def node_type_follows_naming_conventions(value, line, skip_suggestions=None):
         yield LintProblem(
             line,
             None,
-            "node types should following naming convention cloudify.nodes.*: "
+            "node types should follow naming convention cloudify.nodes.*: "
             "{}".format(value))
     if not good_camel_case(last_key, split_node_type) and not suggestions:
         new_value = '.'.join(

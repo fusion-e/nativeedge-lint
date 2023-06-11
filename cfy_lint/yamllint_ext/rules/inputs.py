@@ -196,7 +196,6 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                             ' type is "int".'.format(
                                 input_obj.name,
                                 get_type_name(input_obj))
-
         if not message and not isinstance(
                                     input_obj.default,
                                     get_type(input_obj)):
