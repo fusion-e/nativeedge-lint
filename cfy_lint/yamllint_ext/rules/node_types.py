@@ -65,8 +65,7 @@ def get_values_by_key_type(dictionary):
 
 def get_type_and_check_dsl(node_type):
     node_type = recurse_get_readable_object(node_type)
-    types = get_values_by_key_type(node_type)
-    return(types)
+    return get_values_by_key_type(node_type)
 
 
 def node_type_follows_naming_conventions(value, line, skip_suggestions=None):

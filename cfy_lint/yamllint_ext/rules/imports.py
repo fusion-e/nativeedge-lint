@@ -123,6 +123,6 @@ def unused_imports(item, token):
         'unused import item: {}'.format(item.value)
     )
     if False:
-        yield(problem)
+        yield problem
     else:
         ctx['post_processing_problems'].update({item.value: problem})

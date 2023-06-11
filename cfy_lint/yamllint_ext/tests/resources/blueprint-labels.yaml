@@ -1,0 +1,17 @@
+tosca_definitions_version: cloudify_dsl_1_3
+
+imports:
+  - cloudify/types/types.yaml
+
+inputs:
+  environment: 
+    default: aws
+
+blueprint-labels:
+  env: 
+    values: 
+      - { get_input: environment }
+  arch:
+    values:
+      - k8s
+      - docker
