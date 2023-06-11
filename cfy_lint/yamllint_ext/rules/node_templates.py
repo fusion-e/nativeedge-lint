@@ -508,5 +508,6 @@ def check_supports_tagging(model, line):
                 line,
                 None,
                 'The node template {node} with {type} does not provide Tags '
-                'parameter in properties. A best practice is to provide '
-                'Tags.'.format(node=model.name, type=model.node_type))
+                'parameter in properties. A best practice is to provide Tags.'
+                'For example: https://tinyurl.com/yveu36xs'
+                .format(node=model.name, type=model.node_type))

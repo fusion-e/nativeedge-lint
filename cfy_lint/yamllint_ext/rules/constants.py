@@ -797,7 +797,6 @@ TERRATAG_SUPPORTED_FLAGS = [
 
 AWS_TYPE_WITH_TAGS = [
     # BaseType
-    'cloudify.nodes.aws.ec2.BaseType',
     'cloudify.nodes.aws.ec2.Vpc',
     'cloudify.nodes.aws.ec2.VpcPeering',
     'cloudify.nodes.aws.ec2.Subnet',
