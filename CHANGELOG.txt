@@ -58,5 +58,6 @@
 0.0.30:
   - update unused import, and exception for fabric
   - RND-616 Fix bug in cache that was slowing down cfy-lint.
+  - RND-550 suggest tags when supported
   - RND-535 Validate relationship dependency get_attribute
   - RND-545 Display_label according to dsl, DSL_1_5, blueprint_labels in rules.

@@ -27,14 +27,15 @@ from cfy_lint.yamllint_ext.rules.constants import (
     GCP_TYPES,
     AWS_TYPES,
     AZURE_TYPES,
-    TERRAFORM_TYPES,
     AWS_VALID_KEY,
     AZURE_VALID_KEY,
-    TFLINT_SUPPORTED_CONFIGS,
-    TERRATAG_SUPPORTED_FLAGS,
+    TERRAFORM_TYPES,
+    firewall_rule_gcp,
+    AWS_TYPE_WITH_TAGS,
     deprecated_node_types,
     REQUIRED_RELATIONSHIPS,
-    firewall_rule_gcp,
+    TFLINT_SUPPORTED_CONFIGS,
+    TERRATAG_SUPPORTED_FLAGS,
     security_group_validation_aws,
     security_group_validation_azure,
     security_group_validation_openstack,
@@ -90,6 +91,9 @@ def check(token=None, context=None, node_types=None, **_):
             parsed_node_template,
             parsed_node_template.line or token.line)
         yield from check_get_attribute(
+            parsed_node_template,
+            parsed_node_template.line or token.line)
+        yield from check_supports_tagging(
             parsed_node_template,
             parsed_node_template.line or token.line)
 
@@ -495,3 +499,15 @@ def get_target_list_relationships(model, line):
     for rel in relationships:
         target_list.append(rel.get('target'))
     return target_list
+
+
+def check_supports_tagging(model, line):
+    if model.node_type in AWS_TYPE_WITH_TAGS:
+        if 'Tags' not in model.properties:
+            yield LintProblem(
+                line,
+                None,
+                'The node template {node} with {type} does not provide Tags '
+                'parameter in properties. A best practice is to provide Tags.'
+                'For example: https://tinyurl.com/yveu36xs'
+                .format(node=model.name, type=model.node_type))
