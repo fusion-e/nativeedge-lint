@@ -14,6 +14,7 @@
 # limitations under the License.
 
 from mock import Mock, patch
+import yaml
 
 from . import get_loader, get_gen_as_list
 
@@ -170,7 +171,6 @@ def test_node_templates():
         result = get_gen_as_list(rules.node_templates.check,
                                  {'token': elem, 'context': context})
 
-        print(result)
         assert isinstance(result[0], LintProblem)
         assert 'deprecated node type' in result[0].message
         assert isinstance(result[1], LintProblem)
@@ -187,10 +187,20 @@ def test_node_types():
       foo:
         derived_from: cloudify.nodes.Root
     """
+    with patch('cfy_lint.yamllint_ext.rules.node_templates.ctx') as ctx:
+        ctx['imported_node_types'] = {
+            'foo': yaml.safe_load(
+                node_types_content)['node_types']['foo']
+        }
     elem = get_mock_cfy_node(node_types_content, 'node_types')
-    result = get_gen_as_list(rules.node_types.check, {'token': elem,
-                                                      'skip_suggestions': ()})
-    assert 'naming convention cloudify.nodes.*' in result[0].message
+    result = get_gen_as_list(
+        rules.node_types.check,
+        {
+            'token': elem,
+            'skip_suggestions': ()
+        }
+    )
+    assert result == []
 
 
 def test_relationships():

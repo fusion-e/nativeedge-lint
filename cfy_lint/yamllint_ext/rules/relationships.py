@@ -18,8 +18,10 @@ from cfy_lint.yamllint_ext import LintProblem
 
 from cfy_lint.yamllint_ext.rules import constants
 from cfy_lint.yamllint_ext.generators import CfyNode
-from cfy_lint.yamllint_ext.rules.node_templates import recurse_node_template
-from cfy_lint.yamllint_ext.utils import process_relevant_tokens
+from cfy_lint.yamllint_ext.utils import (
+    process_relevant_tokens,
+    recurse_get_readable_object
+)
 
 VALUES = []
 
@@ -94,7 +96,8 @@ def deprecated_type(type_name, line):
             "deprecated relationship type. "
             "Replace usage of {} with {}.".format(
                 type_name,
-                constants.deprecated_relationship_types[type_name]))
+                constants.deprecated_relationship_types[type_name]),
+            fixable=True)
 
 
 def get_yaml_type(node):
@@ -150,7 +153,7 @@ class CfyRelationshipType(object):
         self._node = node
         self._is_relationship_type = None
         self._name = None
-        self.parsed = recurse_node_template(self._node)
+        self.parsed = recurse_get_readable_object(self._node)
         self.derived_from = None
         self.connection_type = None
         self.source_interfaces = None
