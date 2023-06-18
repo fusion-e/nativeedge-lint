@@ -70,7 +70,7 @@ def lint(blueprint_path,
          fix=None,
          fix_only=None,
          **_):
-    
+
     if fix_only:
         extra_empty_line = False
         add_label_offset = False
@@ -101,10 +101,9 @@ def lint(blueprint_path,
         if extra_empty_line:
             fix_empty_lines(problem)
             print("all extra empty lines have been deleted")
-        
+
         sys.exit(0)
 
-    
     fix = report_both_fix_autofix(autofix, fix)
     format_json(format)
 
