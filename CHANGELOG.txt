@@ -61,3 +61,5 @@
   - RND-550 suggest tags when supported
   - RND-535 Validate relationship dependency get_attribute
   - RND-545 Display_label according to dsl, DSL_1_5, blueprint_labels in rules.
+0.0.31:
+  - Add Fix-Only Flag.
