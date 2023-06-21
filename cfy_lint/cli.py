@@ -129,5 +129,13 @@ class Options(object):
             multiple=True,
             help=helptexts.fix)
 
+        self.fix_only = click.option(
+            '-fo',
+            '--fix-only',
+            default=None,
+            type=click.STRING,
+            multiple=True,
+            help=helptexts.fo)
+
 
 options = Options()
