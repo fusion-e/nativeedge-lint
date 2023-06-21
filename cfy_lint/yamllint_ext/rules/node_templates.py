@@ -59,7 +59,14 @@ DEFAULT = {
 
 @process_relevant_tokens(CfyNode, 'node_templates')
 def check(token=None, context=None, node_types=None, **_):
+    graph = {}
     for node_template in token.node.value:
+        name = node_template[0].value
+        graph[name] = []
+        for item in node_template[1].value:
+            if item[0].value == "relationships":
+                for subitem in item[1].value:
+                    graph[name].append(subitem.value[1][1].value)
         if not len(node_template) == 2:
             continue
         parsed_node_template = parse_node_template(
@@ -96,6 +103,7 @@ def check(token=None, context=None, node_types=None, **_):
         yield from check_supports_tagging(
             parsed_node_template,
             parsed_node_template.line or token.line)
+    print(check_cyclic_node_dependency(graph))
 
 
 def parse_node_template(node_template_mapping, node_template_model):
@@ -511,3 +519,30 @@ def check_supports_tagging(model, line):
                 'parameter in properties. A best practice is to provide Tags.'
                 'For example: https://tinyurl.com/yveu36xs'
                 .format(node=model.name, type=model.node_type))
+
+
+def check_cyclic_node_dependency(graph):
+    visited = set()
+    stack = set()
+
+    def dfs(node):
+        visited.add(node)
+        stack.add(node)
+
+        for neighbor in graph.get(node, []):
+            if neighbor not in visited:
+                if dfs(neighbor):
+                    return True
+            elif neighbor in stack:
+                return True
+
+        stack.remove(node)
+        return False
+
+    for node in graph:
+        if node not in visited:
+            if dfs(node):
+                return True
+
+    return False
+
