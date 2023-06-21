@@ -100,7 +100,6 @@ def lint(blueprint_path,
 
         if extra_empty_line:
             fix_empty_lines(problem)
-            print("all extra empty lines have been deleted")
 
         sys.exit(0)
 
