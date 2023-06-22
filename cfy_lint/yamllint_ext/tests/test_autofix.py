@@ -695,10 +695,10 @@ def test_relationships_types():
 
 def test_client_config():
     lines = [
-        '  vm:\n'
-        '    type: cloudify.nodes.aws.ec2.Instances\n'
-        '    properties:\n'
-        '      aws_config: *client_config\n'
+        '  vm:\n',
+        '    type: cloudify.nodes.aws.ec2.Instances\n',
+        '    properties:\n',
+        '      aws_config: *client_config\n',
     ]
     expected_lines = [
         '  vm:\n',
@@ -708,21 +708,18 @@ def test_client_config():
     ]
     fix_clinet_config_file = get_file(lines)
 
-    try:
-        for i in range(0, len(lines)):
-            problem = LintProblem(
-                line=i,
-                column=0,
-                desc='The node template "vm" has deprecated property '
-                     '"aws_config". please use "client_config"',
-                rule='node_templates',
-                file=fix_clinet_config_file.name,
-                fixable=True
-            )
-            deprecated_node_types.fix_deprecated_node_types(problem)
-    finally:
-        f = open(fix_clinet_config_file.name, 'r')
-        result_lines = f.readlines()
-        f.close()
-        os.remove(fix_clinet_config_file.name)
+    problem = LintProblem(
+        line=3,
+        column=0,
+        desc='The node template "vm" has deprecated property '
+             '"aws_config". please use "client_config"',
+        rule='node_templates',
+        file=fix_clinet_config_file.name,
+        fixable=True
+    )
+    deprecated_node_types.fix_deprecated_node_types(problem)
+    f = open(fix_clinet_config_file.name, 'r')
+    result_lines = f.readlines()
+    f.close()
+    os.remove(fix_clinet_config_file.name)
     assert result_lines == expected_lines
