@@ -86,9 +86,9 @@ class LintProblem(object):
     @property
     def desc(self):
         if self.fixable:
-            return self._desc + " (fixable)"
+            return self._desc + " (auto-fix available)"
         else:
-            return self._desc + " (not fixable)"
+            return self._desc + " (auto-fix unavailable)"
 
     @property
     def fixable(self):
