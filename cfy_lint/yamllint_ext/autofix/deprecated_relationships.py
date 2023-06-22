@@ -23,6 +23,6 @@ def fix_deprecated_relationships(problem):
             line = lines[problem.line]
             line, eol = get_eol(line)
             split = problem.message.split()
-            new_line = line.replace(split[-4], split[-2].rstrip('.'))
+            new_line = line.replace(split[-5], split[-3].rstrip('.'))
             lines[problem.line] = new_line + eol
         problem.fixed = True
