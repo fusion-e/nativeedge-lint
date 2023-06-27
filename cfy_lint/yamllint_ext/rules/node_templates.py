@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import re
+import networkx as nx
 
 from cfy_lint.yamllint_ext import LintProblem
 from cfy_lint.yamllint_ext.generators import CfyNode
@@ -59,18 +60,19 @@ DEFAULT = {
 
 @process_relevant_tokens(CfyNode, 'node_templates')
 def check(token=None, context=None, node_types=None, **_):
-    graph = {}
+    line_index = {}
+    edges = []
     for node_template in token.node.value:
         name = node_template[0].value
-        graph[name] = []
         for item in node_template[1].value:
             if item[0].value == "relationships":
                 for subitem in item[1].value:
-                    graph[name].append(subitem.value[1][1].value)
+                    edges.append((name, subitem.value[1][1].value))
         if not len(node_template) == 2:
             continue
         parsed_node_template = parse_node_template(
             node_template[1], context.get(node_template[0].value))
+        line_index[name] = parsed_node_template.line or token.line
         remove_node_type_from_context(parsed_node_template.node_type)
         yield from check_deprecated_node_type(
             parsed_node_template,
@@ -103,7 +105,7 @@ def check(token=None, context=None, node_types=None, **_):
         yield from check_supports_tagging(
             parsed_node_template,
             parsed_node_template.line or token.line)
-    print(check_cyclic_node_dependency(graph))
+    yield from check_cyclic_node_dependency(edges, line_index)
 
 
 def parse_node_template(node_template_mapping, node_template_model):
@@ -521,28 +523,18 @@ def check_supports_tagging(model, line):
                 .format(node=model.name, type=model.node_type))
 
 
-def check_cyclic_node_dependency(graph):
-    visited = set()
-    stack = set()
-
-    def dfs(node):
-        visited.add(node)
-        stack.add(node)
-
-        for neighbor in graph.get(node, []):
-            if neighbor not in visited:
-                if dfs(neighbor):
-                    return True
-            elif neighbor in stack:
-                return True
-
-        stack.remove(node)
-        return False
-
-    for node in graph:
-        if node not in visited:
-            if dfs(node):
-                return True
-
-    return False
+def check_cyclic_node_dependency(edges, lines_index):
+    graph = nx.DiGraph()
+    graph.add_edges_from(edges)
+    cycles = nx.simple_cycles(graph)
+    for cycle in cycles:
+        lines = []
+        for node in cycle:
+            lines.append(lines_index[node])
+        
+        yield LintProblem(
+            sorted(lines)[-1],
+            None,
+            "A dependency loop consistent of {} was identified".format(cycle)
+        )
 
