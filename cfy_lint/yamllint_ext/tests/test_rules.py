@@ -360,3 +360,35 @@ def test_terratag():
         assert isinstance(result[2], LintProblem)
         assert "unsupported flag, {}".format(TERRATAG_SUPPORTED_FLAGS) \
                in result[2].message
+
+
+def test_cyclic():
+    edges = [('n1', 'n2'),
+             ('n2', 'n3'),
+             ('n3', 'n1'),
+             ('n4', 'n5'),
+             ('n5', 'n4')]
+    lines_index = {
+        'n1': 47, 'n2': 57, 'n3': 67, 'n4': 78, 'n5': 89}
+    results = rules.node_templates.check_cyclic_node_dependency(
+        edges, lines_index)
+    expected_results_message = [
+        "A dependency loop consistent of ['n4', 'n5'] "
+        "was identified (auto-fix unavailable)",
+        "A dependency loop consistent of ['n5', 'n4'] "
+        "was identified (auto-fix unavailable)",
+        "A dependency loop consistent of ['n1', 'n2', 'n3'] "
+        "was identified (auto-fix unavailable)",
+        "A dependency loop consistent of ['n1', 'n3', 'n2'] "
+        "was identified (auto-fix unavailable)",
+        "A dependency loop consistent of ['n2', 'n1', 'n3'] "
+        "was identified (auto-fix unavailable)",
+        "A dependency loop consistent of ['n2', 'n3', 'n1'] "
+        "was identified (auto-fix unavailable)",
+        "A dependency loop consistent of ['n3', 'n2', 'n1'] "
+        "was identified (auto-fix unavailable)",
+        "A dependency loop consistent of ['n3', 'n1', 'n2'] "
+        "was identified (auto-fix unavailable)"
+    ]
+    for result in results:
+        assert result.message in expected_results_message

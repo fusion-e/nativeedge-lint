@@ -63,16 +63,13 @@ def check(token=None, context=None, node_types=None, **_):
     line_index = {}
     edges = []
     for node_template in token.node.value:
-        name = node_template[0].value
-        for item in node_template[1].value:
-            if item[0].value == "relationships":
-                for subitem in item[1].value:
-                    edges.append((name, subitem.value[1][1].value))
         if not len(node_template) == 2:
             continue
         parsed_node_template = parse_node_template(
             node_template[1], context.get(node_template[0].value))
-        line_index[name] = parsed_node_template.line or token.line
+        edges, line_index = prepre_cyclic_inputs(
+            node_template, edges, line_index,
+            parsed_node_template.line or token.line)
         remove_node_type_from_context(parsed_node_template.node_type)
         yield from check_deprecated_node_type(
             parsed_node_template,
@@ -523,9 +520,18 @@ def check_supports_tagging(model, line):
                 .format(node=model.name, type=model.node_type))
 
 
+def prepre_cyclic_inputs(node_template, edges, line_index, line_number):
+    node_name = node_template[0].value
+    for item in node_template[1].value:
+        if item[0].value == "relationships":
+            for subitem in item[1].value:
+                relationship_node_name = subitem.value[1][1].value
+                edges.append((node_name, relationship_node_name))
+    line_index[node_name] = line_number
+    return edges, line_index
+
+
 def check_cyclic_node_dependency(edges, lines_index):
-    print(edges)
-    print(lines_index)
     graph = nx.DiGraph()
     graph.add_edges_from(edges)
     cycles = nx.simple_cycles(graph)
