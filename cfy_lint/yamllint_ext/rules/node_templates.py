@@ -524,6 +524,8 @@ def check_supports_tagging(model, line):
 
 
 def check_cyclic_node_dependency(edges, lines_index):
+    print(edges)
+    print(lines_index)
     graph = nx.DiGraph()
     graph.add_edges_from(edges)
     cycles = nx.simple_cycles(graph)
@@ -531,10 +533,9 @@ def check_cyclic_node_dependency(edges, lines_index):
         lines = []
         for node in cycle:
             lines.append(lines_index[node])
-        
+
         yield LintProblem(
             sorted(lines)[-1],
             None,
             "A dependency loop consistent of {} was identified".format(cycle)
         )
-
