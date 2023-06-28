@@ -362,6 +362,122 @@ def test_terratag():
                in result[2].message
 
 
+def test_prep_cyclic():
+    buffer = '''
+node_templates:
+
+  d1:
+    type: cloudify.nodes.gcp.Volume
+    properties:
+      client_config: *gcp_config
+      image: { get_input: image }
+      size: 20
+      boot: true
+    relationships:
+      - type: cloudify.relationships.connected_to
+        target: d2
+  d2:
+    type: cloudify.nodes.gcp.Volume
+    properties:
+      client_config: *gcp_config
+      image: { get_input: image }
+      size: 20
+      boot: true
+    relationships:
+      - type: cloudify.relationships.connected_to
+        target: d3
+  d3:
+    type: cloudify.nodes.gcp.Volume
+    properties:
+      client_config: *gcp_config
+      image: { get_input: image }
+      size: 20
+      boot: true
+    relationships:
+      - type: cloudify.relationships.connected_to
+        target: d1
+
+  d4:
+    type: cloudify.nodes.gcp.Volume
+    properties:
+      gcp_config: *gcp_config
+      image: { get_input: image }
+      size: 20
+      boot: true
+    relationships:
+      - type: cloudify.relationships.connected_to
+        target: d5
+
+  d5:
+    type: cloudify.nodes.gcp.Volume
+    properties:
+      client_config: *gcp_config
+      image: { get_input: image }
+      size: 20
+      boot: true
+    relationships:
+      - type: cloudify.relationships.connected_to
+        target: d4
+
+    '''
+    inputs = list(node_generator(buffer))
+    print("hiii")
+    print(inputs)
+    # x = yaml.nodes.
+    # input = []
+    # input[0] = (
+        yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='d1'), 
+        yaml.nodes.MappingNode(tag='tag:yaml.org,2002:map', value=[(yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='type'), yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='cloudify.nodes.gcp.Volume')), 
+                                                                   (yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='properties'), yaml.nodes.MappingNode(tag='tag:yaml.org,2002:map', value=[
+                                                                       (yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='client_config'), 
+                                                                        yaml.nodes.MappingNode(tag='tag:yaml.org,2002:map', value=[
+                                                                            (yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='auth'), 
+                                                                             yaml.nodes.MappingNode(tag='tag:yaml.org,2002:map', value=[
+                                                                                 (yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='get_secret'), 
+                                                                                  yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='gcp_credentials'))])), 
+                                                                                  (yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='zone'), 
+                                                                                   yaml.nodes.MappingNode(tag='tag:yaml.org,2002:map', value=[
+                                                                                       (yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='get_input'), 
+                                                                                        yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='zone'))]))])), 
+                                                                                        (yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='image'), 
+                                                                                         yaml.nodes.MappingNode(tag='tag:yaml.org,2002:map', value=[
+                                                                                             (yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='get_input'), 
+                                                                                              yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='image'))])), 
+                                                                                              (yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='size'), 
+                                                                                               yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:int', value='20')), 
+                                                                                               (yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='boot'), 
+                                                                                                yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:bool', value='true'))])), 
+                                                                   (yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='relationships'), yaml.nodes.SequenceNode(tag='tag:yaml.org,2002:seq', value=[yaml.nodes.MappingNode(tag='tag:yaml.org,2002:map', value=[(yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='type'), yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='cloudify.relationships.connected_to')), (yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='target'), yaml.nodes.ScalarNode(tag='tag:yaml.org,2002:str', value='d2'))])]))]))
+
+
+def generate_nodes_recursively(node):
+
+    if isinstance(node, (tuple, list)):
+        for sub in node:
+            yield from generate_nodes_recursively(sub)
+    else:
+        yield node
+        if isinstance(node, yaml.nodes.CollectionNode):
+            for sub in node.value:
+                yield from generate_nodes_recursively(sub)
+
+
+def node_generator(buffer):
+    yaml_loader = SafeLineLoader(buffer)
+    if not yaml_loader.check_node():
+        return
+    yield from generate_nodes_recursively(yaml_loader.get_node().value)
+
+
+class SafeLineLoader(yaml.SafeLoader):
+    def construct_mapping(self, node, deep=False):
+        mapping = super(SafeLineLoader, self).construct_mapping(
+            node, deep=deep)
+        # Add 1 so line numbering starts at 1
+        mapping['__line__'] = node.start_mark.line + 1
+        return mapping
+
+
 def test_cyclic():
     edges = [('n1', 'n2'),
              ('n2', 'n3'),
