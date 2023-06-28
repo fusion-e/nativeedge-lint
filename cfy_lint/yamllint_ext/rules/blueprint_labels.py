@@ -17,7 +17,8 @@ from cfy_lint.yamllint_ext import LintProblem
 from cfy_lint.yamllint_ext.generators import CfyNode
 from cfy_lint.yamllint_ext.utils import (
     process_relevant_tokens,
-    recurse_get_readable_object
+    recurse_get_readable_object,
+    context as ctx
     )
 
 VALUES = []
@@ -30,6 +31,12 @@ DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
 @process_relevant_tokens(CfyNode, ['blueprint_labels', 'blueprint-labels'])
 def check(token=None, **_):
+    dsl = ctx.get("dsl_version")
+    if dsl == 'cloudify_dsl_1_3':
+        yield LintProblem(
+            token.prev.line,
+            None,
+            'cloudify_dsl_1_3 does not support Blueprint Labels')
     if token.prev.node.value == 'blueprint-labels':
         yield LintProblem(
                 token.prev.line,
