@@ -21,10 +21,10 @@ MSG = r'is\smissing\sa\sdisplay_label'
 INDENT = r'^\s+'
 
 
-def fix_add_label(problems):
+def fix_add_label(problems, fix_only=False):
     counter = 0
     for problem in problems:
-        if not problem.fix:
+        if not problem.fix and not fix_only:
             continue
         if problem.rule == TYP and re.search(MSG, problem.message):
             with filelines(problem.file) as lines:

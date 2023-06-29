@@ -360,3 +360,125 @@ def test_terratag():
         assert isinstance(result[2], LintProblem)
         assert "unsupported flag, {}".format(TERRATAG_SUPPORTED_FLAGS) \
                in result[2].message
+
+
+def test_prep_cyclic():
+    buffer = '''
+node_templates:
+
+  d1:
+    type: cloudify.nodes.gcp.Volume
+    properties:
+      client_config: gcp_config
+      image: { get_input: image }
+      size: 20
+      boot: true
+    relationships:
+      - type: cloudify.relationships.connected_to
+        target: d2
+  d2:
+    type: cloudify.nodes.gcp.Volume
+    properties:
+      client_config: gcp_config
+      image: { get_input: image }
+      size: 20
+      boot: true
+    relationships:
+      - type: cloudify.relationships.connected_to
+        target: d3
+  d3:
+    type: cloudify.nodes.gcp.Volume
+    properties:
+      client_config: gcp_config
+      image: { get_input: image }
+      size: 20
+      boot: true
+    relationships:
+      - type: cloudify.relationships.connected_to
+        target: d1
+
+  d4:
+    type: cloudify.nodes.gcp.Volume
+    properties:
+      gcp_config: gcp_config
+      image: { get_input: image }
+      size: 20
+      boot: true
+    relationships:
+      - type: cloudify.relationships.connected_to
+        target: d5
+
+  d5:
+    type: cloudify.nodes.gcp.Volume
+    properties:
+      client_config: gcp_config
+      image: { get_input: image }
+      size: 20
+      boot: true
+    relationships:
+      - type: cloudify.relationships.connected_to
+        target: d4
+
+    '''
+    edges = []
+    line_index = {}
+    expected_edges = [('d1', 'd2'), ('d2', 'd3'), ('d3', 'd1'),
+                      ('d4', 'd5'), ('d5', 'd4')]
+    expected_line_index = {'d1': 0, 'd2': 1, 'd3': 2, 'd4': 3, 'd5': 4}
+    line = 0
+    inputs = list(node_generator(buffer))
+    for input in inputs[1].value:
+        edges, line_index = rules.node_templates.prepre_cyclic_inputs(
+          input, edges, line_index, line
+        )
+        line = line + 1
+    assert edges == expected_edges
+    assert line_index == expected_line_index
+
+
+def node_generator(buffer):
+    yaml_loader = SafeLineLoader(buffer)
+    if not yaml_loader.check_node():
+        return
+    yield from generate_nodes_recursively(yaml_loader.get_node().value)
+
+
+class SafeLineLoader(yaml.SafeLoader):
+    def construct_mapping(self, node, deep=False):
+        mapping = super(SafeLineLoader, self).construct_mapping(
+            node, deep=deep)
+        # Add 1 so line numbering starts at 1
+        mapping['__line__'] = node.start_mark.line + 1
+        return mapping
+
+
+def test_cyclic():
+    edges = [('n1', 'n2'),
+             ('n2', 'n3'),
+             ('n3', 'n1'),
+             ('n4', 'n5'),
+             ('n5', 'n4')]
+    lines_index = {
+        'n1': 47, 'n2': 57, 'n3': 67, 'n4': 78, 'n5': 89}
+    results = rules.node_templates.check_cyclic_node_dependency(
+        edges, lines_index)
+    expected_results_message = [
+        "A dependency loop consistent of ['n4', 'n5'] "
+        "was identified (auto-fix unavailable)",
+        "A dependency loop consistent of ['n5', 'n4'] "
+        "was identified (auto-fix unavailable)",
+        "A dependency loop consistent of ['n1', 'n2', 'n3'] "
+        "was identified (auto-fix unavailable)",
+        "A dependency loop consistent of ['n1', 'n3', 'n2'] "
+        "was identified (auto-fix unavailable)",
+        "A dependency loop consistent of ['n2', 'n1', 'n3'] "
+        "was identified (auto-fix unavailable)",
+        "A dependency loop consistent of ['n2', 'n3', 'n1'] "
+        "was identified (auto-fix unavailable)",
+        "A dependency loop consistent of ['n3', 'n2', 'n1'] "
+        "was identified (auto-fix unavailable)",
+        "A dependency loop consistent of ['n3', 'n1', 'n2'] "
+        "was identified (auto-fix unavailable)"
+    ]
+    for result in results:
+        assert result.message in expected_results_message

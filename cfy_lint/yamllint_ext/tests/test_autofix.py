@@ -20,6 +20,7 @@ from tempfile import NamedTemporaryFile
 from cfy_lint.cli import FixParamValue
 from cfy_lint.yamllint_ext import autofix
 from cfy_lint.yamllint_ext.autofix import colons
+from cfy_lint.yamllint_ext.autofix import commas
 from cfy_lint.yamllint_ext.autofix import brackets
 from cfy_lint.yamllint_ext.autofix import add_label
 from cfy_lint.yamllint_ext.autofix import indentation
@@ -61,6 +62,80 @@ def test_indentation_autofix():
         assert good_content == fixed_content
     finally:
         os.remove(outfile.name)
+
+
+def test_fix_commas():
+    expected = [
+        "aws_region_name, z\n",
+        "display_label, Aws Region Name\n",
+        "type, string\n",
+        "default, us-east-1\n",
+        "constraints, f\n",
+        "valid_values,",
+    ]
+    lines = """aws_region_name      ,z
+display_label     ,     Aws Region Name
+type , string
+default    , us-east-1
+constraints,      f
+valid_values ,
+"""
+
+    fix_commas_file = get_file(lines)
+
+    try:
+        problems = [
+            LintProblem(
+                line=1,
+                column=0,
+                desc='too many spaces before colon',
+                rule='commas',
+                file=fix_commas_file.name
+            ),
+            LintProblem(
+                line=2,
+                column=0,
+                desc='too many spaces before colon',
+                rule='commas',
+                file=fix_commas_file.name
+            ),
+            LintProblem(
+                line=3,
+                column=0,
+                desc='too many spaces before colon',
+                rule='commas',
+                file=fix_commas_file.name
+            ),
+            LintProblem(
+                line=4,
+                column=0,
+                desc='too many spaces before colon',
+                rule='commas',
+                file=fix_commas_file.name
+            ),
+            LintProblem(
+                line=5,
+                column=0,
+                desc='too many spaces before colon',
+                rule='commas',
+                file=fix_commas_file.name
+            ),
+            LintProblem(
+                line=6,
+                column=0,
+                desc='too many spaces before colon',
+                rule='commas',
+                file=fix_commas_file.name
+            ),
+        ]
+        for problem in problems:
+            commas.fix_commas(problem)
+    finally:
+        f = open(fix_commas_file.name, 'r')
+        result_lines = f.readlines()
+        f.close()
+        os.remove(fix_commas_file.name)
+    assert expected == result_lines
 
 
 def test_fix_colons():
@@ -695,10 +770,10 @@ def test_relationships_types():
 
 def test_client_config():
     lines = [
-        '  vm:\n'
-        '    type: cloudify.nodes.aws.ec2.Instances\n'
-        '    properties:\n'
-        '      aws_config: *client_config\n'
+        '  vm:\n',
+        '    type: cloudify.nodes.aws.ec2.Instances\n',
+        '    properties:\n',
+        '      aws_config: *client_config\n',
     ]
     expected_lines = [
         '  vm:\n',
@@ -708,21 +783,18 @@ def test_client_config():
     ]
     fix_clinet_config_file = get_file(lines)
 
-    try:
-        for i in range(0, len(lines)):
-            problem = LintProblem(
-                line=i,
-                column=0,
-                desc='The node template "vm" has deprecated property '
-                     '"aws_config". please use "client_config"',
-                rule='node_templates',
-                file=fix_clinet_config_file.name,
-                fixable=True
-            )
-            deprecated_node_types.fix_deprecated_node_types(problem)
-    finally:
-        f = open(fix_clinet_config_file.name, 'r')
-        result_lines = f.readlines()
-        f.close()
-        os.remove(fix_clinet_config_file.name)
+    problem = LintProblem(
+        line=3,
+        column=0,
+        desc='The node template "vm" has deprecated property '
+             '"aws_config". please use "client_config"',
+        rule='node_templates',
+        file=fix_clinet_config_file.name,
+        fixable=True
+    )
+    deprecated_node_types.fix_deprecated_node_types(problem)
+    f = open(fix_clinet_config_file.name, 'r')
+    result_lines = f.readlines()
+    f.close()
+    os.remove(fix_clinet_config_file.name)
     assert result_lines == expected_lines
