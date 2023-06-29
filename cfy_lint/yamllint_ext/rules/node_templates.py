@@ -103,7 +103,6 @@ def check(token=None, context=None, node_types=None, **_):
         yield from check_supports_tagging(
             parsed_node_template,
             parsed_node_template.line or token.line)
-    print(check_cyclic_node_dependency(graph))
 
 
 def parse_node_template(node_template_mapping, node_template_model):
@@ -485,10 +484,11 @@ def remove_node_type_from_context(node_type):
 
 
 def check_get_attribute(model, line):
-    properties = model.properties
+    if not model.properties:
+        return
     relationships = get_target_list_relationships(model, line)
-    for item, value in properties.items():
-        attribute = find_values_by_key(value, 'get_attribute')
+    for item, value in model.properties.items():
+        attribute = find_values_by_key(value, ['get_attribute'])
         for attr in attribute:
             if attr[0] not in relationships:
                 yield LintProblem(
@@ -497,14 +497,15 @@ def check_get_attribute(model, line):
                     "The node template '{name}' uses an intrinsic function "
                     "with target node_template '{target}', but does not "
                     "provide a relationship. Add a relationship under '{name}'"
-                    "with target '{target}'."
+                    " with target '{target}'."
                     .format(name=model.name, target=attr[0]))
 
 
 def get_target_list_relationships(model, line):
-    relationships = model.relationships
+    if not model.relationships:
+        return
     target_list = []
-    for rel in relationships:
+    for rel in model.relationships:
         target_list.append(rel.get('target'))
     return target_list
 
