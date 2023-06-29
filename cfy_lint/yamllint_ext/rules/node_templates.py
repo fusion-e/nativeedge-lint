@@ -503,7 +503,7 @@ def check_get_attribute(model, line):
 
 def get_target_list_relationships(model, line):
     if not model.relationships:
-        return
+        return []
     target_list = []
     for rel in model.relationships:
         target_list.append(rel.get('target'))
