@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import re
+import networkx as nx
 
 from cfy_lint.yamllint_ext import LintProblem
 from cfy_lint.yamllint_ext.generators import CfyNode
@@ -59,11 +60,16 @@ DEFAULT = {
 
 @process_relevant_tokens(CfyNode, 'node_templates')
 def check(token=None, context=None, node_types=None, **_):
+    line_index = {}
+    edges = []
     for node_template in token.node.value:
         if not len(node_template) == 2:
             continue
         parsed_node_template = parse_node_template(
             node_template[1], context.get(node_template[0].value))
+        edges, line_index = prepre_cyclic_inputs(
+            node_template, edges, line_index,
+            parsed_node_template.line or token.line)
         remove_node_type_from_context(parsed_node_template.node_type)
         yield from check_deprecated_node_type(
             parsed_node_template,
@@ -96,6 +102,7 @@ def check(token=None, context=None, node_types=None, **_):
         yield from check_supports_tagging(
             parsed_node_template,
             parsed_node_template.line or token.line)
+    yield from check_cyclic_node_dependency(edges, line_index)
 
 
 def parse_node_template(node_template_mapping, node_template_model):
@@ -477,10 +484,11 @@ def remove_node_type_from_context(node_type):
 
 
 def check_get_attribute(model, line):
-    properties = model.properties
+    if not model.properties:
+        return
     relationships = get_target_list_relationships(model, line)
-    for item, value in properties.items():
-        attribute = find_values_by_key(value, 'get_attribute')
+    for item, value in model.properties.items():
+        attribute = find_values_by_key(value, ['get_attribute'])
         for attr in attribute:
             if attr[0] not in relationships:
                 yield LintProblem(
@@ -489,14 +497,15 @@ def check_get_attribute(model, line):
                     "The node template '{name}' uses an intrinsic function "
                     "with target node_template '{target}', but does not "
                     "provide a relationship. Add a relationship under '{name}'"
-                    "with target '{target}'."
+                    " with target '{target}'."
                     .format(name=model.name, target=attr[0]))
 
 
 def get_target_list_relationships(model, line):
-    relationships = model.relationships
+    if not model.relationships:
+        return []
     target_list = []
-    for rel in relationships:
+    for rel in model.relationships:
         target_list.append(rel.get('target'))
     return target_list
 
@@ -511,3 +520,30 @@ def check_supports_tagging(model, line):
                 'parameter in properties. A best practice is to provide Tags.'
                 'For example: https://tinyurl.com/yveu36xs'
                 .format(node=model.name, type=model.node_type))
+
+
+def prepre_cyclic_inputs(node_template, edges, line_index, line_number):
+    node_name = node_template[0].value
+    for item in node_template[1].value:
+        if item[0].value == "relationships":
+            for subitem in item[1].value:
+                relationship_node_name = subitem.value[1][1].value
+                edges.append((node_name, relationship_node_name))
+    line_index[node_name] = line_number
+    return edges, line_index
+
+
+def check_cyclic_node_dependency(edges, lines_index):
+    graph = nx.DiGraph()
+    graph.add_edges_from(edges)
+    cycles = nx.simple_cycles(graph)
+    for cycle in cycles:
+        lines = []
+        for node in cycle:
+            lines.append(lines_index[node])
+
+        yield LintProblem(
+            sorted(lines)[-1],
+            None,
+            "A dependency loop consistent of {} was identified".format(cycle)
+        )

@@ -158,7 +158,8 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
         yield LintProblem(
             line,
             None,
-            'Input {} is missing a display_label.'.format(input_obj.name)
+            'Input {} is missing a display_label.'.format(input_obj.name),
+            fixable=True
         )
     elif input_obj.display_label and dsl == 'cloudify_dsl_1_3':
         yield LintProblem(
@@ -206,13 +207,6 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
                     input_obj.default)
         if message and message not in ["intrinsic function"]:
             yield LintProblem(line, None, message)
-    elif not input_obj.display_label:
-        yield LintProblem(
-            line,
-            None,
-            'Input {} is missing a display_label.'.format(input_obj.name),
-            fixable=True
-        )
 
 
 def get_type_name(input_obj):
