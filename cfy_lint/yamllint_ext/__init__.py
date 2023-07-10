@@ -35,6 +35,7 @@ from cfy_lint.yamllint_ext.utils import (
     context,
     setup_types,
     update_model,
+    mix_dict_error,
     setup_node_templates,
 )
 from cfy_lint.yamllint_ext.autofix import fix_problem
@@ -300,7 +301,7 @@ def _run(buffer,
                 problem.fixed = True
             fix_problem(problem)
 
-        if not problem.fixed:
+        if not fix:
             yield problem
 
     if add_label:
@@ -311,6 +312,41 @@ def _run(buffer,
     # other tasks are done
     if extra_empty_line:
         fix_empty_lines(problem)
+
+    dict_to_fix_error = mix_dict_error()
+    print('dict_to_fix_error: {}' .format(dict_to_fix_error))
+
+    if fix:
+        current = 0 
+        index = 0
+        lines = list(dict_to_fix_error.keys())
+        values = list(dict_to_fix_error.values())
+
+        print('lines: {} len {}'.format(lines, len(lines)))
+        print('value: {}'.format(values))
+        if lines:
+            for problem in sorted_problems:
+                print(('index: {}'.format(index)))
+                if problem.line >= lines[index]:
+                    problem.line -= values[index]  
+                    current = values[index]
+                    if index < len(lines) - 1 :
+                        index += 1
+                else:
+                    problem.line -= current
+
+                if not problem.fixed:
+                    yield problem
+
+
+    # if fix:
+    #     count = 0
+    #     for problem in sorted_problems:
+    #         if not problem.fixed:
+    #             if problem.line in dict_to_fix_error.keys():
+    #                 count = dict_to_fix_error[problem.line]
+    #             problem.line -= count
+    #             yield problem
 
     if syntax_error:
         yield syntax_error

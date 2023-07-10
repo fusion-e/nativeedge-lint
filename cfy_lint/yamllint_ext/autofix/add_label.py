@@ -14,6 +14,8 @@
 # limitations under the License.
 
 import re
+
+from cfy_lint.yamllint_ext.utils import context
 from cfy_lint.yamllint_ext.autofix.utils import filelines
 
 TYP = 'inputs'
@@ -45,4 +47,6 @@ def fix_add_label(problems, fix_only=False):
                             label=label.title(),
                             linesep='\n')
                 lines.insert(problem.line + counter, label)
+                context['fix_error_add_label'][problem.line] = 1
                 counter += 1
+
