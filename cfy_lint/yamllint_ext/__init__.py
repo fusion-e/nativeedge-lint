@@ -314,7 +314,6 @@ def _run(buffer,
         fix_empty_lines(problem)
 
     dict_to_fix_error = mix_dict_error()
-    print('dict_to_fix_error: {}' .format(dict_to_fix_error))
 
     if fix:
         current = 0 
@@ -322,11 +321,8 @@ def _run(buffer,
         lines = list(dict_to_fix_error.keys())
         values = list(dict_to_fix_error.values())
 
-        print('lines: {} len {}'.format(lines, len(lines)))
-        print('value: {}'.format(values))
         if lines:
             for problem in sorted_problems:
-                print(('index: {}'.format(index)))
                 if problem.line >= lines[index]:
                     problem.line -= values[index]  
                     current = values[index]
@@ -337,16 +333,6 @@ def _run(buffer,
 
                 if not problem.fixed:
                     yield problem
-
-
-    # if fix:
-    #     count = 0
-    #     for problem in sorted_problems:
-    #         if not problem.fixed:
-    #             if problem.line in dict_to_fix_error.keys():
-    #                 count = dict_to_fix_error[problem.line]
-    #             problem.line -= count
-    #             yield problem
 
     if syntax_error:
         yield syntax_error
