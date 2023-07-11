@@ -87,6 +87,8 @@ def check(token=None, skip_suggestions=None, **_):
 
     if token.prev.node.value == 'get_input':
         if isinstance(token.node.value, list):
+            print(token.line)
+
             if isinstance(token.node.value[0], yaml.nodes.ScalarNode):
                 if token.node.value[0].value not in ctx['inputs']:
                     yield LintProblem(

@@ -665,8 +665,28 @@ def mix_dict_error():
     for i in range(len(lines)):
         current_sum += empty_lines[i]
         result[lines[i]] = current_sum
-        
         for comp_key, comp_value in context['fix_error_add_label'].items():
             if lines[i] > comp_key:
                 result[lines[i]] -= comp_value
     return result
+
+
+def row_arrangement(sorted_problems):
+    current = 0
+    index = 0
+    dict_to_fix_error = mix_dict_error()
+    lines = list(dict_to_fix_error.keys())
+    values = list(dict_to_fix_error.values())
+
+    if lines:
+        for problem in sorted_problems:
+            if problem.line >= lines[index]:
+                problem.line -= values[index]
+                current = values[index]
+                if index < len(lines) - 1:
+                    index += 1
+            else:
+                problem.line -= current
+
+            if not problem.fixed:
+                yield problem

@@ -24,6 +24,9 @@ INDENT = r'^\s+'
 
 
 def fix_add_label(problems, fix_only=False):
+    # The dictionary context['fix_error_add_label']
+    # indicated which lines were added
+
     counter = 0
     for problem in problems:
         if not problem.fix and not fix_only:
@@ -49,4 +52,3 @@ def fix_add_label(problems, fix_only=False):
                 lines.insert(problem.line + counter, label)
                 context['fix_error_add_label'][problem.line] = 1
                 counter += 1
-
