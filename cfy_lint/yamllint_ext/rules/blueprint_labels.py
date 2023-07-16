@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pprint import pprint
+
 from cfy_lint.yamllint_ext import LintProblem
 from cfy_lint.yamllint_ext.generators import CfyNode
 from cfy_lint.yamllint_ext.utils import (
@@ -44,7 +46,12 @@ def check(token=None, **_):
                 'The blueprint_labels key should be written '
                 'with an underscore not a dash.')
     for item in token.node.value:
+        print('item: {}'.format(item))
+        # print('item type: {}'.format(type(item)))
+
+        #if type(item) == 'MappingNode':
         d = recurse_get_readable_object(item)
+        print(d)
         if not isinstance(d, dict):
             yield LintProblem(
                 token.line,
@@ -58,11 +65,16 @@ def check(token=None, **_):
                     'Every label should be a dictionary')
             else:
                 for key, value in value.items():
+                    print('key: {}'.format(key))
+                    print('value: {}'.format(value))
+
                     if key != 'values':
                         yield LintProblem(
                             token.line,
                             None,
-                            'The name of the key should be "values"')
+                            start_mark=item.start_mark,
+                            end_mark=item.end_mark,
+                            desc='The name of the key should be "values"')
                     if not isinstance(value, list):
                         yield LintProblem(
                             token.line,

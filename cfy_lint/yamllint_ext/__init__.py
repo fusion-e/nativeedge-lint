@@ -330,6 +330,8 @@ def run(input, conf, filepath=None, skip_suggestions=None, fix=None):
 
     if conf.is_file_ignored(filepath):
         return ()
+    
+    context['filepath'] = filepath
 
     base_path = os.path.dirname(os.path.abspath(input.name))
 

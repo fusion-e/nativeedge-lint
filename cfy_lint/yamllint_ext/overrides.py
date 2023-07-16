@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import yaml
+from .utils import context
 
 
 def spaces_after(token, prev, next, min=-1, max=-1,
@@ -60,6 +61,8 @@ class LintProblem(object):
                  rule=None,
                  file=None,
                  token=None,
+                 start_mark=None,
+                 end_mark=None,
                  next=None,
                  prev=None,
                  nextnext=None,
@@ -75,6 +78,8 @@ class LintProblem(object):
         self.level = None
         self._file = file
         self._token = token
+        self._start_mark = start_mark
+        self._end_mark = end_mark
         self._next = next
         self._prev = prev
         self._nextnext = nextnext
@@ -178,6 +183,22 @@ class LintProblem(object):
     @next.setter
     def next(self, value):
         self._next = value
+
+    @property
+    def start_mark(self):
+        return self._start_mark
+
+    @start_mark.setter
+    def start_mark(self, value):
+        self._start_mark = value
+
+    @property
+    def end_mark(self):
+        return self._end_mark
+
+    @end_mark.setter
+    def end_mark(self, value):
+        self._end_mark = value
 
     @property
     def nextnext(self):
