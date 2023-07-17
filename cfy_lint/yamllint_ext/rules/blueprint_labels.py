@@ -14,7 +14,7 @@
 # limitations under the License.
 
 from pprint import pprint
-
+from yaml import Node
 from cfy_lint.yamllint_ext import LintProblem
 from cfy_lint.yamllint_ext.generators import CfyNode
 from cfy_lint.yamllint_ext.utils import (
@@ -45,38 +45,39 @@ def check(token=None, **_):
                 None,
                 'The blueprint_labels key should be written '
                 'with an underscore not a dash.')
+        
     for item in token.node.value:
-        print('item: {}'.format(item))
-        # print('item type: {}'.format(type(item)))
-
-        #if type(item) == 'MappingNode':
-        d = recurse_get_readable_object(item)
-        print(d)
-        if not isinstance(d, dict):
+        print('------------------')
+        dictionary = recurse_get_readable_object(item)
+        print('dictionary: {}'.format(dictionary))
+        if not isinstance(dictionary, dict):
             yield LintProblem(
                 token.line,
                 None,
-                'blueprint_labels contains nested dictionaries')
-        for key, value in d.items():
-            if not isinstance(value, dict):
+                desc='Every label should be a dictionary')
+
+        for k, v in dictionary.items():
+            print('nested_value: {}  dictionary? {}'.format(v, type(v)))
+            if not isinstance(v, dict):
                 yield LintProblem(
                     token.line,
                     None,
-                    'Every label should be a dictionary')
-            else:
-                for key, value in value.items():
-                    print('key: {}'.format(key))
-                    print('value: {}'.format(value))
+                    desc='blueprint_labels contains nested dictionaries')
+            
+            nested_key = list(v.keys())
+            nested_value = list(v.values())
+            print('nested_value: {}'.format(nested_value))
 
-                    if key != 'values':
-                        yield LintProblem(
-                            token.line,
-                            None,
-                            start_mark=item.start_mark,
-                            end_mark=item.end_mark,
-                            desc='The name of the key should be "values"')
-                    if not isinstance(value, list):
-                        yield LintProblem(
-                            token.line,
-                            None,
-                            'The value of the "values" is should be a list')
+            print('nested_key: values == {}'.format(nested_key[0]))
+            if nested_key[0] != 'values':
+                yield LintProblem(
+                    token.line,
+                    None,
+                    desc='The name of the key should be "values"')
+                
+            print('nested_value:{} type is {} == list'.format(nested_value[0], type(nested_value[0])))
+            if not isinstance(nested_value[0], list):
+                yield LintProblem(
+                    token.line,
+                    None,
+                    desc='The value of the "values" is should be a list')
