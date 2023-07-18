@@ -62,22 +62,22 @@ def check(token=None, **_):
                         desc='blueprint_labels contains nested dictionaries',
                         start_mark=item[LEVEL0].start_mark.line,
                         end_mark=item[LEVEL0].end_mark.line)
+                else:
+                    nested_key = list(v.keys())[LEVEL0]
+                    nested_value = list(v.values())[LEVEL0]
+                    if nested_key != 'values':
+                        yield LintProblem(
+                            token.line,
+                            None,
+                            desc='The name of the key should be "values"',
+                            start_mark=item[LEVEL1].start_mark.line,
+                            end_mark=item[LEVEL1].end_mark.line)
 
-                nested_key = list(v.keys())[LEVEL0]
-                nested_value = list(v.values())[LEVEL0]
-                if nested_key != 'values':
-                    yield LintProblem(
-                        token.line,
-                        None,
-                        desc='The name of the key should be "values"',
-                        start_mark=item[LEVEL1].start_mark.line,
-                        end_mark=item[LEVEL1].end_mark.line)
-
-                if not isinstance(nested_value, list):
-                    non_list_item = item[LEVEL1].value[LEVEL0][LEVEL1]
-                    yield LintProblem(
-                        token.line,
-                        None,
-                        desc='The value of the "values" is should be a list',
-                        start_mark=non_list_item.start_mark.line,
-                        end_mark=non_list_item.end_mark.line)
+                    if not isinstance(nested_value, list):
+                        non_list_item = item[LEVEL1].value[LEVEL0][LEVEL1]
+                        yield LintProblem(
+                            token.line,
+                            None,
+                            'The value of the "values" is should be a list',
+                            start_mark=non_list_item.start_mark.line,
+                            end_mark=non_list_item.end_mark.line)
