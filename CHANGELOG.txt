@@ -64,3 +64,4 @@
 0.0.31:
   - Add Fix-Only Flag.
   - Change auto-fix message.
+  - Fixed a bug of several wrong lines in the input and blueprint_labels section.
