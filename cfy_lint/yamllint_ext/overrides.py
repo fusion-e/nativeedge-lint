@@ -14,7 +14,6 @@
 # limitations under the License.
 
 import yaml
-from .utils import context
 
 
 def spaces_after(token, prev, next, min=-1, max=-1,
@@ -88,12 +87,11 @@ class LintProblem(object):
         self._fix = False
         self._fixable = fixable
 
-
     @property
     def line(self):
         if self.start_mark and self.end_mark:
             return self.start_mark + 1
-        else:    
+        else:
             return self._line
 
     @line.setter

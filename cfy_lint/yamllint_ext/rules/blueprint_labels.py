@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import re
 from cfy_lint.yamllint_ext import LintProblem
 from cfy_lint.yamllint_ext.generators import CfyNode
 from cfy_lint.yamllint_ext.utils import (
@@ -28,6 +27,8 @@ ID = 'blueprint_labels'
 TYPE = 'token'
 CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
+LEVEL0 = 0
+LEVEL1 = 1
 
 
 @process_relevant_tokens(CfyNode, ['blueprint_labels', 'blueprint-labels'])
@@ -44,53 +45,39 @@ def check(token=None, **_):
                 None,
                 'The blueprint_labels key should be written '
                 'with an underscore not a dash.')
-    
 
     for item in token.node.value:
-        print('------------------')
         dictionary = recurse_get_readable_object(item)
-        print('dictionary: {}'.format(dictionary))
         if not isinstance(dictionary, dict):
             yield LintProblem(
                 token.line,
                 None,
                 desc='Every label should be a dictionary')
+        else:
+            for k, v in dictionary.items():
+                if not isinstance(v, dict):
+                    yield LintProblem(
+                        token.line,
+                        None,
+                        desc='blueprint_labels contains nested dictionaries',
+                        start_mark=item[LEVEL0].start_mark.line,
+                        end_mark=item[LEVEL0].end_mark.line)
 
-        sequence = iter(item)
-        for k, v in dictionary.items():
-            sequence = next(sequence)
-            print('sequence: {}'.format(sequence))
-            print('sequence start_mark line: {}'.format(sequence.start_mark.line))
-            print('sequence end_mark line: {}'.format(sequence.end_mark.line))
+                nested_key = list(v.keys())[LEVEL0]
+                nested_value = list(v.values())[LEVEL0]
+                if nested_key != 'values':
+                    yield LintProblem(
+                        token.line,
+                        None,
+                        desc='The name of the key should be "values"',
+                        start_mark=item[LEVEL1].start_mark.line,
+                        end_mark=item[LEVEL1].end_mark.line)
 
-            print('nested_value: {}  dictionary? {}'.format(v, type(v)))
-
-            if not isinstance(v, dict):
-                yield LintProblem(
-                    token.line,
-                    None,
-                    desc='blueprint_labels contains nested dictionaries',
-                    start_mark=sequence.start_mark.line,
-                    end_mark=sequence.end_mark.line)
-            
-            nested_key = list(v.keys())[0]
-            nested_value = list(v.values())[0]
-            print('nested_value: {}'.format(nested_value))
-
-            print('nested_key: values == {}'.format(nested_key))
-            if nested_key != 'values':
-                yield LintProblem(
-                    token.line,
-                    None,
-                    desc='The name of the key should be "values"',
-                    start_mark=sequence.start_mark.line,
-                    end_mark=sequence.end_mark.line)
-                
-            print('nested_value:{} type is {} == list'.format(nested_value, type(nested_value)))
-            if not isinstance(nested_value, list):
-                yield LintProblem(
-                    token.line,
-                    None,
-                    desc='The value of the "values" is should be a list',
-                    start_mark=sequence.start_mark.line,
-                    end_mark=sequence.end_mark.line)
+                if not isinstance(nested_value, list):
+                    non_list_item = item[LEVEL1].value[LEVEL0][LEVEL1]
+                    yield LintProblem(
+                        token.line,
+                        None,
+                        desc='The value of the "values" is should be a list',
+                        start_mark=non_list_item.start_mark.line,
+                        end_mark=non_list_item.end_mark.line)
