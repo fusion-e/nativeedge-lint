@@ -51,6 +51,8 @@ DICT_INTRINSIC_FNS = [
 INT_INTRINSIC_FNS = [
     'string_find'
 ]
+LEVEL0 = 0
+LEVEL1 = 1
 
 
 @process_relevant_tokens(CfyNode, ['inputs', 'get_input'])
@@ -71,16 +73,20 @@ def check(token=None, skip_suggestions=None, **_):
                 continue
             ctx['inputs'].update(input_obj.__dict__())
             if input_obj.name not in ctx[UNUSED_INPUTS]:
+                input_unused = item[LEVEL0]
                 ctx[UNUSED_INPUTS].update(
                     {
                         input_obj.name: LintProblem(
                             token.line,
                             None,
-                            'input {} is unused.'.format(input_obj.name)
+                            desc='input {} is unused.'.format(input_obj.name),
+                            start_mark=input_unused.start_mark.line,
+                            end_mark=input_unused.end_mark.line
                         )
                     }
                 )
-            yield from validate_inputs(input_obj,
+            yield from validate_inputs(item,
+                                       input_obj,
                                        input_obj.line or token.line,
                                        ctx.get("dsl_version"),
                                        skip_suggestions)
@@ -114,7 +120,7 @@ def check(token=None, skip_suggestions=None, **_):
                 del ctx[UNUSED_INPUTS][token.node.value]
 
 
-def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
+def validate_inputs(item, input_obj, line, dsl, skip_suggestions=None):
     suggestions = 'inputs' in skip_suggestions
     if input_obj.invalid_keys:
         yield LintProblem(
@@ -147,12 +153,15 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None):
             message += 'The correct type could be "boolean".'
         yield LintProblem(line, None, message)
     elif get_type_name(input_obj) not in constants.INPUTS_BY_DSL.get(dsl, []):
+        input_type = item[LEVEL1]
         yield LintProblem(
             line,
             None,
             'Input of type {} is not supported by DSL {}.'.format(
                 get_type_name(input_obj), dsl
-            )
+            ),
+            start_mark=input_type.start_mark.line,
+            end_mark=input_type.end_mark.line
         )
     elif not input_obj.display_label and dsl != 'cloudify_dsl_1_3':
         yield LintProblem(

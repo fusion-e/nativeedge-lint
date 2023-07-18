@@ -60,12 +60,14 @@ class LintProblem(object):
                  rule=None,
                  file=None,
                  token=None,
+                 start_mark=None,
+                 end_mark=None,
                  next=None,
                  prev=None,
                  nextnext=None,
                  fixable=None):
         #: Line on which the problem was found (starting at 1)
-        self.line = line
+        self._line = line
         #: Column on which the problem was found (starting at 1)
         self.column = column or 0
         #: Human-readable description of the problem
@@ -75,6 +77,8 @@ class LintProblem(object):
         self.level = None
         self._file = file
         self._token = token
+        self._start_mark = start_mark
+        self._end_mark = end_mark
         self._next = next
         self._prev = prev
         self._nextnext = nextnext
@@ -82,6 +86,17 @@ class LintProblem(object):
         self._fixes = []
         self._fix = False
         self._fixable = fixable
+
+    @property
+    def line(self):
+        if self.start_mark and self.end_mark:
+            return self.start_mark + 1
+        else:
+            return self._line
+
+    @line.setter
+    def line(self, value):
+        self._line = value
 
     @property
     def desc(self):
@@ -178,6 +193,22 @@ class LintProblem(object):
     @next.setter
     def next(self, value):
         self._next = value
+
+    @property
+    def start_mark(self):
+        return self._start_mark
+
+    @start_mark.setter
+    def start_mark(self, value):
+        self._start_mark = value
+
+    @property
+    def end_mark(self):
+        return self._end_mark
+
+    @end_mark.setter
+    def end_mark(self, value):
+        self._end_mark = value
 
     @property
     def nextnext(self):
