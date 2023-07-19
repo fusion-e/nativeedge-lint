@@ -307,15 +307,16 @@ def _run(buffer,
     if add_label:
         fix_add_label(sorted_problems)
 
-    dict_to_fix_error = mix_dict_error()
-    print('dict_to_fix_error: {}' .format(dict_to_fix_error))
-
     # this needs to be separated from the rest of the auto fix functions since
     # it changes the line numbers of the entire file, so we do it once all
     # other tasks are done
     if extra_empty_line:
         fix_empty_lines(problem)
 
+
+    dict_to_fix_error = mix_dict_error()
+    print('dict_to_fix_error: {}' .format(dict_to_fix_error))
+    
     if syntax_error:
         yield syntax_error
 

@@ -41,8 +41,8 @@ def fix_empty_lines(problem):
                     if successive_blank_lines > 1:
                         deleted_lines += successive_blank_lines - 1
                         i = index + deleted_lines
-                        print('index: {}, successive_blank_lines: {} , deleted_lines: {} '.format(index, successive_blank_lines, deleted_lines))
-                        print('i: {}'.format(i))
+                        # print('index: {}, successive_blank_lines: {} , deleted_lines: {} '.format(index, successive_blank_lines, deleted_lines))
+                        # print('i: {}'.format(i))
                         context['fix_error_empty_line'][i] = successive_blank_lines - 1
                     successive_blank_lines = 0
 
@@ -52,4 +52,4 @@ def fix_empty_lines(problem):
             #remove blanklines from end of file
             while re.match(pattern, lines[-1]):
                 lines.pop(-1)
-    print('context[fix_error_empty_line]: {} '.format(context['fix_error_empty_line']))
+    # print('context[fix_error_empty_line]: {} '.format(context['fix_error_empty_line']))

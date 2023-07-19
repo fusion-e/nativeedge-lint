@@ -662,9 +662,6 @@ def mix_dict_error():
     current_sum = 0
     lines = list(context['fix_error_empty_line'].keys())
     empty_lines = list(context['fix_error_empty_line'].values())
-    print('lines: {}'.format(lines))
-    print('empty_lines: {}'.format(empty_lines))
-
     for i in range(len(lines)):
         current_sum += empty_lines[i]
         result[lines[i]] = current_sum
