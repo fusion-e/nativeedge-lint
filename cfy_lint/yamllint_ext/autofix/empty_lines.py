@@ -15,6 +15,7 @@
 
 import re
 
+from cfy_lint.yamllint_ext.utils import context
 from cfy_lint.yamllint_ext.autofix.utils import filelines
 
 
@@ -22,8 +23,11 @@ def fix_empty_lines(problem):
     if problem.fix_all or problem.fix_new_lines:
         with filelines(problem.file) as lines:
             successive_blank_lines = 0
+            deleted_lines = 0
             index = 0
             pattern = "^ *\n"
+
+            #remove blanklines from start of file
             while re.match(pattern, lines[0]):
                 lines.pop(0)
 
@@ -34,9 +38,18 @@ def fix_empty_lines(problem):
                     if successive_blank_lines >= 2:
                         continue
                 else:
+                    if successive_blank_lines > 1:
+                        deleted_lines += successive_blank_lines - 1
+                        i = index + deleted_lines
+                        print('index: {}, successive_blank_lines: {} , deleted_lines: {} '.format(index, successive_blank_lines, deleted_lines))
+                        print('i: {}'.format(i))
+                        context['fix_error_empty_line'][i] = successive_blank_lines - 1
                     successive_blank_lines = 0
+
                 lines.insert(index, line)
                 index += 1
 
+            #remove blanklines from end of file
             while re.match(pattern, lines[-1]):
                 lines.pop(-1)
+    print('context[fix_error_empty_line]: {} '.format(context['fix_error_empty_line']))

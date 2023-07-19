@@ -14,6 +14,8 @@
 # limitations under the License.
 
 import re
+
+from cfy_lint.yamllint_ext.utils import context
 from cfy_lint.yamllint_ext.autofix.utils import filelines
 
 TYP = 'inputs'
@@ -22,6 +24,7 @@ INDENT = r'^\s+'
 
 
 def fix_add_label(problems, fix_only=False):
+    print('fix_add_label')
     counter = 0
     for problem in problems:
         if not problem.fix and not fix_only:
@@ -45,4 +48,6 @@ def fix_add_label(problems, fix_only=False):
                             label=label.title(),
                             linesep='\n')
                 lines.insert(problem.line + counter, label)
+                context['fix_error_add_label'][problem.line] = 1
                 counter += 1
+    print('context[fix_error_empty_line]: {}'.format(context['fix_error_empty_line']))

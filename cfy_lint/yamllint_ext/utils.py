@@ -66,7 +66,9 @@ context = {
     'node_types': {},
     'capabilities': {},
     'outputs': {},
-    'current_tokens_line': 0
+    'current_tokens_line': 0,
+    'fix_error_empty_line': {},
+    'fix_error_add_label': {}
 }
 
 
@@ -653,3 +655,20 @@ def recurse_get_readable_object(mapping):
         for item in mapping.value:
             new_list.append(recurse_get_readable_object(item))
         return new_list
+
+
+def mix_dict_error():
+    result = {}
+    current_sum = 0
+    lines = list(context['fix_error_empty_line'].keys())
+    empty_lines = list(context['fix_error_empty_line'].values())
+    print('lines: {}'.format(lines))
+    print('empty_lines: {}'.format(empty_lines))
+
+    for i in range(len(lines)):
+        current_sum += empty_lines[i]
+        result[lines[i]] = current_sum
+        for comp_key, comp_value in context['fix_error_add_label'].items():
+            if lines[i] > comp_key:
+                result[lines[i]] -= comp_value
+    return result

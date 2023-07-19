@@ -35,6 +35,7 @@ from cfy_lint.yamllint_ext.utils import (
     context,
     setup_types,
     update_model,
+    mix_dict_error,
     setup_node_templates,
 )
 from cfy_lint.yamllint_ext.autofix import fix_problem
@@ -300,11 +301,14 @@ def _run(buffer,
                 problem.fixed = True
             fix_problem(problem)
 
-        if not problem.fixed:
+        if not fix:
             yield problem
 
     if add_label:
         fix_add_label(sorted_problems)
+
+    dict_to_fix_error = mix_dict_error()
+    print('dict_to_fix_error: {}' .format(dict_to_fix_error))
 
     # this needs to be separated from the rest of the auto fix functions since
     # it changes the line numbers of the entire file, so we do it once all
