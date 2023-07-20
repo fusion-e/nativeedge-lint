@@ -313,10 +313,25 @@ def _run(buffer,
     if extra_empty_line:
         fix_empty_lines(problem)
 
+    # index = 0
+    # lines = list(context['fix_error_empty_line'].keys())
+    # values = list(context['fix_error_empty_line'].values())
+    # if lines:
+    #     for problem in sorted_problems:
+    #         if problem.fixed:
+    #             continue
+    #         print('1index: {}'.format(index))
+    #         if problem.line > lines[index]:
+    #             while problem.line not in range(lines[index], lines[index+1]) and index + 1 < len(lines) - 1:
+    #                 index +=1
+    #             print('problem.line:{}, {} - {} '.format(problem.line, lines[index], lines[index+1]))
+    #             print('2index: {},  values[index]: {}'.format(index,values[index]))
+    #             problem.line -= values[index]
+    #             print('after fixed problem.line: {}'.format(problem.line))
+    #         if not problem.fixed:
+    #             yield problem
+    #         print('-------------------------')
 
-    dict_to_fix_error = mix_dict_error()
-    print('dict_to_fix_error: {}' .format(dict_to_fix_error))
-    
     if syntax_error:
         yield syntax_error
 

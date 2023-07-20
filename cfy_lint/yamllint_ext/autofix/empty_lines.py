@@ -25,25 +25,30 @@ def fix_empty_lines(problem):
             successive_blank_lines = 0
             deleted_lines = 0
             index = 0
+            current_sum = 0
+            keys = []
             pattern = "^ *\n"
-
+            
             #remove blanklines from start of file
             while re.match(pattern, lines[0]):
                 lines.pop(0)
 
-            while index < (len(lines)):
+            while index < (len(lines)-1):
                 line = lines.pop(index)
+
                 if re.match(pattern, line):
-                    successive_blank_lines += 1
-                    if successive_blank_lines >= 2:
+                    successive_blank_lines -= 1
+                    if successive_blank_lines <= -2:
                         continue
                 else:
-                    if successive_blank_lines > 1:
-                        deleted_lines += successive_blank_lines - 1
+                    if successive_blank_lines < -1:
+                        deleted_lines += successive_blank_lines + 1
                         i = index + deleted_lines
-                        # print('index: {}, successive_blank_lines: {} , deleted_lines: {} '.format(index, successive_blank_lines, deleted_lines))
-                        # print('i: {}'.format(i))
-                        context['fix_error_empty_line'][i] = successive_blank_lines - 1
+                        if i in context['add_label']:
+                            context['line_diff'][i] = context['add_label'][keys[-1]]
+                        current_sum -= successive_blank_lines - 1
+                        context['line_diff'][i] = current_sum
+                        keys.append(i)
                     successive_blank_lines = 0
 
                 lines.insert(index, line)
@@ -52,4 +57,5 @@ def fix_empty_lines(problem):
             #remove blanklines from end of file
             while re.match(pattern, lines[-1]):
                 lines.pop(-1)
-    # print('context[fix_error_empty_line]: {} '.format(context['fix_error_empty_line']))
+
+    print('context[line_diff]: {}'.format(context['line_diff']))

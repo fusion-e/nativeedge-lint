@@ -96,6 +96,7 @@ class LintProblem(object):
 
     @line.setter
     def line(self, value):
+        print('in setter ')
         self._line = value
 
     @property
