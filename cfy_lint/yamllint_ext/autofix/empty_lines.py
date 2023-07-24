@@ -62,14 +62,16 @@ def fix_empty_lines(problem):
             updated_add_label = []
             keys_diff = list(context['line_diff'].keys())
             l = context['add_label']
-            print(l)
+            counter = 0
             for num in l:
                 i = 0
                 while num > keys_diff[i]:
                     i += 1
-                
-                updated_add_label.append(num + context['line_diff'][keys_diff[i-1]])
 
+                updated_add_label.append(num + context['line_diff'][keys_diff[i-1]] + counter)
+                counter += 1
+
+            print('updated_add_label: {}'.format(updated_add_label))
 
             # add 1 to dict
             for num in updated_add_label: # [9, 13, 18]
@@ -85,7 +87,6 @@ def fix_empty_lines(problem):
                 i = k
 
             # add items to dict
-            print('updated_add_label: {}'.format(updated_add_label))
             print('keys_diff: {}'.format(keys_diff))
             print('2context[line_diff]: {}'.format(context['line_diff']))
             print('-----------------------------------------------------')
@@ -97,9 +98,9 @@ def fix_empty_lines(problem):
             counter = 0
             print('len(updated_add_label: {}'.format(len(updated_add_label)))
                   
-            for key, value in context['line_diff'].items(): # [0, 8, 20, 24, 35, 39]
+            for key, value in context['line_diff'].items(): 
                 counter = 0   
-                while while_condition and key > updated_add_label[i]: #  [9, 13, 17]
+                while while_condition and key > updated_add_label[i]: 
                     dict_to_update.update({updated_add_label[i]: prev_value + 1 + counter})
                     i += 1
                     counter += 1
