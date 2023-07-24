@@ -63,9 +63,7 @@ def build_diff_lines():
         print('keys_diff: {}'.format(keys_diff))
         if context['add_label'][0] < keys_diff[-1]:
             for num in context['add_label']:
-                i = 0
-                print('num: {}'.format(num))
-
+                i = 1 # Skip the first member 0
                 while i >= len_keys_diff and num > keys_diff[i]: 
                     i += 1
 
