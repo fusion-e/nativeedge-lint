@@ -57,83 +57,69 @@ def fix_empty_lines(problem):
                 lines.pop(-1)
 
             print('1context[line_diff]: {}'.format(context['line_diff']))
-            print('-----------------------------------------------------')
+            print('context[add_label]: {}'.format(context['add_label']))
+            print('---------------------fix_empty_lines end --------------------------------')
 
-            updated_add_label = []
-            keys_diff = list(context['line_diff'].keys())
-            l = context['add_label']
-            counter = 0
-            for num in l:
-                i = 0
-                while num > keys_diff[i]:
-                    i += 1
+#             if context['add_label']:
+#                 keys_diff = list(context['line_diff'].keys())
+#                 # add 1 to dict
+#                 for num in context['add_label']: # [9, 13, 18]
+#                     i = 0
+#                     while num > keys_diff[i]: #  [0, 8, 20, 24, 35, 39]
+#                         i += 1
+                    
+#                     k = i
 
-                updated_add_label.append(num + context['line_diff'][keys_diff[i-1]] + counter)
-                counter += 1
+#                     while k < len(context['line_diff']):
+#                         context['line_diff'][keys_diff[k]] = context['line_diff'][keys_diff[k]] + 1
+#                         k += 1
+#                     i = k
 
-            print('updated_add_label: {}'.format(updated_add_label))
+#                 # add items to dict
+#                 print('keys_diff: {}'.format(keys_diff))
+#                 print('2context[line_diff]: {}'.format(context['line_diff']))
+#                 print('-----------------------------------------------------')
 
-            # add 1 to dict
-            for num in context['add_label']: # [9, 13, 18]
-                i = 0
-                while num > keys_diff[i]: #  [0, 8, 20, 24, 35, 39]
-                    i += 1
+#                 i = 0
+#                 while_condition = True
+#                 prev_value = None
+#                 dict_to_update = {}
+#                 counter = 0
+                    
+#                 for key, value in context['line_diff'].items(): 
+#                     counter = 0   
+#                     while while_condition and key > context['add_label'][i]: 
+#                         dict_to_update.update({context['add_label'][i] + 1: prev_value + 1 + counter})
+#                         i += 1
+#                         counter += 1
+#                         if i >= len(context['add_label']):
+#                             while_condition = False
+                    
+#                     prev_value = value
+
+#                     if not while_condition:
+#                         break
+
+#                 context['line_diff'] = connect_two_sorted_dictionaries(context['line_diff'],
+#                                                                 dict_to_update)
                 
-                k = i
-
-                while k < len(context['line_diff']):
-                    context['line_diff'][keys_diff[k]] = context['line_diff'][keys_diff[k]] + 1
-                    k += 1
-                i = k
-
-            # add items to dict
-            print('keys_diff: {}'.format(keys_diff))
-            print('2context[line_diff]: {}'.format(context['line_diff']))
-            print('-----------------------------------------------------')
-
-            i = 0
-            while_condition = True
-            prev_value = None
-            dict_to_update = {}
-            counter = 0
-            print('len(updated_add_label: {}'.format(len(context['add_label'])))
-                  
-            for key, value in context['line_diff'].items(): 
-                counter = 0   
-                while while_condition and key > context['add_label'][i]: 
-                    dict_to_update.update({context['add_label'][i] + 1: prev_value + 1 + counter})
-                    i += 1
-                    counter += 1
-                    if i >= len(context['add_label']):
-                        while_condition = False
-                        print(while_condition)
-                    print('i:{}'.format(i))
-                
-                prev_value = value
-
-                if not while_condition:
-                    break
-
-            context['line_diff'] = connect_two_sorted_dictionaries(context['line_diff'],
-                                                             dict_to_update)
-            
-            print('3context[line_diff]: {}'.format(context['line_diff']))
-            print('-----------------------------------------------------')
+#                 print('3context[line_diff]: {}'.format(context['line_diff']))
+#                 print('-----------------------------------------------------')
 
 
-def connect_two_sorted_dictionaries(dict1, dict2):
-    result_dict = {}
-    keys1 = iter(dict1)
-    keys2 = iter(dict2)
-    key1 = next(keys1, None)
-    key2 = next(keys2, None)
+# def connect_two_sorted_dictionaries(dict1, dict2):
+#     result_dict = {}
+#     keys1 = iter(dict1)
+#     keys2 = iter(dict2)
+#     key1 = next(keys1, None)
+#     key2 = next(keys2, None)
 
-    while key1 is not None or key2 is not None:
-        if key2 is None or (key1 is not None and key1 < key2):
-            result_dict[key1] = dict1[key1]
-            key1 = next(keys1, None)
-        else:
-            result_dict[key2] = dict2[key2]
-            key2 = next(keys2, None)
+#     while key1 is not None or key2 is not None:
+#         if key2 is None or (key1 is not None and key1 < key2):
+#             result_dict[key1] = dict1[key1]
+#             key1 = next(keys1, None)
+#         else:
+#             result_dict[key2] = dict2[key2]
+#             key2 = next(keys2, None)
     
-    return result_dict
+#     return result_dict

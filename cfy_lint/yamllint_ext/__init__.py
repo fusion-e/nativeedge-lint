@@ -35,9 +35,9 @@ from cfy_lint.yamllint_ext.utils import (
     context,
     setup_types,
     update_model,
-    mix_dict_error,
     setup_node_templates,
 )
+from cfy_lint.yamllint_ext.autofix.utils import build_diff_lines
 from cfy_lint.yamllint_ext.autofix import fix_problem
 from cfy_lint.yamllint_ext.rules.inputs import ID as input_rule
 from cfy_lint.yamllint_ext.rules.imports import ID as import_rule
@@ -312,6 +312,9 @@ def _run(buffer,
     # other tasks are done
     if extra_empty_line:
         fix_empty_lines(problem)
+
+    if context['line_diff'] or context['add_label']:
+        build_diff_lines()
 
     # index = 0
     # lines = list(context['fix_error_empty_line'].keys())

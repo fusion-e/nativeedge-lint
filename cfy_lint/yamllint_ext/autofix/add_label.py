@@ -49,4 +49,3 @@ def fix_add_label(problems, fix_only=False):
                 lines.insert(problem.line + counter, label)
                 counter += 1
                 context['add_label'].append(problem.line)
-    print('context[add_label]: {}'.format(context['add_label']))
