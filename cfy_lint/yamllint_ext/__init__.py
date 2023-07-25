@@ -316,24 +316,23 @@ def _run(buffer,
     if context['line_diff'] or context['add_label']:
         build_diff_lines()
 
-    # index = 0
-    # lines = list(context['fix_error_empty_line'].keys())
-    # values = list(context['fix_error_empty_line'].values())
-    # if lines:
-    #     for problem in sorted_problems:
-    #         if problem.fixed:
-    #             continue
-    #         print('1index: {}'.format(index))
-    #         if problem.line > lines[index]:
-    #             while problem.line not in range(lines[index], lines[index+1]) and index + 1 < len(lines) - 1:
-    #                 index +=1
-    #             print('problem.line:{}, {} - {} '.format(problem.line, lines[index], lines[index+1]))
-    #             print('2index: {},  values[index]: {}'.format(index,values[index]))
-    #             problem.line -= values[index]
-    #             print('after fixed problem.line: {}'.format(problem.line))
-    #         if not problem.fixed:
-    #             yield problem
-    #         print('-------------------------')
+    index = 0
+    lines = list(context['line_diff'].keys())
+    values = list(context['line_diff'].values())
+    if lines:
+        for problem in sorted_problems:
+            if problem.fixed:
+                continue
+            if problem.line > lines[index]:
+                while problem.line not in range(lines[index], lines[index+1]) and index + 1 < len(lines) - 1:
+                    index +=1
+                print('problem.line:{}, {} - {} '.format(problem.line, lines[index], lines[index+1]))
+                print('2index: {},  values[index]: {}'.format(index,values[index]))
+                problem.line += values[index]
+                print('after fixed problem.line: {}'.format(problem.line))
+            if not problem.fixed:
+                yield problem
+            print('-------------------------')
 
     if syntax_error:
         yield syntax_error

@@ -89,15 +89,16 @@ class LintProblem(object):
 
     @property
     def line(self):
-        if self.start_mark and self.end_mark:
+        if (self.start_mark and self.end_mark) and self.start_mark == self._line:
             return self.start_mark + 1
         else:
             return self._line
 
     @line.setter
     def line(self, value):
-        print('in setter ')
+        print('in setter ->{}'.format(value))
         self._line = value
+        print('self._line: {}'.format(self._line))
 
     @property
     def desc(self):

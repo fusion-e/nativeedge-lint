@@ -57,14 +57,13 @@ def build_diff_lines():
             count += 1
 
     elif context['add_label'] and context['line_diff']:
-        print('3')
         keys_diff = list(context['line_diff'].keys())
-        len_keys_diff = len(keys_diff)
         print('keys_diff: {}'.format(keys_diff))
+        len_keys_diff = len(keys_diff)
         if context['add_label'][0] < keys_diff[-1]:
             for num in context['add_label']:
                 i = 1 # Skip the first member 0
-                while i >= len_keys_diff and num > keys_diff[i]: 
+                while i < len_keys_diff and num > keys_diff[i]: 
                     i += 1
 
                 k = i
@@ -75,7 +74,6 @@ def build_diff_lines():
 
         # Creating a dict_to_update with the addition of items from add_label
         # Then connecting it with the line_diff dictionary
-        print('keys_diff: {}'.format(keys_diff))
         print('2context[line_diff]: {}'.format(context['line_diff']))
         print('-----------------------------------------------------')
 
@@ -97,6 +95,14 @@ def build_diff_lines():
             prev_value = value
             if not while_condition:
                 break
+
+        while i < len(context['add_label']):
+            dict_to_update.update(
+                {context['add_label'][i] + 1: prev_value + 1})
+            prev_value = prev_value + 1
+            i += 1
+        
+        print('dict_to_update: {}'.format(dict_to_update))
         context['line_diff'] = connect_two_sorted_dicts(context['line_diff'],
                                                         dict_to_update)
         
