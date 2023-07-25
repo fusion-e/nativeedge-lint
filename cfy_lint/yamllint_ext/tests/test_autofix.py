@@ -145,7 +145,7 @@ def test_fix_colons():
         "type: string\n",
         "default: us-east-1\n",
         "constraints: f\n",
-        "valid_values:",
+        "valid_values: \n",
     ]
     lines = """aws_region_name      :z
 display_label     :     Aws Region Name
