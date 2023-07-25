@@ -56,9 +56,7 @@ def fix_empty_lines(problem):
             while re.match(pattern, lines[-1]):
                 lines.pop(-1)
 
-            print('1context[line_diff]: {}'.format(context['line_diff']))
-            print('context[add_label]: {}'.format(context['add_label']))
-            print('---------------------fix_empty_lines end --------------------------------')
+
 
 #             if context['add_label']:
 #                 keys_diff = list(context['line_diff'].keys())

@@ -46,8 +46,8 @@ def get_eol(line):
 
 # Creating a dictionary that connects two changes that happen in empty_lined and add_label.
 def build_diff_lines():
+    print('1context[line_diff]: {}'.format(context['line_diff']))
     print('context[add_label]: {}'.format(context['add_label']))
-    print('context[line_diff]: {}'.format(context['line_diff']))
 
     if context['add_label'] and not context['line_diff']:
         context['line_diff'][0] = 0
@@ -58,7 +58,7 @@ def build_diff_lines():
 
     elif context['add_label'] and context['line_diff']:
         keys_diff = list(context['line_diff'].keys())
-        print('keys_diff: {}'.format(keys_diff))
+        # print('keys_diff: {}'.format(keys_diff))
         len_keys_diff = len(keys_diff)
         if context['add_label'][0] < keys_diff[-1]:
             for num in context['add_label']:
@@ -74,8 +74,8 @@ def build_diff_lines():
 
         # Creating a dict_to_update with the addition of items from add_label
         # Then connecting it with the line_diff dictionary
-        print('2context[line_diff]: {}'.format(context['line_diff']))
-        print('-----------------------------------------------------')
+        # print('2context[line_diff]: {}'.format(context['line_diff']))
+        # print('-----------------------------------------------------')
 
         i = 0
         while_condition = True
@@ -102,7 +102,7 @@ def build_diff_lines():
             prev_value = prev_value + 1
             i += 1
         
-        print('dict_to_update: {}'.format(dict_to_update))
+        # print('dict_to_update: {}'.format(dict_to_update))
         context['line_diff'] = connect_two_sorted_dicts(context['line_diff'],
                                                         dict_to_update)
         
