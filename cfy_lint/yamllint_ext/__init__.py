@@ -324,15 +324,16 @@ def _run(buffer,
             if problem.fixed:
                 continue
             if problem.line > lines[index]:
-                while problem.line not in range(lines[index], lines[index+1]) and index + 1 < len(lines) - 1:
+                while index + 1 < len(lines) and problem.line not in range(lines[index], lines[index+1]):
                     index +=1
-                print('problem.line:{}, {} - {} '.format(problem.line, lines[index], lines[index+1]))
-                print('2index: {},  values[index]: {}'.format(index,values[index]))
-                problem.line += values[index]
-                print('after fixed problem.line: {}'.format(problem.line))
+                # print('problem.line:{}, {} - {} '.format(problem.line, lines[index], lines[index+1]))
+                # print('2index: {},  values[index]: {}'.format(index,values[index]))
+                problem.update_line = problem.line + values[index]
+                # print('after fixed problem.line: {}'.format(problem.line))
+                    
             if not problem.fixed:
                 yield problem
-            print('-------------------------')
+            # print('-------------------------')
 
     if syntax_error:
         yield syntax_error
