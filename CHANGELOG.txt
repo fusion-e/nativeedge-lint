@@ -66,3 +66,4 @@
   - Change auto-fix message.
   - Fixed a bug of several wrong lines in the input and blueprint_labels section.
   - Fixed a bug of fix colons
+  - Fixed a bug of add_label
