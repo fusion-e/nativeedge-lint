@@ -316,24 +316,23 @@ def _run(buffer,
     if context['line_diff'] or context['add_label']:
         build_diff_lines()
 
+    # Fix the lines in the error message according to the dictionary we created
     index = 0
     lines = list(context['line_diff'].keys())
     values = list(context['line_diff'].values())
+    len_lines = len(lines)
     if lines:
         for problem in sorted_problems:
             if problem.fixed:
                 continue
             if problem.line > lines[index]:
-                while index + 1 < len(lines) and problem.line not in range(lines[index], lines[index+1]):
-                    index +=1
-                # print('problem.line:{}, {} - {} '.format(problem.line, lines[index], lines[index+1]))
-                # print('2index: {},  values[index]: {}'.format(index,values[index]))
+                while index + 1 < len_lines and \
+                    problem.line not in range(lines[index], lines[index+1]):
+                    index += 1
                 problem.update_line = problem.line + values[index]
-                # print('after fixed problem.line: {}'.format(problem.line))
-                    
+
             if not problem.fixed:
                 yield problem
-            # print('-------------------------')
 
     if syntax_error:
         yield syntax_error

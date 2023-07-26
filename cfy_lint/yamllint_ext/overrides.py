@@ -106,7 +106,7 @@ class LintProblem(object):
     @property
     def update_line(self):
         return self._update_line
-    
+
     @update_line.setter
     def update_line(self, value):
         self._update_line = value

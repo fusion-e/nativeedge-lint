@@ -54,6 +54,7 @@ INT_INTRINSIC_FNS = [
 LEVEL0 = 0
 LEVEL1 = 1
 
+
 @process_relevant_tokens(CfyNode, ['inputs', 'get_input'])
 def check(token=None, skip_suggestions=None, **_):
     if token.prev.node.value == 'inputs':
