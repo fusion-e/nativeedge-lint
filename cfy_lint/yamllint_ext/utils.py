@@ -655,19 +655,3 @@ def recurse_get_readable_object(mapping):
         for item in mapping.value:
             new_list.append(recurse_get_readable_object(item))
         return new_list
-
-
-def mix_dict_error():
-    result = {}
-    # current_sum = 0
-    # lines = list(context['fix_error_empty_line'].keys())
-    # empty_lines = list(context['fix_error_empty_line'].values())
-    # for i in range(len(lines)):
-    #     for comp_key, comp_value in context['fix_error_add_label'].items():
-    #         if lines[i] > comp_key:
-    #             current_sum -= comp_value
-    #             result[comp_key+1] = current_sum
-    #             # result[lines[i]] -= comp_value
-    #         current_sum += empty_lines[i]
-    #     result[lines[i]] = current_sum
-    return result

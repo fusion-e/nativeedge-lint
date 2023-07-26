@@ -99,9 +99,7 @@ class LintProblem(object):
 
     @line.setter
     def line(self, value):
-        print('in setter ->{}'.format(value))
         self._line = value
-        print('self._line: {}'.format(self._line))
 
     @property
     def update_line(self):
