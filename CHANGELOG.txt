@@ -65,3 +65,4 @@
   - Add Fix-Only Flag.
   - Change auto-fix message.
   - Fixed a bug of several wrong lines in the input and blueprint_labels section.
+  - Fix line number of error list after autofix
