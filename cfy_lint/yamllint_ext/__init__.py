@@ -37,6 +37,7 @@ from cfy_lint.yamllint_ext.utils import (
     update_model,
     setup_node_templates,
 )
+from cfy_lint.yamllint_ext.autofix.utils import build_diff_lines
 from cfy_lint.yamllint_ext.autofix import fix_problem
 from cfy_lint.yamllint_ext.rules.inputs import ID as input_rule
 from cfy_lint.yamllint_ext.rules.imports import ID as import_rule
@@ -300,7 +301,7 @@ def _run(buffer,
                 problem.fixed = True
             fix_problem(problem)
 
-        if not problem.fixed:
+        if not fix:
             yield problem
 
     if add_label:
@@ -311,6 +312,29 @@ def _run(buffer,
     # other tasks are done
     if extra_empty_line:
         fix_empty_lines(problem)
+
+    if context['line_diff'] or context['add_label']:
+        build_diff_lines()
+
+    # Fix the lines in the error message according to the dictionary we created
+    index = 0
+    lines = list(context['line_diff'].keys())
+    values = list(context['line_diff'].values())
+    len_lines = len(lines)
+    if lines:
+        for problem in sorted_problems:
+            if problem.fixed:
+                continue
+            if problem.line > lines[index]:
+                while (index + 1 < len_lines and
+                       problem.line not in range(
+                           lines[index],
+                           lines[index + 1])):
+                    index += 1
+                problem.update_line = problem.line + values[index]
+
+            if not problem.fixed:
+                yield problem
 
     if syntax_error:
         yield syntax_error

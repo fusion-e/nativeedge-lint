@@ -13,16 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
+
 from cfy_lint.yamllint_ext.autofix.utils import filelines, get_eol
 
 
-def fix_deprecated_relationships(problem):
-    if problem.rule == 'relationships' and \
-            'deprecated relationship type' in problem.message:
+def fix_commas(problem):
+    if problem.rule == 'commas':
         with filelines(problem.file) as lines:
-            line = lines[problem.line]
-            line, eol = get_eol(line)
-            split = problem.message.split()
-            new_line = line.replace(split[-5], split[-3].rstrip('.'))
-            lines[problem.line] = new_line + eol
+            line = lines[problem.line - 1]
+            new_line = re.sub(r'\s*,\s*', ', ', line)
+            striped_new_line, eol = get_eol(new_line)
+            if new_line[-1] != eol:
+                new_line = striped_new_line + eol
+            lines[problem.line - 1] = new_line
         problem.fixed = True

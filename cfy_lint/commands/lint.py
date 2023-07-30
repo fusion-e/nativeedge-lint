@@ -22,9 +22,13 @@ from re import sub
 from logging import (Formatter, StreamHandler)
 
 from cfy_lint import cli, __version__
+from cfy_lint.yamllint_ext import LintProblem
 from cfy_lint.yamllint_ext import (run, rules)
 from cfy_lint.logger import logger, stream_handler
+from cfy_lint.yamllint_ext.autofix import fix_problem
 from cfy_lint.yamllint_ext.config import YamlLintConfigExt
+from cfy_lint.yamllint_ext.autofix.add_label import fix_add_label
+from cfy_lint.yamllint_ext.autofix.empty_lines import fix_empty_lines
 
 
 def report_both_fix_autofix(af, f):
@@ -55,6 +59,7 @@ def format_json(format):
 @cli.options.skip_suggestions
 @cli.options.autofix
 @cli.options.fix
+@cli.options.fix_only
 @cli.click.version_option(__version__.version)
 def lint(blueprint_path,
          config,
@@ -63,7 +68,40 @@ def lint(blueprint_path,
          skip_suggestions=None,
          autofix=False,
          fix=None,
+         fix_only=None,
          **_):
+
+    if fix_only:
+        extra_empty_line = False
+        add_label_offset = False
+        problems = []
+        for x in fix_only:
+            x = json.loads(x)
+            problem = LintProblem(
+                line=x['line'],
+                column=None,
+                desc=x['message'],
+                rule=x['rule'],
+            )
+            input_file_path = os.path.abspath(blueprint_path)
+            problem.file = input_file_path
+            # print(problems)
+            if problem.rule == 'inputs' and \
+                    'is missing a display_label' in problem.message:
+                add_label_offset = True
+                problems.append(problem)
+            elif problem.rule == 'empty-lines':
+                extra_empty_line = True
+            else:
+                fix_problem(problem)
+
+        if add_label_offset:
+            fix_add_label(problems, fix_only=True)
+
+        if extra_empty_line:
+            fix_empty_lines(problem)
+
+        sys.exit(0)
 
     fix = report_both_fix_autofix(autofix, fix)
     format_json(format)
