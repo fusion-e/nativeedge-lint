@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import re
+
+from cfy_lint.yamllint_ext.utils import context
 from cfy_lint.yamllint_ext.autofix.utils import filelines
 
 TYP = 'inputs'
@@ -37,7 +39,6 @@ def fix_add_label(problems, fix_only=False):
                         while not re.findall(EMPTY,
                                              lines[problem.line + counter]):
                             counter += 1
-
                         indentation = re.search(
                             INDENT_EMPTY_LINES,
                             lines[problem.line + counter]).group()
@@ -59,3 +60,4 @@ def fix_add_label(problems, fix_only=False):
                             linesep='\n')
                 lines.insert(problem.line + counter, label)
                 counter += 1
+                context['add_label'].append(problem.line)

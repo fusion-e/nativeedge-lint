@@ -85,11 +85,11 @@ def check(token=None, skip_suggestions=None, **_):
                         )
                     }
                 )
-            yield from validate_inputs(item,
-                                       input_obj,
+            yield from validate_inputs(input_obj,
                                        input_obj.line or token.line,
                                        ctx.get("dsl_version"),
-                                       skip_suggestions)
+                                       skip_suggestions,
+                                       item)
 
     if token.prev.node.value == 'get_input':
         if isinstance(token.node.value, list):
@@ -120,7 +120,7 @@ def check(token=None, skip_suggestions=None, **_):
                 del ctx[UNUSED_INPUTS][token.node.value]
 
 
-def validate_inputs(item, input_obj, line, dsl, skip_suggestions=None):
+def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
     suggestions = 'inputs' in skip_suggestions
     if input_obj.invalid_keys:
         yield LintProblem(
@@ -167,8 +167,7 @@ def validate_inputs(item, input_obj, line, dsl, skip_suggestions=None):
         yield LintProblem(
             line,
             None,
-            'Input {} is missing a display_label.'.format(input_obj.name),
-            fixable=True
+            'Input {} is missing a display_label.'.format(input_obj.name)
         )
     elif input_obj.display_label and dsl == 'cloudify_dsl_1_3':
         yield LintProblem(
@@ -216,6 +215,13 @@ def validate_inputs(item, input_obj, line, dsl, skip_suggestions=None):
                     input_obj.default)
         if message and message not in ["intrinsic function"]:
             yield LintProblem(line, None, message)
+    elif not input_obj.display_label:
+        yield LintProblem(
+            line,
+            None,
+            'Input {} is missing a display_label.'.format(input_obj.name),
+            fixable=True
+        )
 
 
 def get_type_name(input_obj):

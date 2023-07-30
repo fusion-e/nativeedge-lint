@@ -66,7 +66,9 @@ context = {
     'node_types': {},
     'capabilities': {},
     'outputs': {},
-    'current_tokens_line': 0
+    'current_tokens_line': 0,
+    'add_label': [],
+    'line_diff': {},
 }
 
 

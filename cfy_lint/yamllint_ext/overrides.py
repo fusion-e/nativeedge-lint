@@ -86,9 +86,12 @@ class LintProblem(object):
         self._fixes = []
         self._fix = False
         self._fixable = fixable
+        self._update_line = None
 
     @property
     def line(self):
+        if self.update_line:
+            return self.update_line
         if self.start_mark and self.end_mark:
             return self.start_mark + 1
         else:
@@ -97,6 +100,14 @@ class LintProblem(object):
     @line.setter
     def line(self, value):
         self._line = value
+
+    @property
+    def update_line(self):
+        return self._update_line
+
+    @update_line.setter
+    def update_line(self, value):
+        self._update_line = value
 
     @property
     def desc(self):
