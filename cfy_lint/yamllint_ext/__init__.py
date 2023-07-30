@@ -329,7 +329,7 @@ def _run(buffer,
                 while (index + 1 < len_lines and
                        problem.line not in range(
                            lines[index],
-                           lines[index+1])):
+                           lines[index + 1])):
                     index += 1
                 problem.update_line = problem.line + values[index]
 

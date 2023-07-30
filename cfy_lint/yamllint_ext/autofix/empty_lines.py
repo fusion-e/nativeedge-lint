@@ -35,7 +35,7 @@ def fix_empty_lines(problem):
             while re.match(PATTERN, lines[0]):
                 lines.pop(0)
 
-            while index < (len(lines)-1):
+            while index < (len(lines) - 1):
                 line = lines.pop(index)
 
                 if re.match(PATTERN, line):
