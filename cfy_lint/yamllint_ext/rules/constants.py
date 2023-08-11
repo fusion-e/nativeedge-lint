@@ -281,7 +281,38 @@ deprecated_node_types = {
     'cloudify.gcp.nodes.IAM.Role':
         'cloudify.nodes.gcp.IAM.Role',
     'cloudify.gcp.nodes.Gcp':
-        'cloudify.nodes.gcp.Gcp'
+        'cloudify.nodes.gcp.Gcp',
+
+    'cloudify.vsphere.nodes.Server':
+        'cloudify.nodes.vsphere.Server',
+    'cloudify.vsphere.nodes.WindowsServer':
+        'cloudify.nodes.vsphere.WindowsServer',
+    'cloudify.vsphere.nodes.Network':
+        'cloudify.nodes.vsphere.Network',
+    'cloudify.vsphere.nodes.Storage':
+        'cloudify.nodes.vsphere.Storage',
+    'cloudify.vsphere.nodes.IPPool':
+        'cloudify.nodes.vsphere.IPPool',
+    'cloudify.vsphere.nodes.CloudInitISO':
+        'cloudify.nodes.vsphere.CloudInitISO',
+    'cloudify.vsphere.nodes.Datacenter':
+        'cloudify.nodes.vsphere.Datacenter',
+    'cloudify.vsphere.nodes.Datastore':
+        'cloudify.nodes.vsphere.Datastore',
+    'cloudify.vsphere.nodes.Cluster':
+        'cloudify.nodes.vsphere.Cluster',
+    'cloudify.vsphere.nodes.ResourcePool':
+        'cloudify.nodes.vsphere.ResourcePool',
+    'cloudify.vsphere.nodes.VMFolder':
+        'cloudify.nodes.vsphere.VMFolder',
+    'cloudify.vsphere.nodes.Host':
+        'cloudify.nodes.vsphere.Host',
+    'cloudify.vsphere.nodes.ContentLibraryDeployment':
+        'cloudify.nodes.vsphere.ContentLibraryDeployment',
+    'cloudify.vsphere.nodes.NIC':
+        'cloudify.nodes.vsphere.NIC',
+    'cloudify.vsphere.nodes.SCSIController':
+        'cloudify.nodes.vsphere.SCSIController'
 }
 
 deprecated_relationship_types = {
@@ -388,7 +419,18 @@ deprecated_relationship_types = {
     'cloudify.gcp.relationships.subscription_connected_to_topic':
         'cloudify.relationships.gcp.subscription_connected_to_topic',
     'cloudify.gcp.relationships.instance_remove_access_config':
-        'cloudify.relationships.gcp.instance_remove_access_config'
+        'cloudify.relationships.gcp.instance_remove_access_config',
+
+    'cloudify.vsphere.port_connected_to_network':
+        'cloudify.relationships.vsphere.port_connected_to_network',
+    'cloudify.vsphere.port_connected_to_server':
+        'cloudify.relationships.vsphere.port_connected_to_server',
+    'cloudify.vsphere.storage_connected_to_server':
+        'cloudify.relationships.vsphere.storage_connected_to_server',
+    'cloudify.vsphere.nic_connected_to_server':
+        'cloudify.relationships.vsphere.nic_connected_to_server',
+    'cloudify.vsphere.controller_connected_to_vm':
+        'cloudify.relationships.vsphere.controller_connected_to_vm'
 }
 
 ACCEPTED_LIST_TYPES = (

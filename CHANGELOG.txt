@@ -53,7 +53,7 @@
   - RD-6832 Autofix Indentation
 0.0.29:
   - Fix eol identitification.
-  - RND-472 cfy lint autofix unused import 
+  - RND-472 cfy lint autofix unused import
   - GCP deprecated types.
 0.0.30:
   - update unused import, and exception for fabric
@@ -68,4 +68,5 @@
   - Fixed a bug of fix colons
   - Fixed a bug of add_label
   - Fix line number of error list after autofix
-
+0.0.32:
+  - Add vSphere plugin depreacted nodes and relationships.
