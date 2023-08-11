@@ -70,3 +70,4 @@
   - Fix line number of error list after autofix
 0.0.32:
   - Add vSphere plugin depreacted nodes and relationships.
+  - Fix bug in identification of input type.
