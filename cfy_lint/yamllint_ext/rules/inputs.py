@@ -190,10 +190,8 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
             for key in input_obj.default.keys():
                 if key in INTRINSIC_FNS:
                     message = "intrinsic function"
-                    if key in STR_INTRINSIC_FNS and not \
-                        isinstance(
-                                   get_type(input_obj),
-                                   str):
+                    if key in STR_INTRINSIC_FNS and not isinstance(
+                            get_type_name(input_obj), str):
                         message = 'input "{}" specify a type {}, The correct'\
                             ' type is "string".'.format(
                                 input_obj.name,
@@ -235,7 +233,7 @@ def get_type_name(input_obj):
 def get_type(input_obj):
     type_name = get_type_name(input_obj)
     if type_name == 'string':
-        return type("string")
+        return str
     else:
         return globals().get('__builtins__').get(type_name)
 

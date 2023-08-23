@@ -49,7 +49,7 @@ setup(
         'click>8,<9',
         'pyyaml==6.0',
         'yamllint==1.28.0',
-        'packaging==21.3',
+        'packaging>=17.1,<=21.3',
         'networkx>=2.5.1,<=3.1'
     ]
 )
