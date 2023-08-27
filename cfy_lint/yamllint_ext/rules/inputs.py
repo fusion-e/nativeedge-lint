@@ -131,7 +131,7 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
     if not input_obj.input_type:
         message = 'input "{}" does not specify a type. '.format(input_obj.name)
         if input_obj.default:
-            if isinstance(input_obj.default, dict):
+            if isinstance(check_default_types(input_obj.default), dict):
                 for key in input_obj.default.keys():
                     if key in INTRINSIC_FNS:
                         input_obj.default = None
@@ -141,17 +141,18 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
                             message += 'The correct type could be "dict".'
                         if key in INT_INTRINSIC_FNS:
                             message += 'The correct type could be "int".'
-                if isinstance(input_obj.default, dict) and not suggestions:
+                if isinstance(check_default_types(input_obj.default), dict) and not suggestions:
                     message += 'The correct type could be "dict".'
-            if isinstance(input_obj.default, str) and not suggestions:
+            if isinstance(check_default_types(input_obj.default), str) and not suggestions:
                 message += 'The correct type could be "string".'
-            if isinstance(input_obj.default, bool) and not suggestions:
+            if isinstance(check_default_types(input_obj.default), bool) and not suggestions:
                 message += 'The correct type could be "boolean".'
-            if isinstance(input_obj.default, list) and not suggestions:
+            if isinstance(check_default_types(input_obj.default), list) and not suggestions:
                 message += 'The correct type could be "list".'
-        elif isinstance(input_obj.default, bool) and not suggestions:
+        elif isinstance(check_default_types(input_obj.default), bool) and not suggestions:
             message += 'The correct type could be "boolean".'
         yield LintProblem(line, None, message)
+
     elif get_type_name(input_obj) not in constants.INPUTS_BY_DSL.get(dsl, []):
         input_type = item[LEVEL1]
         yield LintProblem(
@@ -185,8 +186,15 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
                 label=input_obj.display_label, dsl=dsl)
         )
     elif get_type(input_obj) and input_obj.default:
+        print('----------------')
+        print('input name: ',input_obj.name)
+        print('type input_obj: ', get_type(input_obj))
+        print('default: ', input_obj.default)
+        print('check_default_types(input_obj.default): ', check_default_types(input_obj.default))
+        print('----------------')
+
         message = ''
-        if isinstance(input_obj.default, dict):
+        if isinstance(check_default_types(input_obj.default), dict):
             for key in input_obj.default.keys():
                 if key in INTRINSIC_FNS:
                     message = "intrinsic function"
@@ -237,6 +245,17 @@ def get_type(input_obj):
     else:
         return globals().get('__builtins__').get(type_name)
 
+def check_default_types(default_input):
+    if type(default_input) == str:
+        if default_input.isdigit():
+            result = int
+        elif "." in default_input and all(c.isdigit() or c == "." for c in default_input):
+            result = float
+        else:
+            result = str
+    else:
+        result = type(default_input)
+    return result
 
 class CfyInput(object):
     def __init__(self, nodes):

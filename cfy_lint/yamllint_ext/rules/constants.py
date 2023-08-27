@@ -868,7 +868,10 @@ DSL_1_3 = [
     'regex',
     'float',
     'string',
+    'str',
     'integer',
+    'int',
+    'bool',
     'boolean',
     'textarea'
 ]
