@@ -68,8 +68,7 @@ def check(token=None, skip_suggestions=None, **_):
             input_obj = CfyInput(item)
             if not input_obj.name and not input_obj.mapping:
                 continue
-            if input_obj.not_input() and not isinstance(
-                    input_obj.default, bool):
+            if input_obj.not_input() and get_default_type(input_obj) != bool:
                 continue
             ctx['inputs'].update(input_obj.__dict__())
             if input_obj.name not in ctx[UNUSED_INPUTS]:
@@ -143,14 +142,16 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
                             message += 'The correct type could be "int".'
                 if isinstance(input_obj.default, dict) and not suggestions:
                     message += 'The correct type could be "dict".'
-            if isinstance(input_obj.default, str) and not suggestions:
+            if get_default_type(input_obj) == str and not suggestions:
                 message += 'The correct type could be "string".'
-            if isinstance(input_obj.default, bool) and not suggestions:
+            if get_default_type(input_obj) == bool and not suggestions:
                 message += 'The correct type could be "boolean".'
             if isinstance(input_obj.default, list) and not suggestions:
                 message += 'The correct type could be "list".'
-        elif isinstance(input_obj.default, bool) and not suggestions:
-            message += 'The correct type could be "boolean".'
+            if get_default_type(input_obj) == int and not suggestions:
+                message += 'The correct type could be "integer".'
+            if get_default_type(input_obj) == float and not suggestions:
+                message += 'The correct type could be "float".'
         yield LintProblem(line, None, message)
     elif get_type_name(input_obj) not in constants.INPUTS_BY_DSL.get(dsl, []):
         input_type = item[LEVEL1]
@@ -204,9 +205,7 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
                             ' type is "int".'.format(
                                 input_obj.name,
                                 get_type_name(input_obj))
-        if not message and not isinstance(
-                                    input_obj.default,
-                                    get_type(input_obj)):
+        if not (message or get_default_type(input_obj) == get_type(input_obj)):
             message = 'input "{}" specify a type {}, However this'\
                 ' doesn\'t match deafult of type {}.'.format(
                     input_obj.name,
@@ -234,8 +233,36 @@ def get_type(input_obj):
     type_name = get_type_name(input_obj)
     if type_name == 'string':
         return str
+    elif type_name == 'integer':
+        return int
+    elif type_name == 'boolean':
+        return bool
     else:
         return globals().get('__builtins__').get(type_name)
+
+
+def get_default_type(input_obj):
+    default_value = input_obj.default
+    if type(default_value) == str:
+        if default_value.isdigit():
+            result = int
+        elif is_float(default_value):
+            result = float
+        else:
+            result = str
+    elif type(default_value) == bool:
+        result = bool
+    else:
+        result = type(input_obj.default)
+    return result
+
+
+def is_float(string):
+    try:
+        float(string)
+        return True
+    except ValueError:
+        return False
 
 
 class CfyInput(object):
