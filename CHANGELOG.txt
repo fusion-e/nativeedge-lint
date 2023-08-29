@@ -72,3 +72,5 @@
   - Add vSphere plugin depreacted nodes and relationships.
   - Fix bug in identification of input type.
   - Loosen restraint of packaging to be compatible with mgmtworker.
+0.0.33:
+  - Loosen restraint of pyyaml to be compatible with mgmtworker.
