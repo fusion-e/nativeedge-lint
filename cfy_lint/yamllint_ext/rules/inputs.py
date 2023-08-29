@@ -131,7 +131,8 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
     if not input_obj.input_type:
         message = 'input "{}" does not specify a type. '.format(input_obj.name)
         if input_obj.default:
-            if isinstance(check_default_types(input_obj.default), dict):
+            default_type = get_default_type(input_obj)
+            if default_type == dict:
                 for key in input_obj.default.keys():
                     if key in INTRINSIC_FNS:
                         input_obj.default = None
@@ -141,16 +142,16 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
                             message += 'The correct type could be "dict".'
                         if key in INT_INTRINSIC_FNS:
                             message += 'The correct type could be "int".'
-                if isinstance(check_default_types(input_obj.default), dict) and not suggestions:
+                if default_type == dict and not suggestions:
                     message += 'The correct type could be "dict".'
-            if isinstance(check_default_types(input_obj.default), str) and not suggestions:
+            if default_type == str and not suggestions:
                 message += 'The correct type could be "string".'
-            if isinstance(check_default_types(input_obj.default), bool) and not suggestions:
+            if default_type == bool and not suggestions:
                 message += 'The correct type could be "boolean".'
-            if isinstance(check_default_types(input_obj.default), list) and not suggestions:
+            if default_type == list and not suggestions:
                 message += 'The correct type could be "list".'
-        elif isinstance(check_default_types(input_obj.default), bool) and not suggestions:
-            message += 'The correct type could be "boolean".'
+            if default_type == int and not suggestions:
+                message += 'The correct type could be "integer".'
         yield LintProblem(line, None, message)
 
     elif get_type_name(input_obj) not in constants.INPUTS_BY_DSL.get(dsl, []):
@@ -186,15 +187,8 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
                 label=input_obj.display_label, dsl=dsl)
         )
     elif get_type(input_obj) and input_obj.default:
-        print('----------------')
-        print('input name: ',input_obj.name)
-        print('type input_obj: ', get_type(input_obj))
-        print('default: ', input_obj.default)
-        print('check_default_types(input_obj.default): ', check_default_types(input_obj.default))
-        print('----------------')
-
         message = ''
-        if isinstance(check_default_types(input_obj.default), dict):
+        if get_default_type(input_obj) == dict:
             for key in input_obj.default.keys():
                 if key in INTRINSIC_FNS:
                     message = "intrinsic function"
@@ -212,9 +206,7 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
                             ' type is "int".'.format(
                                 input_obj.name,
                                 get_type_name(input_obj))
-        if not message and not isinstance(
-                                    input_obj.default,
-                                    get_type(input_obj)):
+        if not (get_default_type(input_obj) == get_type(input_obj)):
             message = 'input "{}" specify a type {}, However this'\
                 ' doesn\'t match deafult of type {}.'.format(
                     input_obj.name,
@@ -243,19 +235,40 @@ def get_type(input_obj):
     if type_name == 'string':
         return str
     else:
-        return globals().get('__builtins__').get(type_name)
+        return type_name
 
-def check_default_types(default_input):
-    if type(default_input) == str:
-        if default_input.isdigit():
-            result = int
-        elif "." in default_input and all(c.isdigit() or c == "." for c in default_input):
-            result = float
+
+def get_default_type(input_obj):
+    default_value = input_obj.default
+    # Checking the type of the default value
+    if type(default_value) == str:
+        if default_value.isdigit():
+            result = 'integer'
+        elif is_float(default_value):
+            result = 'float'
         else:
             result = str
+    elif type(default_value) == bool:
+        result = 'boolean'
     else:
-        result = type(default_input)
+        result = extract_class_name(str(type(input_obj.default)))
     return result
+
+
+def is_float(string):
+    try:
+        float(string)
+        return True
+    except ValueError:
+        return False
+
+
+def extract_class_name(class_str):
+    start_pos = class_str.find("'") + 1
+    end_pos = class_str.rfind("'")
+    class_name = class_str[start_pos:end_pos]
+    return class_name
+
 
 class CfyInput(object):
     def __init__(self, nodes):
