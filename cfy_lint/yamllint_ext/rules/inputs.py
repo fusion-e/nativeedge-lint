@@ -132,7 +132,7 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
         message = 'input "{}" does not specify a type. '.format(input_obj.name)
         if input_obj.default:
             default_type = get_default_type(input_obj)
-            if default_type == dict:
+            if default_type == 'dict':
                 for key in input_obj.default.keys():
                     if key in INTRINSIC_FNS:
                         input_obj.default = None
@@ -142,18 +142,19 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
                             message += 'The correct type could be "dict".'
                         if key in INT_INTRINSIC_FNS:
                             message += 'The correct type could be "int".'
-                if default_type == dict and not suggestions:
+                if default_type == 'dict' and not suggestions:
                     message += 'The correct type could be "dict".'
             if default_type == str and not suggestions:
                 message += 'The correct type could be "string".'
-            if default_type == bool and not suggestions:
+            if default_type == 'boolean' and not suggestions:
                 message += 'The correct type could be "boolean".'
-            if default_type == list and not suggestions:
+            if default_type == 'list' and not suggestions:
                 message += 'The correct type could be "list".'
-            if default_type == int and not suggestions:
+            if default_type == 'integer' and not suggestions:
                 message += 'The correct type could be "integer".'
+            if default_type == 'float' and not suggestions:
+                message += 'The correct type could be "float".'
         yield LintProblem(line, None, message)
-
     elif get_type_name(input_obj) not in constants.INPUTS_BY_DSL.get(dsl, []):
         input_type = item[LEVEL1]
         yield LintProblem(
@@ -187,8 +188,9 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
                 label=input_obj.display_label, dsl=dsl)
         )
     elif get_type(input_obj) and input_obj.default:
+        print(get_type(input_obj))
         message = ''
-        if get_default_type(input_obj) == dict:
+        if get_default_type(input_obj) == 'dict':
             for key in input_obj.default.keys():
                 if key in INTRINSIC_FNS:
                     message = "intrinsic function"
