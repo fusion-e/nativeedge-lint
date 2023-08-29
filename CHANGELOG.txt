@@ -74,3 +74,4 @@
   - Loosen restraint of packaging to be compatible with mgmtworker.
 0.0.33:
   - Loosen restraint of pyyaml to be compatible with mgmtworker.
+  - support types integer (int) and string (str) and boolean (bool) in the input section.
