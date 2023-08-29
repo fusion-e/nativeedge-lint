@@ -68,8 +68,7 @@ def check(token=None, skip_suggestions=None, **_):
             input_obj = CfyInput(item)
             if not input_obj.name and not input_obj.mapping:
                 continue
-            if input_obj.not_input() and not isinstance(
-                    input_obj.default, bool):
+            if input_obj.not_input() and get_default_type(input_obj) != bool:
                 continue
             ctx['inputs'].update(input_obj.__dict__())
             if input_obj.name not in ctx[UNUSED_INPUTS]:
@@ -188,7 +187,7 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
         )
     elif get_type(input_obj) and input_obj.default:
         message = ''
-        if get_default_type(input_obj) == dict:
+        if isinstance(input_obj.default, dict):
             for key in input_obj.default.keys():
                 if key in INTRINSIC_FNS:
                     message = "intrinsic function"
