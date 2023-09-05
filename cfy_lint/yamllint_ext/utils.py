@@ -675,4 +675,4 @@ def add_severity(problem):
                           'node_templates', 'empty-values']:
         problem.severity = "Severtiy rating 3 - High."
     else:
-        problem.severity = "Severtiy rating -1 - uncategorized severity issue."
+        problem.severity = "Severtiy rating ? - uncategorized."
