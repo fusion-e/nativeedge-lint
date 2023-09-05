@@ -114,9 +114,9 @@ class LintProblem(object):
     @property
     def desc(self):
         if self.fixable:
-            fixablity = " (auto-fix available),"
+            fixablity = " (auto-fix available)"
         else:
-            fixablity = " (auto-fix unavailable),"
+            fixablity = " (auto-fix unavailable)"
         if self.severity:
             return self._desc + fixablity + self.severity
         else:
