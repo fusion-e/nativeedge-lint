@@ -65,7 +65,8 @@ class LintProblem(object):
                  next=None,
                  prev=None,
                  nextnext=None,
-                 fixable=None):
+                 fixable=None,
+                 severity=None):
         #: Line on which the problem was found (starting at 1)
         self._line = line
         #: Column on which the problem was found (starting at 1)
@@ -87,6 +88,7 @@ class LintProblem(object):
         self._fix = False
         self._fixable = fixable
         self._update_line = None
+        self._severity = severity
 
     @property
     def line(self):
@@ -112,9 +114,21 @@ class LintProblem(object):
     @property
     def desc(self):
         if self.fixable:
-            return self._desc + " (auto-fix available)"
+            fixablity = " (auto-fix available)"
         else:
-            return self._desc + " (auto-fix unavailable)"
+            fixablity = " (auto-fix unavailable)"
+        if self.severity:
+            return self._desc + fixablity + self.severity
+        else:
+            return self._desc + fixablity
+
+    @property
+    def severity(self):
+        return self._severity
+
+    @severity.setter
+    def severity(self, value):
+        self._severity = value
 
     @property
     def fixable(self):

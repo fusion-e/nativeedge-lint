@@ -655,3 +655,24 @@ def recurse_get_readable_object(mapping):
         for item in mapping.value:
             new_list.append(recurse_get_readable_object(item))
         return new_list
+
+
+def add_severity(problem):
+    if problem.rule in ['empty-lines', 'colons', 'brackets',
+                        'commas', 'trailing-spaces']:
+        problem.severity = 0
+    elif problem.rule in ['capabilities', 'truthy', 'line-length'] or \
+        (problem.rule == 'inputs' and 'missing a display_label' in
+         problem.message or 'does not specify a type' in problem.message) or \
+            (problem.rule == 'node_templates' and
+                             'does not provide Tags' in problem.message):
+        problem.severity = 1
+    elif problem.rule in ['node_templates', 'indentation',
+                          'relationships'] or \
+            problem.rule == 'inputs' and 'unused' in problem.message:
+        problem.severity = 2
+    elif problem.rule in ['dsl_version', 'inputs',
+                          'node_templates', 'empty-values']:
+        problem.severity = 4
+    else:
+        problem.severity = None
