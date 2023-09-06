@@ -660,7 +660,7 @@ def recurse_get_readable_object(mapping):
 def add_severity(problem):
     if problem.rule in ['empty-lines', 'colons', 'brackets',
                         'commas', 'trailing-spaces']:
-        problem.severity = "Severtiy rating 0 - Aesthetics."
+        problem.severity = 0
     elif problem.rule in ['capabilities', 'truthy', 'line-length'] or \
         (problem.rule == 'inputs' and 'missing a display_label' in
          problem.message or 'does not specify a type' in problem.message) or \
