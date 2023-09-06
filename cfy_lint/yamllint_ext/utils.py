@@ -673,6 +673,6 @@ def add_severity(problem):
         problem.severity = 2
     elif problem.rule in ['dsl_version', 'inputs',
                           'node_templates', 'empty-values']:
-        problem.severity = "Severtiy rating 3 - High."
+        problem.severity = 4
     else:
         problem.severity = "Severtiy rating ? - uncategorized."
