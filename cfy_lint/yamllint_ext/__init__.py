@@ -36,6 +36,7 @@ from cfy_lint.yamllint_ext.utils import (
     setup_types,
     update_model,
     setup_node_templates,
+    add_severity
 )
 from cfy_lint.yamllint_ext.autofix.utils import build_diff_lines
 from cfy_lint.yamllint_ext.autofix import fix_problem
@@ -269,6 +270,10 @@ def _run(buffer,
     sorted_problems = sorted(problems, key=lambda x: x.line)
     add_label = False
     extra_empty_line = False
+    for problem in sorted_problems:
+        if not problem.severity:
+            add_severity(problem)
+
     for problem in sorted_problems:
 
         problem.fixes = fix

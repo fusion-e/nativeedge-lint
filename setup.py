@@ -50,6 +50,6 @@ setup(
         'pyyaml>=5.4.1,<=6.0',
         'yamllint==1.28.0',
         'packaging>=17.1,<=21.3',
-        'networkx>=2.5.1,<=3.1'
+        'networkx>=1.9.1,<=3.1'
     ]
 )
