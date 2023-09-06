@@ -666,7 +666,7 @@ def add_severity(problem):
          problem.message or 'does not specify a type' in problem.message) or \
             (problem.rule == 'node_templates' and
                              'does not provide Tags' in problem.message):
-        problem.severity = "Severtiy rating 1 - Low."
+        problem.severity = 1
     elif problem.rule in ['node_templates', 'indentation',
                           'relationships'] or \
             problem.rule == 'inputs' and 'unused' in problem.message:
