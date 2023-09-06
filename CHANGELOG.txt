@@ -75,3 +75,5 @@
 0.0.33:
   - Loosen restraint of pyyaml to be compatible with mgmtworker.
   - support types integer (int) and string (str) and boolean (bool) in the input section.
+0.0.34:
+  - added severity ratings to lint problems.
