@@ -670,7 +670,7 @@ def add_severity(problem):
     elif problem.rule in ['node_templates', 'indentation',
                           'relationships'] or \
             problem.rule == 'inputs' and 'unused' in problem.message:
-        problem.severity = "Severtiy rating 2 - Medium."
+        problem.severity = 2
     elif problem.rule in ['dsl_version', 'inputs',
                           'node_templates', 'empty-values']:
         problem.severity = "Severtiy rating 3 - High."
