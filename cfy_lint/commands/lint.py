@@ -15,6 +15,7 @@
 
 import io
 import os
+import re
 import sys
 import json
 import urllib
@@ -159,10 +160,19 @@ def create_report_for_file(file_path,
 def formatted_message(item, format=None):
     if format == 'json':
         rule, item_message = item.message.split(':', 1)
+        try:
+            result = re.split(r'available\),\sSeverity:\s', item_message)
+            if len(result) == 2:
+                severity = 2
+            else:
+                raise Exception('Something is up with that line.')
+        except Exception:
+            severity = '0'
         return json.dumps({
             "level": item.level,
             "line": item.line,
             "rule": sub(r"[()]", "", rule),
             "message": item_message,
+            "severity": int(severity),
         })
     return '{0: <4}: {1:>4}'.format(item.line, item.message)
