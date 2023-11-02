@@ -351,12 +351,22 @@ def check_terraform(model, line):
         tflint_config = model.properties.get('tflint_config', {})
         tfsec_config = model.properties.get('tfsec_config', {})
         terratag_config = model.properties.get('terratag_config', {})
-        if tflint_config:
-            yield from check_tflint(model, line)
-        if tfsec_config:
-            yield from check_tfsec(model, line)
         if terratag_config:
             yield from check_terratag(model, line)
+        if not any([tflint_config, tfsec_config]):
+            yield LintProblem(
+                line,
+                None,
+                'cloudify.nodes.terraform.Module type should be used '
+                'with some policy validation product, such as TF Sec, '
+                'or TF Lint.',
+                severity=2
+            )
+        else:
+            if tflint_config:
+                yield from check_tflint(model, line)
+            if tfsec_config:
+                yield from check_tfsec(model, line)
 
 
 def check_tfsec(model, line):
