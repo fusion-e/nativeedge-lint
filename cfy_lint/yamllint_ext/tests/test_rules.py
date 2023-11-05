@@ -360,6 +360,10 @@ def test_terratag():
         assert isinstance(result[2], LintProblem)
         assert "unsupported flag, {}".format(TERRATAG_SUPPORTED_FLAGS) \
                in result[2].message
+        assert isinstance(result[3], LintProblem)
+        assert 'cloudify.nodes.terraform.Module type should ' \
+               'be used with some policy validation product' \
+               in result[3].message
 
 
 def test_prep_cyclic():

@@ -78,3 +78,4 @@
 0.0.34:
   - added severity ratings to lint problems.
   - Loosen restraint of networkx to be compatible with mgmtworker.
+0.0.35: Flag usages of terraform Module without policy validation.

@@ -118,7 +118,8 @@ class LintProblem(object):
         else:
             fixablity = " (auto-fix unavailable)"
         if self.severity:
-            return self._desc + fixablity + self.severity
+            severity_message = ', Severity: {}'.format(self.severity)
+            return self._desc + fixablity + severity_message
         else:
             return self._desc + fixablity
 

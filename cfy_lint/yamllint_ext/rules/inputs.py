@@ -243,14 +243,14 @@ def get_type(input_obj):
 
 def get_default_type(input_obj):
     default_value = input_obj.default
-    if type(default_value) == str:
+    if type(default_value) == str:  # noqa: E721
         if default_value.isdigit():
             result = int
         elif is_float(default_value):
             result = float
         else:
             result = str
-    elif type(default_value) == bool:
+    elif type(default_value) == bool:  # noqa: E721
         result = bool
     else:
         result = type(input_obj.default)
