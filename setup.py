@@ -15,6 +15,7 @@
 
 import os
 import re
+import sys
 import pathlib
 from setuptools import (setup, find_packages)
 
@@ -28,6 +29,17 @@ def get_version():
         var = outfile.read()
         return re.search(r'\d+.\d+.\d+', var).group()
 
+
+install_requires = [
+    'click>8,<9',
+    'pyyaml>=5.4.1,<=6.0',
+    'yamllint==1.28.0',
+    'packaging>=17.1,<=21.3',
+]
+if sys.version_info.major == 3 and sys.version_info.minor == 6:
+    install_requires += ['networkx>=1.9.1,<=3.1']
+else:
+    install_requires += ['networkx>=3.2.1']
 
 setup(
     name='cfy-lint',
@@ -45,11 +57,5 @@ setup(
             'yamllint_ext/cloudify/__cfylint_runtime_cache/README.md',
         ]
     },
-    install_requires=[
-        'click>8,<9',
-        'pyyaml>=5.4.1,<=6.0',
-        'yamllint==1.28.0',
-        'packaging>=17.1,<=21.3',
-        'networkx>=1.9.1,<=3.1'
-    ]
+    install_requires=install_requires
 )
