@@ -32,14 +32,21 @@ def get_version():
 
 install_requires = [
     'click>8,<9',
-    'pyyaml>=5.4.1',
     'yamllint==1.28.0',
     'packaging>=17.1,<=21.3',
 ]
+
 if sys.version_info.major == 3 and sys.version_info.minor == 6:
-    install_requires += ['networkx>=1.9.1,<=3.1']
+    install_requires += [
+        'pyyaml>=5.4.1',
+        'networkx>=1.9.1,<=3.1'
+    ]
 else:
-    install_requires += ['networkx>=3.2.1']
+    install_requires += [
+        'pyyaml>=6.0.1',
+        'networkx>=3.2.1'
+    ]
+
 
 setup(
     name='cfy-lint',
