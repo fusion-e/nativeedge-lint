@@ -80,3 +80,4 @@
   - Loosen restraint of networkx to be compatible with mgmtworker.
 0.0.35: Flag usages of terraform Module without policy validation.
 0.0.36: Retag networkx.
+0.0.37: Upgrade PyYaml.
