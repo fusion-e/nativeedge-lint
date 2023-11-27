@@ -32,7 +32,7 @@ def get_version():
 
 install_requires = [
     'click>8,<9',
-    'pyyaml>=5.4.1,<=6.0',
+    'pyyaml>=5.4.1',
     'yamllint==1.28.0',
     'packaging>=17.1,<=21.3',
 ]
