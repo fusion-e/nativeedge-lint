@@ -1,11 +1,11 @@
 # Copyright © 2023 Dell Inc. or its subsidiaries. All Rights Reserved.
 
 import yaml
-from cfy_lint.yamllint_ext import LintProblem
+from ne_lint.yamllint_ext import LintProblem
 
-from cfy_lint.yamllint_ext.rules import constants
-from cfy_lint.yamllint_ext.generators import CfyNode
-from cfy_lint.yamllint_ext.utils import (
+from ne_lint.yamllint_ext.rules import constants
+from ne_lint.yamllint_ext.generators import NENode
+from ne_lint.yamllint_ext.utils import (
     process_relevant_tokens,
     recurse_get_readable_object
 )
@@ -20,10 +20,10 @@ LIFECYCLE_OPS = {'preconfigure', 'postconfigure', 'establish', 'unlink'}
 OP_KEYS = {'implementation', 'inputs'}
 
 
-@process_relevant_tokens(CfyNode, 'relationships')
+@process_relevant_tokens(NENode, 'relationships')
 def check(token=None, **_):
     # raise Exception(token.node)
-    relationship_type = CfyRelationshipType(token.node)
+    relationship_type = NERelationshipType(token.node)
     if relationship_type.malformed_relationship:
         yield from relationships_not_list(token.node, token.line)
     if relationship_type.is_relationship_type:
@@ -134,7 +134,7 @@ def relationship_target_not_exist(token, target, line):
         )
 
 
-class CfyRelationshipType(object):
+class NERelationshipType(object):
 
     def __init__(self, node):
         self._node = node
@@ -168,17 +168,17 @@ class CfyRelationshipType(object):
 
     @property
     def interfaces(self):
-        return [CfyRelationshipInterface(self.source_interfaces),
-                CfyRelationshipInterface(self.target_interfaces)]
+        return [NERelationshipInterface(self.source_interfaces),
+                NERelationshipInterface(self.target_interfaces)]
 
 
-class CfyRelationshipInterfaces(object):
+class NERelationshipInterfaces(object):
     def __init__(self, source, target):
-        self.source = CfyRelationshipInterface(source)
-        self.target = CfyRelationshipInterface(target)
+        self.source = NERelationshipInterface(source)
+        self.target = NERelationshipInterface(target)
 
 
-class CfyRelationshipInterface(object):
+class NERelationshipInterface(object):
 
     def __init__(self, data):
         self._data = data or {}

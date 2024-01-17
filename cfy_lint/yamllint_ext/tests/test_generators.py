@@ -25,7 +25,7 @@ def test_token_or_comment_or_line_generator():
             continue
         assert isinstance(
             item,
-            (generators.CfyNode, generators.CfyToken, yamllint.parser.Line))
+            (generators.NENode, generators.NEToken, yamllint.parser.Line))
 
 
 def test_generate_nodes_recursively():

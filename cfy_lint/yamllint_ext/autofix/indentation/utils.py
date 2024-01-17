@@ -4,7 +4,7 @@ import re
 import yaml
 from io import StringIO
 
-from cfy_lint.yamllint_ext.autofix.indentation.constants import (
+from ne_lint.yamllint_ext.autofix.indentation.constants import (
     INSTRINSIC_FUNCTIONS
 )
 

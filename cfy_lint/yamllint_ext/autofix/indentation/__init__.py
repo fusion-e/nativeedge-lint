@@ -2,8 +2,8 @@
 
 import sys
 
-from cfy_lint.yamllint_ext.autofix.utils import filelines
-from cfy_lint.yamllint_ext.autofix.indentation.utils import (
+from ne_lint.yamllint_ext.autofix.utils import filelines
+from ne_lint.yamllint_ext.autofix.indentation.utils import (
     get_yaml_dict,
     get_file_content,
     filter_corrections,

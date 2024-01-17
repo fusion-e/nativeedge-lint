@@ -1,9 +1,9 @@
 # Copyright © 2023 Dell Inc. or its subsidiaries. All Rights Reserved.
 
-from cfy_lint.yamllint_ext import LintProblem
+from ne_lint.yamllint_ext import LintProblem
 
-from cfy_lint.yamllint_ext.generators import CfyNode
-from cfy_lint.yamllint_ext.utils import process_relevant_tokens, context
+from ne_lint.yamllint_ext.generators import NENode
+from ne_lint.yamllint_ext.utils import process_relevant_tokens, context
 
 VALUES = []
 
@@ -25,7 +25,7 @@ INVALID_3_1 = [
 ]
 
 
-@process_relevant_tokens(CfyNode, ['tosca_definitions_version', 'type'])
+@process_relevant_tokens(NENode, ['tosca_definitions_version', 'type'])
 def check(token=None, **_):
     if token.prev and token.prev.node.value == 'tosca_definitions_version':
         context['dsl_version'] = token.node.value

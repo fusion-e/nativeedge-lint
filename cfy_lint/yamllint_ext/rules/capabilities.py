@@ -2,11 +2,13 @@
 
 import yaml
 
-from cfy_lint.yamllint_ext import LintProblem
-from cfy_lint.yamllint_ext.generators import CfyNode
-from cfy_lint.yamllint_ext.utils import (process_relevant_tokens,
-                                         recurse_mapping,
-                                         context as ctx)
+from ne_lint.yamllint_ext import LintProblem
+from ne_lint.yamllint_ext.generators import NENode
+from ne_lint.yamllint_ext.utils import (
+    process_relevant_tokens,
+    recurse_mapping,
+    context as ctx
+)
 
 VALUES = []
 
@@ -16,20 +18,20 @@ CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
 
-@process_relevant_tokens(CfyNode, ['outputs', 'capabilities'])
+@process_relevant_tokens(NENode, ['outputs', 'capabilities'])
 def check(token=None, **_):
     for item in token.node.value:
         if token.prev.node.value == 'outputs':
-            output_obj = CfyOutput(item)
+            output_obj = NEOutput(item)
             if not output_obj.name and not output_obj.mapping:
                 continue
         elif token.prev.node.value == 'capabilities':
-            output_obj = CfyCapability(item)
+            output_obj = NECapability(item)
             if not output_obj.name and not output_obj.mapping:
                 continue
         if output_obj.not_output():
             continue
-        if isinstance(output_obj, CfyOutput):
+        if isinstance(output_obj, NEOutput):
             ctx['outputs'].update(output_obj.__dict__())
         else:
             ctx['capabilities'].update(output_obj.__dict__())
@@ -49,7 +51,7 @@ def check(token=None, **_):
             )
 
 
-class CfyOutput(object):
+class NEOutput(object):
     def __init__(self, nodes):
         self.name, self.mapping = self.get_name_mapping(nodes)
         if self.name and self.mapping:
@@ -71,7 +73,7 @@ class CfyOutput(object):
         }
 
 
-class CfyCapability(CfyOutput):
+class NECapability(NEOutput):
 
     def get_name_mapping(self, nodes):
         return get_capability(nodes)

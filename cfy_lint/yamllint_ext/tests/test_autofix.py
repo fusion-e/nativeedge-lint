@@ -4,18 +4,18 @@ import os
 from mock import Mock
 from tempfile import NamedTemporaryFile
 
-from cfy_lint.cli import FixParamValue
-from cfy_lint.yamllint_ext import autofix
-from cfy_lint.yamllint_ext.autofix import colons
-from cfy_lint.yamllint_ext.autofix import commas
-from cfy_lint.yamllint_ext.autofix import brackets
-from cfy_lint.yamllint_ext.autofix import add_label
-from cfy_lint.yamllint_ext.autofix import indentation
-from cfy_lint.yamllint_ext.autofix import empty_lines
-from cfy_lint.yamllint_ext.overrides import LintProblem
-from cfy_lint.yamllint_ext.autofix import trailing_spaces
-from cfy_lint.yamllint_ext.autofix import deprecated_node_types
-from cfy_lint.yamllint_ext.autofix import deprecated_relationships
+from ne_lint.cli import FixParamValue
+from ne_lint.yamllint_ext import autofix
+from ne_lint.yamllint_ext.autofix import colons
+from ne_lint.yamllint_ext.autofix import commas
+from ne_lint.yamllint_ext.autofix import brackets
+from ne_lint.yamllint_ext.autofix import add_label
+from ne_lint.yamllint_ext.autofix import indentation
+from ne_lint.yamllint_ext.autofix import empty_lines
+from ne_lint.yamllint_ext.overrides import LintProblem
+from ne_lint.yamllint_ext.autofix import trailing_spaces
+from ne_lint.yamllint_ext.autofix import deprecated_node_types
+from ne_lint.yamllint_ext.autofix import deprecated_relationships
 
 
 def test_indentation_autofix():

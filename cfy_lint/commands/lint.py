@@ -9,14 +9,14 @@ import urllib
 from re import sub
 from logging import (Formatter, StreamHandler)
 
-from cfy_lint import cli, __version__
-from cfy_lint.yamllint_ext import LintProblem
-from cfy_lint.yamllint_ext import (run, rules)
-from cfy_lint.logger import logger, stream_handler
-from cfy_lint.yamllint_ext.autofix import fix_problem
-from cfy_lint.yamllint_ext.config import YamlLintConfigExt
-from cfy_lint.yamllint_ext.autofix.add_label import fix_add_label
-from cfy_lint.yamllint_ext.autofix.empty_lines import fix_empty_lines
+from ne_lint import cli, __version__
+from ne_lint.yamllint_ext import LintProblem
+from ne_lint.yamllint_ext import (run, rules)
+from ne_lint.logger import logger, stream_handler
+from ne_lint.yamllint_ext.autofix import fix_problem
+from ne_lint.yamllint_ext.config import YamlLintConfigExt
+from ne_lint.yamllint_ext.autofix.add_label import fix_add_label
+from ne_lint.yamllint_ext.autofix.empty_lines import fix_empty_lines
 
 
 def report_both_fix_autofix(af, f):

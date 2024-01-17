@@ -8,7 +8,7 @@ from yamllint.parser import (
     comments_between_tokens)
 
 
-class CfyToken(Token):
+class NEToken(Token):
     def __init__(self,
                  line_no,
                  curr,
@@ -26,7 +26,7 @@ class CfyToken(Token):
 
     @staticmethod
     def from_token(token):
-        return CfyToken(token.line_no,
+        return NEToken(token.line_no,
                         token.curr,
                         token.prev,
                         token.next,
@@ -49,12 +49,12 @@ class CfyToken(Token):
         self._blueprint_file = value
 
 
-class CfyNode(object):
+class NENode(object):
 
     def __init__(self, node, prev=None):
         """
         :param node: yaml.nodes.Node
-        :param cfy_token: CfyToken from current or previous loop.
+        :param ne_token: NEToken from current or previous loop.
         """
         self.node = node
         self._prev = prev
@@ -148,7 +148,7 @@ def token_or_comment_generator(buffer):
             nextnext = (yaml_loader.peek_token()
                         if yaml_loader.check_token() else None)
 
-            yield CfyToken(
+            yield NEToken(
                 curr.start_mark.line + 1, curr, prev, next, nextnext, stack)
 
             for comment in comments_between_tokens(curr, next):
@@ -178,7 +178,7 @@ def token_or_comment_or_line_generator(buffer):
     tok_or_com = next(tok_or_com_gen, None)
     line = next(line_gen, None)
     try:
-        node = CfyNode(next(node_gen, None))
+        node = NENode(next(node_gen, None))
     except yaml.parser.ParserError as e:
         start_line = e.context_mark.line
         end_line = e.problem_mark.line
@@ -202,7 +202,7 @@ def token_or_comment_or_line_generator(buffer):
             # while token_in_node(node, tok_or_com.line_no) is False:
             #     # We want to find a node that the token is contained in.
             #     node = next(node_gen, None)
-            # if node and isinstance(tok_or_com, CfyToken):
+            # if node and isinstance(tok_or_com, NEToken):
             #     tok_or_com.node = node
             yield tok_or_com
             tok_or_com = next(tok_or_com_gen, None)
@@ -210,7 +210,7 @@ def token_or_comment_or_line_generator(buffer):
             yield node
             prev_prev_node = prev_node
             prev_node = node
-            node = CfyNode(next(node_gen, None), prev_node)
+            node = NENode(next(node_gen, None), prev_node)
             node.prev_prev = prev_prev_node
 
 

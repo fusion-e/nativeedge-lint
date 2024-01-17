@@ -1,7 +1,7 @@
 # Copyright © 2023 Dell Inc. or its subsidiaries. All Rights Reserved.
 
 import click
-from cfy_lint import helptexts
+from ne_lint import helptexts
 
 CLICK_CONTEXT_SETTINGS = dict(
     help_option_names=['-h', '--help'])

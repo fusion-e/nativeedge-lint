@@ -2,7 +2,7 @@
 
 import re
 
-from cfy_lint.yamllint_ext.autofix.utils import filelines
+from ne_lint.yamllint_ext.autofix.utils import filelines
 
 
 def fix_spaces_in_brackets(problem):

@@ -6,10 +6,10 @@ import yaml
 from packaging import version
 from urllib.parse import urlparse
 
-from cfy_lint.yamllint_ext import LintProblem
+from ne_lint.yamllint_ext import LintProblem
 
-from cfy_lint.yamllint_ext.generators import CfyNode
-from cfy_lint.yamllint_ext.utils import (
+from ne_lint.yamllint_ext.generators import NENode
+from ne_lint.yamllint_ext.utils import (
     context as ctx,
     process_relevant_tokens
 )
@@ -22,7 +22,7 @@ CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
 
-@process_relevant_tokens(CfyNode, 'imports')
+@process_relevant_tokens(NENode, 'imports')
 def check(token=None, **_):
     for import_item in token.node.value:
         yield from validate_string(import_item, token.line)

@@ -1,6 +1,6 @@
 # Copyright © 2023 Dell Inc. or its subsidiaries. All Rights Reserved.
 
-from cfy_lint.yamllint_ext.overrides import LintProblem
+from ne_lint.yamllint_ext.overrides import LintProblem
 
 
 def test_lint_problem_severity():

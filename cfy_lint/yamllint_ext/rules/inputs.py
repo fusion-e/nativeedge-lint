@@ -2,11 +2,11 @@
 
 import yaml
 
-from cfy_lint.yamllint_ext import LintProblem
-from cfy_lint.yamllint_ext.rules import constants
-from cfy_lint.yamllint_ext.generators import CfyNode
-from cfy_lint.yamllint_ext.constants import UNUSED_INPUTS
-from cfy_lint.yamllint_ext.utils import (
+from ne_lint.yamllint_ext import LintProblem
+from ne_lint.yamllint_ext.rules import constants
+from ne_lint.yamllint_ext.generators import NENode
+from ne_lint.yamllint_ext.constants import UNUSED_INPUTS
+from ne_lint.yamllint_ext.utils import (
     INTRINSIC_FNS,
     recurse_mapping,
     context as ctx, process_relevant_tokens)
@@ -42,7 +42,7 @@ LEVEL0 = 0
 LEVEL1 = 1
 
 
-@process_relevant_tokens(CfyNode, ['inputs', 'get_input'])
+@process_relevant_tokens(NENode, ['inputs', 'get_input'])
 def check(token=None, skip_suggestions=None, **_):
     if token.prev.node.value == 'inputs':
         for item in token.node.value:
@@ -52,7 +52,7 @@ def check(token=None, skip_suggestions=None, **_):
                     None,
                     'Bad inputs format. '
                     'Input should be a key not a list item.')
-            input_obj = CfyInput(item)
+            input_obj = NEInput(item)
             if not input_obj.name and not input_obj.mapping:
                 continue
             if input_obj.not_input() and get_default_type(input_obj) != bool:
@@ -252,7 +252,7 @@ def is_float(string):
         return False
 
 
-class CfyInput(object):
+class NEInput(object):
     def __init__(self, nodes):
         self._line = None
         self.name, self.mapping = self.get_input(nodes)

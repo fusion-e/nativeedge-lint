@@ -4,33 +4,33 @@ import os
 import re
 
 from yamllint import parser
-from cfy_lint.yamllint_ext.constants import (
+from ne_lint.yamllint_ext.constants import (
     UNUSED_INPUTS, UNUSED_IMPORT_CTX)
-from cfy_lint.yamllint_ext.generators import (
-    CfyNode,
-    CfyToken,
+from ne_lint.yamllint_ext.generators import (
+    NENode,
+    NEToken,
     YamlParserLintProblem,
     token_or_comment_or_line_generator,
 )
-from cfy_lint.yamllint_ext.overrides import (
+from ne_lint.yamllint_ext.overrides import (
     LintProblem,
     spaces_after,
     spaces_before,
     get_syntax_error
 )
-from cfy_lint.yamllint_ext.utils import (
+from ne_lint.yamllint_ext.utils import (
     context,
     setup_types,
     update_model,
     setup_node_templates,
     add_severity
 )
-from cfy_lint.yamllint_ext.autofix.utils import build_diff_lines
-from cfy_lint.yamllint_ext.autofix import fix_problem
-from cfy_lint.yamllint_ext.rules.inputs import ID as input_rule
-from cfy_lint.yamllint_ext.rules.imports import ID as import_rule
-from cfy_lint.yamllint_ext.autofix.add_label import fix_add_label
-from cfy_lint.yamllint_ext.autofix.empty_lines import fix_empty_lines
+from ne_lint.yamllint_ext.autofix.utils import build_diff_lines
+from ne_lint.yamllint_ext.autofix import fix_problem
+from ne_lint.yamllint_ext.rules.inputs import ID as input_rule
+from ne_lint.yamllint_ext.rules.imports import ID as import_rule
+from ne_lint.yamllint_ext.autofix.add_label import fix_add_label
+from ne_lint.yamllint_ext.autofix.empty_lines import fix_empty_lines
 
 PROBLEM_LEVELS = {
     0: None,
@@ -122,7 +122,7 @@ def get_cosmetic_problems(buffer,
         if isinstance(elem, YamlParserLintProblem):
             yield LintProblem(elem.line, elem. column, elem.desc)
 
-        if isinstance(elem, CfyNode):
+        if isinstance(elem, NENode):
             setup_node_templates(elem)
             for rule in token_rules:
                 rule_conf = conf.rules[rule.ID]
@@ -142,7 +142,7 @@ def get_cosmetic_problems(buffer,
                         problem.level = rule_conf['level']
                         cache.append(problem)
 
-        elif isinstance(elem, CfyToken):
+        elif isinstance(elem, NEToken):
             update_model(elem)
             for rule in token_rules:
                 if hasattr(rule, 'LintProblem'):

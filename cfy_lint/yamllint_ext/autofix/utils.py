@@ -1,6 +1,6 @@
 # Copyright © 2023 Dell Inc. or its subsidiaries. All Rights Reserved.
 
-from cfy_lint.yamllint_ext.utils import context
+from ne_lint.yamllint_ext.utils import context
 from contextlib import contextmanager
 
 

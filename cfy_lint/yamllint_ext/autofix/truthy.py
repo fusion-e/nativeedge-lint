@@ -1,7 +1,7 @@
 # Copyright © 2023 Dell Inc. or its subsidiaries. All Rights Reserved.
 
-from cfy_lint.logger import logger
-from cfy_lint.yamllint_ext.autofix.utils import filelines, get_eol
+from ne_lint.logger import logger
+from ne_lint.yamllint_ext.autofix.utils import filelines, get_eol
 
 TRUE_PATTERN = 'TRUE'
 FALSE_PATTERN = 'FALSE'

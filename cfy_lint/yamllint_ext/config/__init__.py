@@ -1,13 +1,13 @@
 # Copyright © 2023 Dell Inc. or its subsidiaries. All Rights Reserved.
 
 import yamllint.rules
-from cfy_lint.yamllint_ext.utils import update_dict_values_recursive
+from ne_lint.yamllint_ext.utils import update_dict_values_recursive
 from yamllint.config import YamlLintConfig
 from yamllint.config import (
     validate_rule_conf,
     YamlLintConfigError)
 
-from cfy_lint.yamllint_ext.config.constants import \
+from ne_lint.yamllint_ext.config.constants import \
     DEFAULT_CLOUDIFY_YAMLLINT_CONFIG
 
 

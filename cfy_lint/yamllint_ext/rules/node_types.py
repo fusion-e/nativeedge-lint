@@ -1,15 +1,15 @@
 # Copyright © 2023 Dell Inc. or its subsidiaries. All Rights Reserved.
 
-from cfy_lint.yamllint_ext import LintProblem
-from cfy_lint.yamllint_ext.rules import constants
-from cfy_lint.yamllint_ext.generators import CfyNode
-from cfy_lint.yamllint_ext.utils import (
+from ne_lint.yamllint_ext import LintProblem
+from ne_lint.yamllint_ext.rules import constants
+from ne_lint.yamllint_ext.generators import NENode
+from ne_lint.yamllint_ext.utils import (
     process_relevant_tokens,
     check_node_imported,
     recurse_get_readable_object,
     context as ctx
     )
-from cfy_lint.yamllint_ext.rules.node_templates import (
+from ne_lint.yamllint_ext.rules.node_templates import (
     remove_node_type_from_context
 )
 
@@ -21,7 +21,7 @@ CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
 
-@process_relevant_tokens(CfyNode, 'node_types')
+@process_relevant_tokens(NENode, 'node_types')
 def check(token=None, skip_suggestions=None, **_):
     for node_type in token.node.value:
         types = get_type_and_check_dsl(node_type)

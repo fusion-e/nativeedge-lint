@@ -14,8 +14,8 @@ from packaging.version import parse as version_parse
 
 from yamllint.config import YamlLintConfigError
 
-from cfy_lint.yamllint_ext.cloudify.models import NodeTemplate
-from cfy_lint.yamllint_ext.constants import (
+from ne_lint.yamllint_ext.cloudify.models import NodeTemplate
+from ne_lint.yamllint_ext.constants import (
     UNUSED_IMPORT,
     UNUSED_INPUTS,
     DEFAULT_TYPES,

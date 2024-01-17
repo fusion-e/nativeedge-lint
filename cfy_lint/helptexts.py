@@ -8,7 +8,7 @@ bp = """Path to the blueprint file that you want to lint."""
 
 c = """A path to your own yamllint config file."""
 
-f = """Toggle the cfy-lint output format. Currently default or "-f json"."""
+f = """Toggle the ne-lint output format. Currently default or "-f json"."""
 
 fix = """Fix a single issue in place.
 The format is key=value, where key is issue type and value is line number,

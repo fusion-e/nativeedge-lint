@@ -2,7 +2,7 @@
 
 import re
 
-from cfy_lint.yamllint_ext.autofix.utils import filelines, get_eol
+from ne_lint.yamllint_ext.autofix.utils import filelines, get_eol
 
 
 def fix_colons(problem):

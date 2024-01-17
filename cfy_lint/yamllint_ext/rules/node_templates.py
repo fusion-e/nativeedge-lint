@@ -3,15 +3,15 @@
 import re
 import networkx as nx
 
-from cfy_lint.yamllint_ext import LintProblem
-from cfy_lint.yamllint_ext.generators import CfyNode
-from cfy_lint.yamllint_ext.constants import UNUSED_IMPORT_CTX
-from cfy_lint.yamllint_ext.utils import (recurse_get_readable_object,
-                                         process_relevant_tokens,
-                                         INTRINSIC_FNS,
-                                         context as ctx,
-                                         find_values_by_key)
-from cfy_lint.yamllint_ext.rules.constants import (
+from ne_lint.yamllint_ext import LintProblem
+from ne_lint.yamllint_ext.generators import NENode
+from ne_lint.yamllint_ext.constants import UNUSED_IMPORT_CTX
+from ne_lint.yamllint_ext.utils import (recurse_get_readable_object,
+                                        process_relevant_tokens,
+                                        INTRINSIC_FNS,
+                                        context as ctx,
+                                        find_values_by_key)
+from ne_lint.yamllint_ext.rules.constants import (
     GCP_TYPES,
     AWS_TYPES,
     AZURE_TYPES,
@@ -45,7 +45,7 @@ DEFAULT = {
 }
 
 
-@process_relevant_tokens(CfyNode, 'node_templates')
+@process_relevant_tokens(NENode, 'node_templates')
 def check(token=None, context=None, node_types=None, **_):
     line_index = {}
     edges = []
