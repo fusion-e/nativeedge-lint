@@ -59,6 +59,7 @@ def node_type_follows_naming_conventions(value, line, skip_suggestions=None):
     suggestions = 'node_templates' in skip_suggestions
     split_node_type = value.split('.')
     last_key = split_node_type.pop()
+    # TODO: This will need to be nativeedge.
     if not {'cloudify', 'nodes'} <= set(split_node_type):
         yield LintProblem(
             line,

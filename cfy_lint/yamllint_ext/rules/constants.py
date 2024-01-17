@@ -2,6 +2,7 @@
 
 import yaml
 
+# TODO: Determine if we warn Cloudify node types.
 deprecated_node_types = {
     'cloudify.azure.nodes.resources.Azure':
         'cloudify.nodes.azure.resources.Azure',

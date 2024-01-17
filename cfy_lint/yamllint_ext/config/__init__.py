@@ -8,16 +8,16 @@ from yamllint.config import (
     YamlLintConfigError)
 
 from ne_lint.yamllint_ext.config.constants import \
-    DEFAULT_CLOUDIFY_YAMLLINT_CONFIG
+    DEFAULT_YAMLLINT_CONFIG
 
 
 class YamlLintConfigExt(YamlLintConfig):
     def __init__(self, content=None, file=None, yamllint_rules=None):
         if content:
             update_dict_values_recursive(
-                DEFAULT_CLOUDIFY_YAMLLINT_CONFIG, content)
+                DEFAULT_YAMLLINT_CONFIG, content)
         self._yamllint_rules = yamllint_rules or yamllint.rules
-        super().__init__(DEFAULT_CLOUDIFY_YAMLLINT_CONFIG, file)
+        super().__init__(DEFAULT_YAMLLINT_CONFIG, file)
 
     @property
     def yamllint_rules(self):

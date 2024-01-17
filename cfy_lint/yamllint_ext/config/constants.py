@@ -1,6 +1,6 @@
 # Copyright © 2023 Dell Inc. or its subsidiaries. All Rights Reserved.
 
-DEFAULT_CLOUDIFY_YAMLLINT_CONFIG = """
+DEFAULT_YAMLLINT_CONFIG = """
 extends: default
 
 rules:

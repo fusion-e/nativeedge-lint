@@ -35,6 +35,7 @@ def validate_import_items(item, token):
     url = urlparse(item.value)
     if url.scheme not in ['http', 'https', 'plugin']:
         if not url.scheme and url.path.split('/')[-1].endswith('.yaml'):
+            # TODO: Do we need to be backward compatible here?
             if url.path != 'cloudify/types/types.yaml':
                 import_path = os.path.join(token.blueprint_path, url.path)
                 if not os.path.exists(import_path):
@@ -50,6 +51,7 @@ def validate_import_items(item, token):
                 None,
                 'invalid import. {} scheme not accepted'.format(url.scheme)
             )
+    # TODO: Do we need to check cloudify*
     if url.scheme in ['plugin'] and url.path in ['cloudify-openstack-plugin']:
         yield from check_openstack_plugin_version(url, token.line)
     elif url.scheme in ['https', 'https'] and not url.path.endswith('.yaml'):
@@ -77,9 +79,10 @@ def check_openstack_plugin_version(url, line):
             if version.parse(only_version[0]) >= version.parse('3.0.0') and \
                     "<=" not in str_version:
                 return
+        # TODO: Should we link to Cloudify docs?
         yield LintProblem(
             line, None,
-            'Cloudify Openstack Plugin version {} is deprecated.'
+            'The Openstack Plugin version {} is deprecated.'
             ' Please update to Openstack version 3 or higher. '
             'Below are suggested node type changes.'
             ' For more information on conversion to Openstack Plugin v3, '

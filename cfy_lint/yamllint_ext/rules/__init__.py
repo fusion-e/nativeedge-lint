@@ -12,7 +12,7 @@ from . import node_templates
 from . import dsl_definitions
 from . import blueprint_labels
 
-_CLOUDIFY_RULES = {
+_RULES = {
     inputs.ID: inputs,
     imports.ID: imports,
     node_types.ID: node_types,
@@ -23,7 +23,7 @@ _CLOUDIFY_RULES = {
     dsl_definitions.ID: dsl_definitions,
     blueprint_labels.ID: blueprint_labels
 }
-ruleset.update(_CLOUDIFY_RULES)
+ruleset.update(_RULES)
 
 
 def get(_id):

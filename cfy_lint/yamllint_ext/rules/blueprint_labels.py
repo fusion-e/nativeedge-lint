@@ -1,8 +1,8 @@
 # Copyright © 2023 Dell Inc. or its subsidiaries. All Rights Reserved.
 
-from cfy_lint.yamllint_ext import LintProblem
-from cfy_lint.yamllint_ext.generators import NENode
-from cfy_lint.yamllint_ext.utils import (
+from ne_lint.yamllint_ext import LintProblem
+from ne_lint.yamllint_ext.generators import NENode
+from ne_lint.yamllint_ext.utils import (
     process_relevant_tokens,
     recurse_get_readable_object,
     context as ctx
@@ -21,6 +21,7 @@ LEVEL1 = 1
 @process_relevant_tokens(NENode, ['blueprint_labels', 'blueprint-labels'])
 def check(token=None, **_):
     dsl = ctx.get("dsl_version")
+    # TODO: Determine if we lint Cloudify versions.
     if dsl == 'cloudify_dsl_1_3':
         yield LintProblem(
             token.prev.line,

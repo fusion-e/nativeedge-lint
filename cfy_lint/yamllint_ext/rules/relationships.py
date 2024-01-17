@@ -185,10 +185,12 @@ class NERelationshipInterface(object):
 
     @property
     def lifecycle(self):
+        # TODO: This will need to be nativeedge.
         return self._data.get('cloudify.interfaces.relationship_lifecycle')
 
 
 def check_relationship_types(relationship_type, line):
+    # TODO: This will need to be nativeedge.
     if not relationship_type.name.startswith('cloudify.relationships.'):
         yield LintProblem(
             line,
@@ -202,6 +204,7 @@ def check_relationship_types(relationship_type, line):
             keys = interface.lifecycle.keys()
             if not set(keys).issubset(LIFECYCLE_OPS):
                 unexpected = set(keys) - LIFECYCLE_OPS
+                # TODO: This will need to be nativeedge.
                 yield LintProblem(
                     line,
                     None,

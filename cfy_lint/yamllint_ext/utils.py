@@ -14,7 +14,7 @@ from packaging.version import parse as version_parse
 
 from yamllint.config import YamlLintConfigError
 
-from ne_lint.yamllint_ext.cloudify.models import NodeTemplate
+from ne_lint.yamllint_ext.nativeedge.models import NodeTemplate
 from ne_lint.yamllint_ext.constants import (
     UNUSED_IMPORT,
     UNUSED_INPUTS,
@@ -82,7 +82,7 @@ def assign_nested_node_template_level(elem):
 
 
 def update_model(_elem):
-    """Tracking a Cloudify Model inside YAMLLINT context.
+    """Tracking a Model inside YAMLLINT context.
 
     :param _elem:
     :return:
@@ -140,6 +140,7 @@ def get_json_from_marketplace(url):
 
 
 def get_plugin_id_from_marketplace(plugin_name):
+    # TODO: Update marketplace URL.
     url_plugin_id = 'https://marketplace.cloudify.co/plugins?name={}'.format(
         plugin_name)
     json_resp = get_json_from_marketplace(url_plugin_id)
@@ -149,6 +150,7 @@ def get_plugin_id_from_marketplace(plugin_name):
 
 
 def get_plugin_versions_from_marketplace(plugin_id):
+    # TODO: Update marketplace URL.
     url_plugin_version = 'https://marketplace.cloudify.co/' \
                          'plugins/{}/versions?'.format(plugin_id)
     json_resp = get_json_from_marketplace(url_plugin_version)
@@ -159,6 +161,7 @@ def get_plugin_versions_from_marketplace(plugin_id):
 
 
 def get_plugin_release_spec_from_marketplace(plugin_id, plugin_version):
+    # TODO: Update marketplace URL.
     release_url = 'https://marketplace.cloudify.co/plugins/{}/{}'.format(
         plugin_id, plugin_version)
     return get_json_from_marketplace(release_url)
@@ -274,6 +277,7 @@ def get_node_types_for_plugin_version(plugin_name, plugin_version):
 
     node_types = {}
     offset = 0
+    # TODO: Update marketplace URL.
     url = 'https://marketplace.cloudify.co/node-types?' \
           '&plugin_name={}' \
           '&plugin_version={}' \
@@ -295,13 +299,14 @@ def get_node_types_for_plugin_version(plugin_name, plugin_version):
     return node_types
 
 
-def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
+def import_dsl_yaml(import_item, base_path=None, cache_ttl=None):
     cache_ttl = cache_ttl or 86400
     cache_item = re.sub('[^0-9a-zA-Z]+', '_', import_item)
     current_dir = pathlib.Path(__file__).parent.resolve()
+    # TODO: Update marketplace URL.
     cache_dir = pathlib.Path(os.path.join(
         current_dir,
-        'cloudify/__cfylint_runtime_cache')).resolve()
+        'nativeedge/__nelint_runtime_cache')).resolve()
     cache_dir
     if not cache_dir.exists():
         os.makedirs(cache_dir.absolute())
@@ -349,6 +354,7 @@ def import_cloudify_yaml(import_item, base_path=None, cache_ttl=None):
             result = yaml.safe_load(infile)
             with open(cache_item_path.absolute(), 'w') as jsonfile:
                 json.dump(result, jsonfile)
+    # TODO: Replace with nativeedge.
     elif import_item == 'cloudify/types/types.yaml':
         result = DEFAULT_TYPES
     elif base_path and os.path.exists(os.path.join(base_path, import_item)):
@@ -403,6 +409,7 @@ def delete_imports_from_unused_ctx(node_types_used):
     for d in need_to_del:
         del context[UNUSED_IMPORT_CTX][d]
 
+    # Deprecate Cloudify plugin names.
     if 'plugin:cloudify-fabric-plugin' in context[UNUSED_IMPORT_CTX].keys():
         del context[UNUSED_IMPORT_CTX]['plugin:cloudify-fabric-plugin']
 
@@ -454,7 +461,7 @@ def setup_types(buffer=None, data=None, base_path=None):
     if not data:
         return
     for imported in data.get('imports', {}):
-        import_cloudify_yaml(imported, base_path=base_path)
+        import_dsl_yaml(imported, base_path=base_path)
     add_to_node_types(data.get('node_types', {}))
 
 

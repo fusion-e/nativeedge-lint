@@ -480,6 +480,7 @@ def test_empty_lines():
 
 
 def test_deprecated_node_types():
+    # TODO: Update this to nativeedge.
     lines = [
         'cloudify.azure.nodes.resources.Azure\n',
         'cloudify.azure.nodes.compute.ManagedCluster\n',
@@ -756,6 +757,7 @@ def test_relationships_types():
 
 
 def test_client_config():
+    # TODO: Update to nativeedge.
     lines = [
         '  vm:\n',
         '    type: cloudify.nodes.aws.ec2.Instances\n',

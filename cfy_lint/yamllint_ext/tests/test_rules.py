@@ -1,22 +1,24 @@
 # Copyright © 2023 Dell Inc. or its subsidiaries. All Rights Reserved.
 
-from mock import Mock, patch
 import yaml
+from mock import Mock, patch
 
 from . import get_loader, get_gen_as_list
 
-from .. import rules
-from .. import LintProblem
-from ..cloudify import models
-from ..generators import (
+from ne_lint.yamllint_ext import rules
+from ne_lint.yamllint_ext import LintProblem
+from ne_lint.yamllint_ext.nativeedge import models
+from ne_lint.yamllint_ext.generators import (
     NENode,
-    generate_nodes_recursively)
-from ..rules.constants import (
+    generate_nodes_recursively
+)
+from ne_lint.yamllint_ext.rules.constants import (
     TFLINT_SUPPORTED_CONFIGS,
-    TERRATAG_SUPPORTED_FLAGS)
+    TERRATAG_SUPPORTED_FLAGS
+)
 
 
-def get_mock_ne_node(content, top_level_type, curr_node_index=1):
+def get_mock_cfy_node(content, top_level_type, curr_node_index=1):
     loaded_yaml = get_loader(content)
     loaded_yaml.check_node()
     curr_node = get_gen_as_list(
@@ -38,7 +40,7 @@ def test_capabilities():
         description: Private agent key
         shmalue: { get_attribute: [agent_key, private_key_export] }
     """
-    elem = get_mock_ne_node(capability_content, 'capabilities')
+    elem = get_mock_cfy_node(capability_content, 'capabilities')
     result = get_gen_as_list(rules.capabilities.check, {'token': elem})
     assert isinstance(result[0], LintProblem)
     assert "capability key_content does not provide a value" in \
@@ -50,7 +52,7 @@ def test_capabilities():
         description: Private agent key
         shmalue: { get_attribute: [agent_key, private_key_export] }
     """
-    elem = get_mock_ne_node(output_content, 'outputs')
+    elem = get_mock_cfy_node(output_content, 'outputs')
     result = get_gen_as_list(rules.capabilities.check, {'token': elem})
     assert isinstance(result[0], LintProblem)
     assert "output key_content does not provide a value" in \
@@ -63,7 +65,7 @@ def test_dsl_definition():
       1: &foo
         foo: bar
     """
-    elem = get_mock_ne_node(dsl_def_content_a, 'dsl_definitions')
+    elem = get_mock_cfy_node(dsl_def_content_a, 'dsl_definitions')
     result = get_gen_as_list(rules.dsl_definitions.check, {'token': elem})
     assert isinstance(result[0], LintProblem)
     assert "dsl definition should be a string and " \
@@ -74,7 +76,7 @@ def test_dsl_definition():
       foo: &foo
         - foo
     """
-    elem = get_mock_ne_node(dsl_def_content_2, 'dsl_definitions')
+    elem = get_mock_cfy_node(dsl_def_content_2, 'dsl_definitions')
     result = get_gen_as_list(rules.dsl_definitions.check, {'token': elem})
     assert isinstance(result[0], LintProblem)
     assert "dsl definition foo content must be a dict" in \
@@ -83,12 +85,12 @@ def test_dsl_definition():
 
 def test_dsl_versions():
     dsl_version_content = """
-    tosca_definitions_version: cloudify_dsl_1_5
+    tosca_definitions_version: foo_dsl
     """
-    elem = get_mock_ne_node(dsl_version_content, 'tosca_definitions_version')
+    elem = get_mock_cfy_node(dsl_version_content, 'tosca_definitions_version')
     result = get_gen_as_list(rules.dsl_version.check, {'token': elem})
     assert isinstance(result[0], LintProblem)
-    assert "dsl_version not supported: cloudify_dsl_1_5" in \
+    assert "dsl_version not supported: foo_dsl" in \
            result[0].message
 
 
@@ -98,12 +100,12 @@ def test_imports():
       - ftp://cloudify.co/spec/cloudify/6.3.0/types.yaml
       - plugin:cloudify-openstack-plugin?version= <=3.0.0
     """
-    elem = get_mock_ne_node(output_content, 'imports')
+    elem = get_mock_cfy_node(output_content, 'imports')
     result = get_gen_as_list(rules.imports.check, {'token': elem})
     assert isinstance(result[0], LintProblem)
     assert "ftp scheme not accepted" in result[0].message
     assert isinstance(result[1], LintProblem)
-    assert "Cloudify Openstack Plugin version ['version= <=3.0.0']" in \
+    assert "The Openstack Plugin version ['version= <=3.0.0']" in \
            result[1].message
 
 
@@ -114,7 +116,7 @@ def test_inputs():
         description: taco
         default: 'taco'
     """
-    elem = get_mock_ne_node(input_content, 'inputs')
+    elem = get_mock_cfy_node(input_content, 'inputs')
     result = get_gen_as_list(rules.inputs.check, {'token': elem,
                                                   'skip_suggestions': ()})
     assert isinstance(result[0], LintProblem)
@@ -128,7 +130,7 @@ def test_inputs():
           bar: { get_input: baz }
     """
 
-    elem = get_mock_ne_node(input_content_2, 'get_input')
+    elem = get_mock_cfy_node(input_content_2, 'get_input')
     with patch('ne_lint.yamllint_ext.rules.inputs.ctx') as ctx:
         ctx['inputs'] = {}
         result = get_gen_as_list(rules.inputs.check, {'token': elem})
@@ -149,7 +151,7 @@ def test_node_templates():
           quk: { get_attribute: [ quuk, quuz ] }
     """
 
-    elem = get_mock_ne_node(node_templates_content, 'node_templates')
+    elem = get_mock_cfy_node(node_templates_content, 'node_templates')
     context = {
         'foo': models.NodeTemplate('foo'),
     }
@@ -179,7 +181,7 @@ def test_node_types():
             'foo': yaml.safe_load(
                 node_types_content)['node_types']['foo']
         }
-    elem = get_mock_ne_node(node_types_content, 'node_types')
+    elem = get_mock_cfy_node(node_types_content, 'node_types')
     result = get_gen_as_list(
         rules.node_types.check,
         {
@@ -199,7 +201,7 @@ def test_relationships():
         - type: cloudify.azure.relationships.contained_in_resource_group
           target: foo
     """
-    # elem = get_mock_ne_node(relationships_content, 'relationships')
+    # elem = get_mock_cfy_node(relationships_content, 'relationships')
     loaded_yaml = get_loader(relationships_content)
     loaded_yaml.check_node()
     curr_node = get_gen_as_list(
@@ -235,7 +237,7 @@ def test_tflint():
             enable: false
     """
 
-    elem = get_mock_ne_node(node_templates_content, 'node_templates')
+    elem = get_mock_cfy_node(node_templates_content, 'node_templates')
     context = {
         'cloud_resources': models.NodeTemplate('cloud_resources'),
     }
@@ -281,7 +283,7 @@ def test_tfsec():
             enable: false
     """
 
-    elem = get_mock_ne_node(node_templates_content, 'node_templates')
+    elem = get_mock_cfy_node(node_templates_content, 'node_templates')
     context = {
         'cloud_resources': models.NodeTemplate('cloud_resources'),
     }
@@ -321,7 +323,7 @@ def test_terratag():
               - abc: 'abc'
     """
 
-    elem = get_mock_ne_node(node_templates_content, 'node_templates')
+    elem = get_mock_cfy_node(node_templates_content, 'node_templates')
     context = {
         'cloud_resources': models.NodeTemplate('cloud_resources'),
     }

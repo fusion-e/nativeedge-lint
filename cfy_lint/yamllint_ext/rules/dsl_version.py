@@ -12,7 +12,8 @@ TYPE = 'token'
 CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
-LINTING_VERSIONS = ['cloudify_dsl_1_3', 'cloudify_dsl_1_4']
+# TODO: Determine if we lint Cloudify versions.
+LINTING_VERSIONS = ['cloudify_dsl_1_3', 'cloudify_dsl_1_4', 'cloudify_dsl_1_5']
 INVALID_3_1 = [
     'blueprint_id',
     'deployment_id',

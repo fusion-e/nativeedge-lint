@@ -9,9 +9,9 @@ from ne_lint.yamllint_ext.autofix.indentation.constants import (
 )
 
 
-class CloudifyLoader(yaml.SafeLoader):
+class ExtLoader(yaml.SafeLoader):
     def construct_mapping(self, node, deep=False):
-        mapping = super(CloudifyLoader, self).construct_mapping(
+        mapping = super(ExtLoader, self).construct_mapping(
             node, deep=deep)
         # Add 1 so line numbering starts at 1
         # mapping['__line__'] = node.start_mark.line + 1
@@ -61,7 +61,7 @@ def get_file_content(path):
 
 def get_yaml_dict(path):
     f = open(path)
-    content = yaml.load(f, CloudifyLoader)
+    content = yaml.load(f, ExtLoader)
     f.close()
     return content
 

@@ -4,7 +4,7 @@ import yaml
 from mock import Mock, call, patch
 
 from . import get_gen
-from .. import utils
+from ne_lint.yamllint_ext import utils
 
 
 def test_process_relevant_tokens():
@@ -93,7 +93,7 @@ def test_update_model():
     elem_mock.curr = yaml.tokens.ScalarToken(
         'node_templates', 'node_templates', 100, 200)
     elem_mock.nextnext = yaml.tokens.BlockMappingStartToken(201, 300)
-    with patch('cfy_lint.yamllint_ext.utils.context') as context:
+    with patch('ne_lint.yamllint_ext.utils.context') as context:
         utils.update_model(elem_mock)
     assert call.__setitem__(
         'current_top_level', 'node_templates') in context.mock_calls

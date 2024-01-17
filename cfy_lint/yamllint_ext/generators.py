@@ -26,11 +26,13 @@ class NEToken(Token):
 
     @staticmethod
     def from_token(token):
-        return NEToken(token.line_no,
-                        token.curr,
-                        token.prev,
-                        token.next,
-                        token.nextnext)
+        return NEToken(
+            token.line_no,
+            token.curr,
+            token.prev,
+            token.next,
+            token.nextnext
+        )
 
     @property
     def node(self):

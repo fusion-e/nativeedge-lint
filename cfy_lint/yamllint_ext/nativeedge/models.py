@@ -3,7 +3,7 @@
 import yaml
 
 
-class CloudifyDSLObject(object):
+class DSLObject(object):
 
     def __init__(self, tokens=None):
         self._tokens = tokens or []
@@ -159,7 +159,7 @@ class NodeTemplate(object):
                    self.name, ', '.join(messages))
 
 
-class RelationshipsList(CloudifyDSLObject):
+class RelationshipsList(DSLObject):
 
     kind = 'relationships'
 
@@ -187,7 +187,7 @@ class RelationshipsList(CloudifyDSLObject):
         return self._relationship_items
 
 
-class RelationshipItem(CloudifyDSLObject):
+class RelationshipItem(DSLObject):
     kind = ('type', 'target')
 
     def __init__(self, tokens):

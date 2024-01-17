@@ -341,6 +341,7 @@ def check_terraform(model, line):
         if terratag_config:
             yield from check_terratag(model, line)
         if not any([tflint_config, tfsec_config]):
+            # TODO: Update node type.
             yield LintProblem(
                 line,
                 None,

@@ -84,8 +84,8 @@ def build_diff_lines():
             prev_value = prev_value + 1
             i += 1
 
-        context['line_diff'] = connect_two_sorted_dicts(context['line_diff'],
-                                                        dict_to_update)
+        context['line_diff'] = connect_two_sorted_dicts(
+            context['line_diff'], dict_to_update)
 
 
 def connect_two_sorted_dicts(dict1, dict2):

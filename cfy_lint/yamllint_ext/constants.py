@@ -21,6 +21,7 @@ NODE_TEMPLATE_MODEL = {
     'capabilities': {},
 }
 
+# TODO: Deprecate c-l-o-u-d-i-f-y
 LATEST_PLUGIN_YAMLS = {
     'cloudify-aws-plugin': 'https://github.com/cloudify-cosmo/cloudify-aws-plugin/releases/download/latest/plugin.yaml', # noqa
     'cloudify-azure-plugin': 'https://github.com/cloudify-cosmo/cloudify-azure-plugin/releases/download/latest/plugin.yaml', # noqa
