@@ -4,7 +4,7 @@ af = """Fix all (supported autofix) issues in place.
 This is the equivalent of --fix all=-1.
 Not all issues can be solved automatically."""
 
-bp = """Deprecated. Blueprint Path is now a positional argument. 
+bp = """Deprecated. Blueprint Path is now a positional argument.
 E.g, "ne-lint blueprint.yaml."""
 
 c = """A path to your own yamllint config file."""
