@@ -66,6 +66,12 @@ def node_type_follows_naming_conventions(value, line, skip_suggestions=None):
             None,
             "node types should follow naming convention cloudify.nodes.*: "
             "{}".format(value))
+    elif not {'nativeedge', 'nodes'} <= set(split_node_type):
+        yield LintProblem(
+            line,
+            None,
+            "node types should follow naming convention nativeedge.nodes.*: "
+            "{}".format(value))
     if not good_camel_case(last_key, split_node_type) and not suggestions:
         new_value = '.'.join(
             [k.lower() for k in split_node_type]) + '.{}'.format(last_key)

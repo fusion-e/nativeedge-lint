@@ -21,7 +21,7 @@ LEVEL1 = 1
 @process_relevant_tokens(NENode, ['blueprint_labels', 'blueprint-labels'])
 def check(token=None, **_):
     dsl = ctx.get("dsl_version")
-    # TODO: Determine if we lint Cloudify versions.
+    # TODO: For all cloudify versions, yield lint problem to update dsl.
     if dsl == 'cloudify_dsl_1_3':
         yield LintProblem(
             token.prev.line,

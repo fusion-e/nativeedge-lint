@@ -58,6 +58,8 @@ context = {
     'line_diff': {},
 }
 
+MARKET_PLACE_DOMAIN = 'marketplace.cloudify.co'
+
 
 def assign_current_top_level(elem):
     if isinstance(elem.curr, yaml.tokens.ScalarToken) and \
@@ -140,9 +142,8 @@ def get_json_from_marketplace(url):
 
 
 def get_plugin_id_from_marketplace(plugin_name):
-    # TODO: Update marketplace URL.
-    url_plugin_id = 'https://marketplace.cloudify.co/plugins?name={}'.format(
-        plugin_name)
+    url_plugin_id = f'https://{MARKET_PLACE_DOMAIN}/' \
+        f'plugins?name={plugin_name}'
     json_resp = get_json_from_marketplace(url_plugin_id)
     if 'items' in json_resp:
         if len(json_resp['items']) == 1:
@@ -150,9 +151,8 @@ def get_plugin_id_from_marketplace(plugin_name):
 
 
 def get_plugin_versions_from_marketplace(plugin_id):
-    # TODO: Update marketplace URL.
-    url_plugin_version = 'https://marketplace.cloudify.co/' \
-                         'plugins/{}/versions?'.format(plugin_id)
+    url_plugin_version = f'https://{MARKET_PLACE_DOMAIN}/' \
+        f'plugins/{plugin_id}/versions?'
     json_resp = get_json_from_marketplace(url_plugin_version)
     if 'items' in json_resp:
         versions = [item['version'] for item in json_resp['items']]
@@ -161,9 +161,8 @@ def get_plugin_versions_from_marketplace(plugin_id):
 
 
 def get_plugin_release_spec_from_marketplace(plugin_id, plugin_version):
-    # TODO: Update marketplace URL.
-    release_url = 'https://marketplace.cloudify.co/plugins/{}/{}'.format(
-        plugin_id, plugin_version)
+    release_url = f'https://{MARKET_PLACE_DOMAIN}/' \
+        f'plugins/{plugin_id}/{plugin_version}'
     return get_json_from_marketplace(release_url)
 
 
@@ -277,13 +276,11 @@ def get_node_types_for_plugin_version(plugin_name, plugin_version):
 
     node_types = {}
     offset = 0
-    # TODO: Update marketplace URL.
-    url = 'https://marketplace.cloudify.co/node-types?' \
-          '&plugin_name={}' \
-          '&plugin_version={}' \
-          '&offset={}'.format(plugin_name, plugin_version, offset)
-
     while True:
+        url = f'https://{MARKET_PLACE_DOMAIN}/node-types?' \
+            f'&plugin_name={plugin_name}' \
+            f'&plugin_version={plugin_version}' \
+            f'&offset={offset}'
         result = get_json_from_marketplace(url)
         if 'items' in result:
             for item in result['items']:
@@ -303,7 +300,6 @@ def import_dsl_yaml(import_item, base_path=None, cache_ttl=None):
     cache_ttl = cache_ttl or 86400
     cache_item = re.sub('[^0-9a-zA-Z]+', '_', import_item)
     current_dir = pathlib.Path(__file__).parent.resolve()
-    # TODO: Update marketplace URL.
     cache_dir = pathlib.Path(os.path.join(
         current_dir,
         'nativeedge/__nelint_runtime_cache')).resolve()
@@ -355,7 +351,8 @@ def import_dsl_yaml(import_item, base_path=None, cache_ttl=None):
             with open(cache_item_path.absolute(), 'w') as jsonfile:
                 json.dump(result, jsonfile)
     # TODO: Replace with nativeedge.
-    elif import_item == 'cloudify/types/types.yaml':
+    elif import_item in ['nativeedge/types/types.yaml',
+                         'cloudify/types/types.yaml']:
         result = DEFAULT_TYPES
     elif base_path and os.path.exists(os.path.join(base_path, import_item)):
         with open(os.path.join(base_path, import_item), 'r') as stream:
@@ -409,9 +406,11 @@ def delete_imports_from_unused_ctx(node_types_used):
     for d in need_to_del:
         del context[UNUSED_IMPORT_CTX][d]
 
-    # Deprecate Cloudify plugin names.
     if 'plugin:cloudify-fabric-plugin' in context[UNUSED_IMPORT_CTX].keys():
         del context[UNUSED_IMPORT_CTX]['plugin:cloudify-fabric-plugin']
+    elif 'plugin:nativeedge-fabric-plugin' \
+            in context[UNUSED_IMPORT_CTX].keys():
+        del context[UNUSED_IMPORT_CTX]['plugin:nativeedge-fabric-plugin']
 
 
 def make_list_types(content_file):

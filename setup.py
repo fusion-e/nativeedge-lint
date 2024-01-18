@@ -11,7 +11,7 @@ def get_version():
     current_dir = pathlib.Path(__file__).parent.resolve()
 
     with open(os.path.join(current_dir,
-                           'nativeedge_lint/__version__.py'),
+                           'cfy_lint/__version__.py'),
               'r') as outfile:
         var = outfile.read()
         return re.search(r'\d+.\d+.\d+', var).group()
@@ -41,14 +41,10 @@ setup(
     license='LICENSE',
     packages=find_packages(),
     description='Linter for NativeEdge Blueprints',
-    entry_points={
-        "console_scripts": [
-            "ne-lint = ne_lint.main:lint",
-        ]
-    },
+    entry_points={"console_scripts": ["ne-lint = ne_lint.main:lint"]},
     package_data={
         'ne_lint': [
-            'yamllint_ext/nativeedge/__nelint_runtime_cache/README.md',
+            'yamllint_ext/nativeedge/__nelint_runtime_cache/README.md'
         ]
     },
     install_requires=install_requires

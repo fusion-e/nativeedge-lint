@@ -36,7 +36,8 @@ def validate_import_items(item, token):
     if url.scheme not in ['http', 'https', 'plugin']:
         if not url.scheme and url.path.split('/')[-1].endswith('.yaml'):
             # TODO: Do we need to be backward compatible here?
-            if url.path != 'cloudify/types/types.yaml':
+            if url.path not in ['nativeedge/types/types.yaml',
+                                'cloudify/types/types.yaml']:
                 import_path = os.path.join(token.blueprint_path, url.path)
                 if not os.path.exists(import_path):
                     yield LintProblem(
@@ -51,8 +52,9 @@ def validate_import_items(item, token):
                 None,
                 'invalid import. {} scheme not accepted'.format(url.scheme)
             )
-    # TODO: Do we need to check cloudify*
-    if url.scheme in ['plugin'] and url.path in ['cloudify-openstack-plugin']:
+    if url.scheme in ['plugin'] and url.path in [
+            'nativeedge-openstack-plugin',
+            'cloudify-openstack-plugin']:
         yield from check_openstack_plugin_version(url, token.line)
     elif url.scheme in ['https', 'https'] and not url.path.endswith('.yaml'):
         yield LintProblem(

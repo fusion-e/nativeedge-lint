@@ -58,13 +58,16 @@ def command(*args, **kwargs):
 class Options(object):
     def __init__(self):
 
-        self.blueprint_path = click.option(
+        self.blueprint_path = click.argument(
+            'blueprint-path',
+            type=click.Path(exists=True),
+        )
+
+        self.blueprint_path_dep = click.option(
             '-b',
             '--blueprint-path',
-            default='blueprint.yaml',
-            type=click.Path(),
-            multiple=False,
-            show_default='blueprint.yaml',
+            default='',
+            type=click.STRING,
             help=helptexts.bp)
 
         self.config = click.option(
