@@ -23,24 +23,24 @@ NODE_TEMPLATE_MODEL = {
 
 # TODO: Deprecate c-l-o-u-d-i-f-y
 LATEST_PLUGIN_YAMLS = {
-    'cloudify-aws-plugin': 'https://github.com/cloudify-cosmo/cloudify-aws-plugin/releases/download/latest/plugin.yaml', # noqa
-    'cloudify-azure-plugin': 'https://github.com/cloudify-cosmo/cloudify-azure-plugin/releases/download/latest/plugin.yaml', # noqa
-    'cloudify-starlingx-plugin': 'https://github.com/cloudify-cosmo/cloudify-starlingx-plugin/releases/download/latest/plugin.yaml', # noqa
-    'cloudify-gcp-plugin': 'https://github.com/cloudify-cosmo/cloudify-gcp-plugin/releases/download/latest/plugin.yaml', # noqa
-    'cloudify-openstack-plugin': 'https://github.com/cloudify-cosmo/cloudify-openstack-plugin/releases/download/latest/plugin.yaml', # noqa
-    'cloudify-vsphere-plugin': 'https://github.com/cloudify-cosmo/cloudify-vsphere-plugin/releases/download/latest/plugin.yaml', # noqa
-    'cloudify-terraform-plugin': 'https://github.com/cloudify-cosmo/cloudify-terraform-plugin/releases/download/latest/plugin.yaml', # noqa
-    'cloudify-terragrunt-plugin': 'https://github.com/cloudify-cosmo/cloudify-terragrunt-plugin/releases/download/latest/plugin.yaml', # noqa
-    'cloudify-ansible-plugin': 'https://github.com/cloudify-cosmo/cloudify-ansible-plugin/releases/download/latest/plugin.yaml', # noqa
-    'cloudify-kubernetes-plugin': 'https://github.com/cloudify-cosmo/cloudify-kubernetes-plugin/releases/download/latest/plugin.yaml', # noqa
-    'cloudify-docker-plugin': 'https://github.com/cloudify-cosmo/cloudify-docker-plugin/releases/download/latest/plugin.yaml', # noqa
-    'cloudify-netconf-plugin': 'https://github.com/cloudify-cosmo/cloudify-netconf-plugin/releases/download/latest/plugin.yaml', # noqa
-    'cloudify-fabric-plugin': 'https://github.com/cloudify-cosmo/cloudify-fabric-plugin/releases/download/latest/plugin.yaml', # noqa
-    'cloudify-libvirt-plugin': 'https://github.com/cloudify-incubator/cloudify-libvirt-plugin/releases/download/latest/plugin.yaml', # noqa
-    'cloudify-utilities-plugin': 'https://github.com/cloudify-incubator/cloudify-utilities-plugin/releases/download/latest/plugin.yaml', # noqa
-    'cloudify-host-pool-plugin': 'https://github.com/cloudify-cosmo/cloudify-host-pool-plugin/releases/download/latest/plugin.yaml', # noqa
-    'cloudify-vcloud-plugin': 'https://github.com/cloudify-cosmo/cloudify-vcloud-plugin/releases/download/latest/plugin.yaml', # noqa
-    'cloudify-helm-plugin': 'https://github.com/cloudify-incubator/cloudify-helm-plugin/releases/download/latest/plugin.yaml' # noqa
+    'nativeedge-aws-plugin': 'https://github.com/fusion-e/nativeedge-aws-plugin/releases/download/latest/plugin.yaml', # noqa
+    'nativeedge-azure-plugin': 'https://github.com/fusion-e/nativeedge-azure-plugin/releases/download/latest/plugin.yaml', # noqa
+    'nativeedge-starlingx-plugin': 'https://github.com/fusion-e/nativeedge-starlingx-plugin/releases/download/latest/plugin.yaml', # noqa
+    'nativeedge-gcp-plugin': 'https://github.com/fusion-e/nativeedge-gcp-plugin/releases/download/latest/plugin.yaml', # noqa
+    'nativeedge-openstack-plugin': 'https://github.com/fusion-e/nativeedge-openstack-plugin/releases/download/latest/plugin.yaml', # noqa
+    'nativeedge-vsphere-plugin': 'https://github.com/fusion-e/nativeedge-vsphere-plugin/releases/download/latest/plugin.yaml', # noqa
+    'nativeedge-terraform-plugin': 'https://github.com/fusion-e/nativeedge-terraform-plugin/releases/download/latest/plugin.yaml', # noqa
+    'nativeedge-terragrunt-plugin': 'https://github.com/fusion-e/nativeedge-terragrunt-plugin/releases/download/latest/plugin.yaml', # noqa
+    'nativeedge-ansible-plugin': 'https://github.com/fusion-e/nativeedge-ansible-plugin/releases/download/latest/plugin.yaml', # noqa
+    'nativeedge-kubernetes-plugin': 'https://github.com/fusion-e/nativeedge-kubernetes-plugin/releases/download/latest/plugin.yaml', # noqa
+    'nativeedge-docker-plugin': 'https://github.com/fusion-e/nativeedge-docker-plugin/releases/download/latest/plugin.yaml', # noqa
+    'nativeedge-netconf-plugin': 'https://github.com/fusion-e/nativeedge-netconf-plugin/releases/download/latest/plugin.yaml', # noqa
+    'nativeedge-fabric-plugin': 'https://github.com/fusion-e/nativeedge-fabric-plugin/releases/download/latest/plugin.yaml', # noqa
+    'nativeedge-libvirt-plugin': 'https://github.com/fusion-e/nativeedge-libvirt-plugin/releases/download/latest/plugin.yaml', # noqa
+    'nativeedge-utilities-plugin': 'https://github.com/fusion-e/nativeedge-utilities-plugin/releases/download/latest/plugin.yaml', # noqa
+    'nativeedge-host-pool-plugin': 'https://github.com/fusion-e/nativeedge-host-pool-plugin/releases/download/latest/plugin.yaml', # noqa
+    'nativeedge-vcloud-plugin': 'https://github.com/fusion-e/nativeedge-vcloud-plugin/releases/download/latest/plugin.yaml', # noqa
+    'nativeedge-helm-plugin': 'https://github.com/fusion-e/nativeedge-helm-plugin/releases/download/latest/plugin.yaml' # noqa
 }
 
 DEFAULT_NODE_TYPES = [
@@ -65,7 +65,7 @@ DEFAULT_NODE_TYPES = [
     'nativeedge.nodes.ApplicationServer',
     'nativeedge.nodes.MessageBusServer',
     'nativeedge.nodes.ApplicationModule',
-    'nativeedge.nodes.CloudifyManager',
+    'nativeedge.nodes.NativeEdgeManager',
     'nativeedge.nodes.Component',
     'nativeedge.nodes.ServiceComponent',
     'nativeedge.nodes.SharedResource',

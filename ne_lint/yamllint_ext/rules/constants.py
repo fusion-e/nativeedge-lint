@@ -802,7 +802,7 @@ AWS_VALID_KEY = [
     'region_name',
     'aws_session_token']
 
-firewall_rule_gcp = ['cloudify.gcp.nodes.FirewallRule']
+firewall_rule_gcp = ['nativeedge.nodes.gcp.FirewallRule']
 
 
 TFLINT_SUPPORTED_CONFIGS = [

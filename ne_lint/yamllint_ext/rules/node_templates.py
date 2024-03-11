@@ -120,7 +120,7 @@ def check_deprecated_node_type(model, line):
             f"Replace usage of {model.node_type} with "
             f"{model.node_type.replace('cloudify', 'nativeedge')}."
         )
-    if model.node_type in deprecated_node_types:
+    elif model.node_type in deprecated_node_types:
         yield LintProblem(
             line,
             None,
@@ -256,9 +256,9 @@ def check_dependent_types(model, line):
     required_relationship_types = REQUIRED_RELATIONSHIPS.get(
         model.node_type, {})
     model.required_relationships = required_relationship_types
-    if model.required_relationships_not_met(ctx['node_templates'],
-                                            ctx.get('imported_node_templates',
-                                                    {})):
+    if model.required_relationships_not_met(
+            ctx['node_templates'],
+            ctx.get('imported_node_templates', {})):
         yield LintProblem(
             line,
             None,

@@ -22,16 +22,14 @@ OP_KEYS = {'implementation', 'inputs'}
 
 @process_relevant_tokens(NENode, 'relationships')
 def check(token=None, **_):
-    # raise Exception(token.node)
     relationship_type = NERelationshipType(token.node)
     if relationship_type.malformed_relationship:
         yield from relationships_not_list(token.node, token.line)
     if relationship_type.is_relationship_type:
         yield from check_relationship_types(relationship_type, token.line)
-        return
     for list_item in token.node.value:
-        if isinstance(list_item, tuple) or isinstance(
-                list_item.value, dict):
+        if isinstance(list_item, tuple) or \
+                isinstance(list_item.value, dict):
             yield from relationship_not_dict(list_item)
             continue
         is_target = False

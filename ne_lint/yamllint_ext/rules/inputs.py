@@ -162,7 +162,6 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
             start_mark=input_type.start_mark.line,
             end_mark=input_type.end_mark.line
         )
-    # TODO: Should we lint Cloudify versions?
     elif not input_obj.display_label:
         yield LintProblem(
             line,

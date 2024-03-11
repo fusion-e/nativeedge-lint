@@ -1,11 +1,11 @@
-tosca_definitions_version: cloudify_dsl_1_4
+tosca_definitions_version: nativeedge_1_0
 
 description: >
   Test blueprint.
 
 imports:
-  - https://cloudify.co/spec/cloudify/6.4.0/types.yaml
-  - plugin:cloudify-foo-plugin
+  - nativeedge/types/types.yaml
+  - plugin:nativeedge-foo-plugin
   - local.yaml
 
 inputs:
@@ -70,7 +70,7 @@ node_template:
       - target: taco
         type: nativeedge.relationships.depends_on
     interfaces:
-      cloudify.interfaces.lifecycle:
+      nativeedge.interfaces.lifecycle:
         create:
           implementation: foo.bar
           inputs:

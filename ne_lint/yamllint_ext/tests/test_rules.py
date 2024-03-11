@@ -98,8 +98,8 @@ def test_dsl_versions():
 def test_imports():
     output_content = """
     imports:
-      - ftp://cloudify.co/spec/cloudify/6.3.0/types.yaml
-      - plugin:cloudify-openstack-plugin?version= <=3.0.0
+      - ftp://nativeedge.co/spec/nativeedge/6.3.0/types.yaml
+      - plugin:nativeedge-openstack-plugin?version= <=3.0.0
     """
     elem = get_mock_cfy_node(output_content, 'imports')
     result = get_gen_as_list(rules.imports.check, {'token': elem})
@@ -158,9 +158,10 @@ def test_node_templates():
     }
     with patch('ne_lint.yamllint_ext.rules.node_templates.ctx') as ctx:
         ctx['inputs'] = {}
-        result = get_gen_as_list(rules.node_templates.check,
-                                 {'token': elem, 'context': context})
-
+        result = get_gen_as_list(
+            rules.node_templates.check,
+            {'token': elem, 'context': context}
+        )
         assert isinstance(result[0], LintProblem)
         assert 'deprecated node type' in result[0].message
         assert isinstance(result[1], LintProblem)
@@ -318,7 +319,7 @@ def test_terratag():
         type: nativeedge.nodes.terraform.Module
         properties:
           terratag_config:
-            tags: { 'name_company': 'cloudify' }
+            tags: { 'name_company': 'nativeedge' }
             flags_override:
               - -verbose: True
               - abc: 'abc'

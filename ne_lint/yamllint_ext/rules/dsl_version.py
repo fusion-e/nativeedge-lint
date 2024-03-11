@@ -12,7 +12,6 @@ TYPE = 'token'
 CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
-# TODO: Determine if we lint Cloudify versions.
 LINTING_VERSIONS = ['nativeedge_1_0']
 
 
