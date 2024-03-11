@@ -9,10 +9,8 @@ from setuptools import (setup, find_packages)
 
 def get_version():
     current_dir = pathlib.Path(__file__).parent.resolve()
-
-    with open(os.path.join(current_dir,
-                           'ne_lint/__version__.py'),
-              'r') as outfile:
+    version_file = os.path.join(current_dir, 'ne_lint/__version__.py')
+    with open(version_file, 'r') as outfile:
         var = outfile.read()
         return re.search(r'\d+.\d+.\d+', var).group()
 
@@ -21,18 +19,9 @@ install_requires = [
     'click>8,<9',
     'yamllint==1.28.0',
     'packaging>=17.1,<=21.3',
+    'pyyaml>=6.0.1',
+    'networkx>=3.2.1'
 ]
-
-if sys.version_info.major == 3 and sys.version_info.minor == 6:
-    install_requires += [
-        'pyyaml>=5.4.1',
-        'networkx>=1.9.1,<=3.1'
-    ]
-else:
-    install_requires += [
-        'pyyaml>=6.0.1',
-        'networkx>=3.2.1'
-    ]
 
 
 setup(
