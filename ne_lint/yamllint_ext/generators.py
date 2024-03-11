@@ -1,0 +1,231 @@
+# Copyright © 2023 Dell Inc. or its subsidiaries. All Rights Reserved.
+
+import yaml
+
+from yamllint.parser import (
+    Token,
+    line_generator,
+    comments_between_tokens)
+
+
+class NEToken(Token):
+    def __init__(self,
+                 line_no,
+                 curr,
+                 prev,
+                 after,
+                 nextnext,
+                 stack,
+                 blueprint_file=None):
+
+        super().__init__(line_no, curr, prev, after, nextnext)
+        self.after = self.next
+        self.stack = stack
+        self._node = None
+        self._blueprint_file = blueprint_file
+
+    @staticmethod
+    def from_token(token):
+        return NEToken(
+            token.line_no,
+            token.curr,
+            token.prev,
+            token.next,
+            token.nextnext
+        )
+
+    @property
+    def node(self):
+        return self._node
+
+    @node.setter
+    def node(self, value):
+        self._node = value
+
+    @property
+    def blueprint_file(self):
+        return self._blueprint_file
+
+    @blueprint_file.setter
+    def blueprint_file(self, value):
+        self._blueprint_file = value
+
+
+class NENode(object):
+
+    def __init__(self, node, prev=None):
+        """
+        :param node: yaml.nodes.Node
+        :param ne_token: NEToken from current or previous loop.
+        """
+        self.node = node
+        self._prev = prev
+        self._prev_prev = None
+        self._next = None
+        self._node_templates = None
+
+        try:
+            self._line = node.start_mark.line + 1
+        except AttributeError:
+            self._line = None
+
+    @property
+    def prev(self):
+        return self._prev
+
+    @prev.setter
+    def prev(self, value):
+        self._prev = value
+
+    @property
+    def prev_prev(self):
+        return self._prev_prev
+
+    @prev_prev.setter
+    def prev_prev(self, value):
+        self._prev_prev = value
+
+    @property
+    def next_token(self):
+        return self._next
+
+    @next_token.setter
+    def next_token(self, value):
+        self._next = value
+
+    @property
+    def node_templates(self):
+        return self._node_templates
+
+    @node_templates.setter
+    def node_templates(self, value):
+        self._node_templates = value
+
+    @property
+    def line(self):
+        return self._line
+
+    @line.setter
+    def line(self, value):
+        self._line = value
+
+
+class SafeLineLoader(yaml.SafeLoader):
+    def construct_mapping(self, node, deep=False):
+        mapping = super(SafeLineLoader, self).construct_mapping(
+            node, deep=deep)
+        # Add 1 so line numbering starts at 1
+        mapping['__line__'] = node.start_mark.line + 1
+        return mapping
+
+
+def generate_nodes_recursively(node):
+
+    if isinstance(node, (tuple, list)):
+        for sub in node:
+            yield from generate_nodes_recursively(sub)
+    else:
+        yield node
+        if isinstance(node, yaml.nodes.CollectionNode):
+            for sub in node.value:
+                yield from generate_nodes_recursively(sub)
+
+
+def node_generator(buffer):
+    yaml_loader = SafeLineLoader(buffer)
+    if not yaml_loader.check_node():
+        return
+    yield from generate_nodes_recursively(yaml_loader.get_node().value)
+
+
+def token_or_comment_generator(buffer):
+    yaml_loader = SafeLineLoader(buffer)
+
+    try:
+        stack = []
+        prev = None
+        curr = yaml_loader.get_token()
+        while curr is not None:
+            next = yaml_loader.get_token()
+            nextnext = (yaml_loader.peek_token()
+                        if yaml_loader.check_token() else None)
+
+            yield NEToken(
+                curr.start_mark.line + 1, curr, prev, next, nextnext, stack)
+
+            for comment in comments_between_tokens(curr, next):
+                yield comment
+
+            prev = curr
+            curr = next
+
+    except yaml.scanner.ScannerError:
+        pass
+
+
+class YamlParserLintProblem():
+    def __init__(self, line, column, desc):
+        self.line = line
+        self.column = column
+        self.desc = desc
+
+
+def token_or_comment_or_line_generator(buffer):
+    """Generator that mixes tokens and lines, ordering them by line number"""
+
+    tok_or_com_gen = token_or_comment_generator(buffer)
+    line_gen = line_generator(buffer)
+    node_gen = node_generator(buffer)
+
+    tok_or_com = next(tok_or_com_gen, None)
+    line = next(line_gen, None)
+    try:
+        node = NENode(next(node_gen, None))
+    except yaml.parser.ParserError as e:
+        start_line = e.context_mark.line
+        end_line = e.problem_mark.line
+        yield YamlParserLintProblem(
+            e.context_mark.line,
+            e.context_mark.column,
+            '\n'.join(buffer.split('\n')[start_line:end_line])
+        )
+        return
+
+    prev_node = None
+
+    while any([g for g in [tok_or_com, line, node.node] if g is not None]):
+        if should_yield_line(tok_or_com, line, node):
+            yield line
+            line = next(line_gen, None)
+        if node.node is None or (
+                tok_or_com is not None and
+                node.node.start_mark.line > tok_or_com.line_no
+        ):
+            # while token_in_node(node, tok_or_com.line_no) is False:
+            #     # We want to find a node that the token is contained in.
+            #     node = next(node_gen, None)
+            # if node and isinstance(tok_or_com, NEToken):
+            #     tok_or_com.node = node
+            yield tok_or_com
+            tok_or_com = next(tok_or_com_gen, None)
+        else:
+            yield node
+            prev_prev_node = prev_node
+            prev_node = node
+            node = NENode(next(node_gen, None), prev_node)
+            node.prev_prev = prev_prev_node
+
+
+def token_in_node(node, line_no):
+    try:
+        return node.start_mark.line - 1 <= line_no <= node.end_mark.line - 1
+    except AttributeError:
+        return None
+
+
+def should_yield_line(tok_or_com, line, node):
+    a = tok_or_com is None or (
+            line is not None and tok_or_com.line_no > line.line_no)
+    b = node.node is None or (
+            node is not None and node.node.start_mark.line > line.line_no)
+    return a or b

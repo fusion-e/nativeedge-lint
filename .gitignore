@@ -169,6 +169,7 @@ local-storage/
 *.zip
 *.DS_STORE
 cfy_lint/yamllint_ext/cloudify/__cfylint_runtime_cache/*
+ne_lint/yamllint_ext/nativeedge/__nelint_runtime_cache/*
 
 # Wagons
 **/*.wgn

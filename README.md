@@ -1,13 +1,11 @@
-# cfy-lint
+# ne-lint
 
-[![Circle CI](https://circleci.com/gh/cloudify-cosmo/cfy-lint/tree/main.svg?style=shield)](https://circleci.com/gh/cloudify-cosmo/cfy-lint/tree/main)
+A novel linter for NativeEdge Blueprints.
 
-A novel linter for Cloudify Blueprints.
-
-The **cfy lint** tool is for Cloudify users who:
+The **ne lint** tool is for NativeEdge users who:
 
 - wish to follow best practices.
-- prefer to discover potential issues before uploading to Cloudify manager.
+- prefer to discover potential issues before uploading to NativeEdge manager.
 - would like to be notified of deprecated node_types, relationships, plugin versions, etc.
 
 
@@ -20,12 +18,12 @@ The **cfy lint** tool is for Cloudify users who:
 ## How to install
 
 ```bash
-pip3 install cfy-lint
+pip3 install ne-lint
 ```
 
 
 ## How to use
 
 ```bash
-cfy-lint -b blueprint.yaml
+ne-lint blueprint.yaml
 ```
