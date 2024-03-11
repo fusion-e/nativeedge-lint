@@ -50,7 +50,7 @@ dsl_definitions:
 node_types:
 
   foo_type:
-    derived_from: cloudify.nodes.Foo
+    derived_from: nativeedge.nodes.Foo
     properties:
       foo_prop:
         description: foo property
@@ -68,7 +68,7 @@ node_template:
           quuz: corge
     relationships:
     - target: taco
-      type: cloudify.relationships.depends_on
+      type: nativeedge.relationships.depends_on
     interfaces:
       cloudify.interfaces.lifecycle:
         create:

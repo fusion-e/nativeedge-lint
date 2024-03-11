@@ -6,11 +6,13 @@ import networkx as nx
 from ne_lint.yamllint_ext import LintProblem
 from ne_lint.yamllint_ext.generators import NENode
 from ne_lint.yamllint_ext.constants import UNUSED_IMPORT_CTX
-from ne_lint.yamllint_ext.utils import (recurse_get_readable_object,
-                                        process_relevant_tokens,
-                                        INTRINSIC_FNS,
-                                        context as ctx,
-                                        find_values_by_key)
+from ne_lint.yamllint_ext.utils import (
+    recurse_get_readable_object,
+    process_relevant_tokens,
+    find_values_by_key,
+    context as ctx,
+    INTRINSIC_FNS,
+)
 from ne_lint.yamllint_ext.rules.constants import (
     GCP_TYPES,
     AWS_TYPES,
@@ -109,6 +111,15 @@ def check_node_type_imported(node_types, model, line):
 
 
 def check_deprecated_node_type(model, line):
+    if model.node_type.startswith('cloudify.') and \
+            model.node_type not in deprecated_node_types:
+        yield LintProblem(
+            line,
+            None,
+            "deprecated node type. "
+            f"Replace usage of {model.node_type} with "
+            f"{model.node_type.replace('cloudify', 'nativeedge')}."
+        )
     if model.node_type in deprecated_node_types:
         yield LintProblem(
             line,
@@ -345,7 +356,7 @@ def check_terraform(model, line):
             yield LintProblem(
                 line,
                 None,
-                'cloudify.nodes.terraform.Module type should be used '
+                'nativeedge.nodes.terraform.Module type should be used '
                 'with some policy validation product, such as TF Sec, '
                 'or TF Lint.',
                 severity=2

@@ -30,5 +30,6 @@ def validate_supported_dsl_version(value, line):
         yield LintProblem(
             line,
             None,
-            "dsl_version not supported: {} ".format(value)
+            f'{value} is not a supported DSL Version. '
+            f'Only these versions are supported: {LINTING_VERSIONS}'
         )

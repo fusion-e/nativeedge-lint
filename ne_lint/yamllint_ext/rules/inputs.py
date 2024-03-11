@@ -140,6 +140,17 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
             if get_default_type(input_obj) == float and not suggestions:
                 message += 'The correct type could be "float".'
         yield LintProblem(line, None, message)
+    elif dsl not in constants.INPUTS_BY_DSL:
+        input_type = item[LEVEL1]
+        yield LintProblem(
+            line,
+            None,
+            f'Unable to validate input type {get_type_name(input_obj)} '
+            f'by DSL version: {dsl}. Please update DSL version to one of: '
+            f'{", ".join(constants.INPUTS_BY_DSL.keys())}.',
+            start_mark=input_type.start_mark.line,
+            end_mark=input_type.end_mark.line
+        )
     elif get_type_name(input_obj) not in constants.INPUTS_BY_DSL.get(dsl, []):
         input_type = item[LEVEL1]
         yield LintProblem(
