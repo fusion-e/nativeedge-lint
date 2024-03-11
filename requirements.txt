@@ -5,23 +5,21 @@
 #    pip-compile --no-emit-index-url --output-file=requirements.txt requirements.in setup.py
 #
 click==8.1.7
-    # via cfy-lint (setup.py)
-colorama==0.4.6
-    # via click
+    # via ne-lint (setup.py)
 networkx==3.2.1
-    # via cfy-lint (setup.py)
+    # via ne-lint (setup.py)
 packaging==21.3
-    # via cfy-lint (setup.py)
-pathspec==0.11.2
+    # via ne-lint (setup.py)
+pathspec==0.12.1
     # via yamllint
-pyparsing==3.1.1
+pyparsing==3.1.2
     # via packaging
 pyyaml==6.0.1
     # via
-    #   cfy-lint (setup.py)
+    #   ne-lint (setup.py)
     #   yamllint
 yamllint==1.28.0
-    # via cfy-lint (setup.py)
+    # via ne-lint (setup.py)
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

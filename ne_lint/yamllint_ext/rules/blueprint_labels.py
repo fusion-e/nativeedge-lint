@@ -5,8 +5,8 @@ from ne_lint.yamllint_ext.generators import NENode
 from ne_lint.yamllint_ext.utils import (
     process_relevant_tokens,
     recurse_get_readable_object,
-    context as ctx
-    )
+    # context as ctx
+)
 
 VALUES = []
 
@@ -20,13 +20,8 @@ LEVEL1 = 1
 
 @process_relevant_tokens(NENode, ['blueprint_labels', 'blueprint-labels'])
 def check(token=None, **_):
-    dsl = ctx.get("dsl_version")
+    # dsl = ctx.get("dsl_version")
     # TODO: For all cloudify versions, yield lint problem to update dsl.
-    if dsl == 'cloudify_dsl_1_3':
-        yield LintProblem(
-            token.prev.line,
-            None,
-            'cloudify_dsl_1_3 does not support Blueprint Labels')
     if token.prev.node.value == 'blueprint-labels':
         yield LintProblem(
                 token.prev.line,

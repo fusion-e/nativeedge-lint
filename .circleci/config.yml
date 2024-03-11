@@ -1,7 +1,21 @@
 version: 2.1
 
+job-post-steps: &job-post-steps
+  post-steps:
+   - slack/notify_failed
+
+unittest-post-steps: &unittest-post-steps
+  post-steps:
+    - store_test_results:
+        path: /home/circleci/project/nosetests.xml
+    - store_artifacts:
+        path: /home/circleci/project/coverage.xml
+        prefix: tests
+    - slack/notify_failed
+
 orbs:
-  node: cloudify/public-unittest-orb@1 #orb version
+  ne: plugins/nativeedge-plugins-orb@0.0.14
+  slack: cloudify/notify-slack@2
 
 checkout:
   post:
@@ -12,50 +26,49 @@ checkout:
         git checkout -qf FETCH_HEAD
       fi
 
-
 executors:
   py36:
     docker:
       - image: circleci/python:3.6
 
 commands: 
-  release: 
+  release:
     steps:
-    - run: 
-        name: Trigger Jenkins Pipeline Upload to PyPi
-        command: |
-           curl $JENKINS_URL \
-           --user $JENKINS_USER:$JENKINS_TOKEN \
-           --data BRANCH=main \
-           --data GITHUB_PROJECT_URL=$GH_REPO
+      - run: 
+          name: Trigger Jenkins Pipeline Upload to PyPi
+          command: |
+            curl $JENKINS_URL \
+            --user $JENKINS_USER:$JENKINS_TOKEN \
+            --data BRANCH=main \
+            --data GITHUB_PROJECT_URL=$GH_REPO
 
-    - run: 
-        name: Trigger Jenkins Pipeline Build NE Lint for Linux x86_64
-        command: |
-           curl $CFY_BUILD_LINUX_URL \
-           --user $JENKINS_USER:$JENKINS_TOKEN \
-           --data ARCH=x86_64
-    
-    - run: 
-        name: Trigger Jenkins Pipeline Build NE Lint for Linux aarch64
-        command: |
-           curl $CFY_BUILD_LINUX_URL \
-           --user $JENKINS_USER:$JENKINS_TOKEN \
-           --data ARCH=aarch64
+      - run: 
+          name: Trigger Jenkins Pipeline Build NE Lint for Linux x86_64
+          command: |
+            curl $CFY_BUILD_LINUX_URL \
+            --user $JENKINS_USER:$JENKINS_TOKEN \
+            --data ARCH=x86_64
+      
+      - run: 
+          name: Trigger Jenkins Pipeline Build NE Lint for Linux aarch64
+          command: |
+            curl $CFY_BUILD_LINUX_URL \
+            --user $JENKINS_USER:$JENKINS_TOKEN \
+            --data ARCH=aarch64
 
-    - run:
-        name: Trigger Jenkins Pipeline Build NE Lint for Macos x86_64
-        command: |
-           curl $CFY_BUILD_MACOS_URL \
-           --user $JENKINS_USER:$JENKINS_TOKEN \
-           --data ARCH=macos-x86_64
-    
-    - run:
-        name: Trigger Jenkins Pipeline Build NE Lint for Macos aarch64
-        command: |
-           curl $CFY_BUILD_MACOS_URL \
-           --user $JENKINS_USER:$JENKINS_TOKEN \
-           --data ARCH=macos-aarch64
+      - run:
+          name: Trigger Jenkins Pipeline Build NE Lint for Macos x86_64
+          command: |
+            curl $CFY_BUILD_MACOS_URL \
+            --user $JENKINS_USER:$JENKINS_TOKEN \
+            --data ARCH=macos-x86_64
+      
+      - run:
+          name: Trigger Jenkins Pipeline Build NE Lint for Macos aarch64
+          command: |
+            curl $CFY_BUILD_MACOS_URL \
+            --user $JENKINS_USER:$JENKINS_TOKEN \
+            --data ARCH=macos-aarch64
 
 jobs:
 
@@ -65,27 +78,18 @@ jobs:
       - release
 
 workflows:
-  version: 2
+  version: 2.1
   tests:
     jobs:
-      - node/unittests_job
-      - release: 
+      - ne/unittests_job:
+          context:
+            - plugins-inputs
+          <<: *unittest-post-steps
+      - release:
           context:
             - cfy-lint
           filters:
             branches:
               only: main
           requires:
-          - node/unittests_job
-
-  nightly:
-    triggers:
-    - schedule:
-        cron: "0 1 * * 0,1,3,5"
-        filters:
-          branches:
-            only:
-              - master
-    jobs:
-      - node/unittests_job
-
+            - ne/unittests_job
