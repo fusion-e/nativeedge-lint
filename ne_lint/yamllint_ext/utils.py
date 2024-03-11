@@ -406,8 +406,8 @@ def delete_imports_from_unused_ctx(node_types_used):
     for d in need_to_del:
         del context[UNUSED_IMPORT_CTX][d]
 
-    if 'plugin:cloudify-fabric-plugin' in context[UNUSED_IMPORT_CTX].keys():
-        del context[UNUSED_IMPORT_CTX]['plugin:cloudify-fabric-plugin']
+    if 'plugin:nativeedge-fabric-plugin' in context[UNUSED_IMPORT_CTX].keys():
+        del context[UNUSED_IMPORT_CTX]['plugin:nativeedge-fabric-plugin']
     elif 'plugin:nativeedge-fabric-plugin' \
             in context[UNUSED_IMPORT_CTX].keys():
         del context[UNUSED_IMPORT_CTX]['plugin:nativeedge-fabric-plugin']

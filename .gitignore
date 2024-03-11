@@ -162,7 +162,7 @@ ENV/
 
 # End of https://www.gitignore.io/api/python,pycharm
 
-# Cloudify
+# NativeEdge
 inputs.yaml
 local-storage/
 .cloudify/

@@ -90,15 +90,16 @@ def test_dsl_versions():
     elem = get_mock_cfy_node(dsl_version_content, 'tosca_definitions_version')
     result = get_gen_as_list(rules.dsl_version.check, {'token': elem})
     assert isinstance(result[0], LintProblem)
-    assert "dsl_version not supported: foo_dsl" in \
-           result[0].message
+    assert "foo_dsl is not a supported DSL Version. " \
+           "Only these versions are supported: " \
+           "['nativeedge_1_0']" in result[0].message
 
 
 def test_imports():
     output_content = """
     imports:
-      - ftp://cloudify.co/spec/cloudify/6.3.0/types.yaml
-      - plugin:cloudify-openstack-plugin?version= <=3.0.0
+      - ftp://nativeedge.co/spec/nativeedge/6.3.0/types.yaml
+      - plugin:nativeedge-openstack-plugin?version= <=3.0.0
     """
     elem = get_mock_cfy_node(output_content, 'imports')
     result = get_gen_as_list(rules.imports.check, {'token': elem})
@@ -125,7 +126,7 @@ def test_inputs():
     input_content_2 = """
     node_templates:
       foo:
-        type: cloudify.nodes.Foo
+        type: nativeedge.nodes.Foo
         properties:
           bar: { get_input: baz }
     """
@@ -157,9 +158,10 @@ def test_node_templates():
     }
     with patch('ne_lint.yamllint_ext.rules.node_templates.ctx') as ctx:
         ctx['inputs'] = {}
-        result = get_gen_as_list(rules.node_templates.check,
-                                 {'token': elem, 'context': context})
-
+        result = get_gen_as_list(
+            rules.node_templates.check,
+            {'token': elem, 'context': context}
+        )
         assert isinstance(result[0], LintProblem)
         assert 'deprecated node type' in result[0].message
         assert isinstance(result[1], LintProblem)
@@ -174,7 +176,7 @@ def test_node_types():
     node_types_content = """
     node_types:
       foo:
-        derived_from: cloudify.nodes.Root
+        derived_from: nativeedge.nodes.Root
     """
     with patch('ne_lint.yamllint_ext.rules.node_templates.ctx') as ctx:
         ctx['imported_node_types'] = {
@@ -196,7 +198,7 @@ def test_relationships():
     relationships_content = """
     node_templates:
       foo:
-        type: cloudify.nodes.Foo
+        type: nativeedge.nodes.Foo
         relationships:
         - type: cloudify.azure.relationships.contained_in_resource_group
           target: foo
@@ -219,7 +221,7 @@ def test_tflint():
     node_templates_content = """
     node_templates:
       cloud_resources:
-        type: cloudify.nodes.terraform.Module
+        type: nativeedge.nodes.terraform.Module
         properties:
           tflint_config:
             config:
@@ -249,7 +251,7 @@ def test_tflint():
             {
                 'token': elem,
                 'context': context,
-                'node_types': ['cloudify.nodes.terraform.Module']
+                'node_types': ['nativeedge.nodes.terraform.Module']
             }
         )
         result.pop(0)
@@ -274,7 +276,7 @@ def test_tfsec():
     node_templates_content = """
     node_templates:
       cloud_resources:
-        type: cloudify.nodes.terraform.Module
+        type: nativeedge.nodes.terraform.Module
         properties:
           tfsec_config:
             config:
@@ -295,7 +297,7 @@ def test_tfsec():
             {
                 'token': elem,
                 'context': context,
-                'node_types': ['cloudify.nodes.terraform.Module']
+                'node_types': ['nativeedge.nodes.terraform.Module']
             }
         )
         result.pop(0)
@@ -314,10 +316,10 @@ def test_terratag():
     node_templates_content = """
     node_templates:
       cloud_resources:
-        type: cloudify.nodes.terraform.Module
+        type: nativeedge.nodes.terraform.Module
         properties:
           terratag_config:
-            tags: { 'name_company': 'cloudify' }
+            tags: { 'name_company': 'nativeedge' }
             flags_override:
               - -verbose: True
               - abc: 'abc'
@@ -336,7 +338,7 @@ def test_terratag():
             {
                 'token': elem,
                 'context': context,
-                'node_types': ['cloudify.nodes.terraform.Module']
+                'node_types': ['nativeedge.nodes.terraform.Module']
             }
         )
         result.pop(0)
@@ -350,7 +352,7 @@ def test_terratag():
         assert "unsupported flag, {}".format(TERRATAG_SUPPORTED_FLAGS) \
                in result[2].message
         assert isinstance(result[3], LintProblem)
-        assert 'cloudify.nodes.terraform.Module type should ' \
+        assert 'nativeedge.nodes.terraform.Module type should ' \
                'be used with some policy validation product' \
                in result[3].message
 
@@ -360,56 +362,56 @@ def test_prep_cyclic():
 node_templates:
 
   d1:
-    type: cloudify.nodes.gcp.Volume
+    type: nativeedge.nodes.gcp.Volume
     properties:
       client_config: gcp_config
       image: { get_input: image }
       size: 20
       boot: true
     relationships:
-      - type: cloudify.relationships.connected_to
+      - type: nativeedge.relationships.connected_to
         target: d2
   d2:
-    type: cloudify.nodes.gcp.Volume
+    type: nativeedge.nodes.gcp.Volume
     properties:
       client_config: gcp_config
       image: { get_input: image }
       size: 20
       boot: true
     relationships:
-      - type: cloudify.relationships.connected_to
+      - type: nativeedge.relationships.connected_to
         target: d3
   d3:
-    type: cloudify.nodes.gcp.Volume
+    type: nativeedge.nodes.gcp.Volume
     properties:
       client_config: gcp_config
       image: { get_input: image }
       size: 20
       boot: true
     relationships:
-      - type: cloudify.relationships.connected_to
+      - type: nativeedge.relationships.connected_to
         target: d1
 
   d4:
-    type: cloudify.nodes.gcp.Volume
+    type: nativeedge.nodes.gcp.Volume
     properties:
       gcp_config: gcp_config
       image: { get_input: image }
       size: 20
       boot: true
     relationships:
-      - type: cloudify.relationships.connected_to
+      - type: nativeedge.relationships.connected_to
         target: d5
 
   d5:
-    type: cloudify.nodes.gcp.Volume
+    type: nativeedge.nodes.gcp.Volume
     properties:
       client_config: gcp_config
       image: { get_input: image }
       size: 20
       boot: true
     relationships:
-      - type: cloudify.relationships.connected_to
+      - type: nativeedge.relationships.connected_to
         target: d4
 
     '''

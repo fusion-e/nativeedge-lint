@@ -81,16 +81,10 @@ def check_openstack_plugin_version(url, line):
             if version.parse(only_version[0]) >= version.parse('3.0.0') and \
                     "<=" not in str_version:
                 return
-        # TODO: Should we link to Cloudify docs?
         yield LintProblem(
             line, None,
-            'The Openstack Plugin version {} is deprecated.'
-            ' Please update to Openstack version 3 or higher. '
-            'Below are suggested node type changes.'
-            ' For more information on conversion to Openstack Plugin v3, '
-            'Please click on this link - https://docs.cloudify.co/latest/'
-            'working_with/official_plugins/infrastructure/openstackv3/'
-            .format(version_openstack))
+            f'The Openstack Plugin version {version_openstack}'
+            ' is deprecated. Please update to Openstack version 3 or higher.')
 
 
 def validate_imported_dsl_version(line, dsl_version, imported_dsl):

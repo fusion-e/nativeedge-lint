@@ -12,7 +12,6 @@ TYPE = 'token'
 CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
-# TODO: Determine if we lint Cloudify versions.
 LINTING_VERSIONS = ['nativeedge_1_0']
 
 
@@ -30,5 +29,6 @@ def validate_supported_dsl_version(value, line):
         yield LintProblem(
             line,
             None,
-            "dsl_version not supported: {} ".format(value)
+            f'{value} is not a supported DSL Version. '
+            f'Only these versions are supported: {LINTING_VERSIONS}'
         )
