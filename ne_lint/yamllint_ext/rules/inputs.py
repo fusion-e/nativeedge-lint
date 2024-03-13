@@ -191,7 +191,7 @@ def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
                                 get_type_name(input_obj))
         if not (message or get_default_type(input_obj) == get_type(input_obj)):
             message = 'input "{}" specify a type {}, However this'\
-                ' doesn\'t match deafult of type {}.'.format(
+                ' doesn\'t match default of type {}.'.format(
                     input_obj.name,
                     get_type_name(input_obj),
                     input_obj.default)

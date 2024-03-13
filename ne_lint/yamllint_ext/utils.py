@@ -14,6 +14,7 @@ from packaging.version import parse as version_parse
 
 from yamllint.config import YamlLintConfigError
 
+from ne_lint.logger import logger
 from ne_lint.yamllint_ext.nativeedge.models import NodeTemplate
 from ne_lint.yamllint_ext.constants import (
     UNUSED_IMPORT,
@@ -134,6 +135,7 @@ def get_json_from_marketplace(url):
     try:
         resp = urllib.request.urlopen(url)
     except (urllib.error.HTTPError, urllib.error.URLError) as e:
+        logger.error(f'Failed on URL: {url}.')
         if isinstance(e, urllib.error.URLError):
             raise urllib.error.URLError("Connection Error")
         return {}
@@ -237,6 +239,8 @@ def get_plugin_spec(plugin_version_string, plugin_name):
     validations = get_validations(version_constraints)
 
     plugin_id = get_plugin_id_from_marketplace(plugin_name)
+    if not plugin_id:
+        return
     versions = get_plugin_versions_from_marketplace(plugin_id)
 
     if len(validations['==']) == 1 and validations['=='][0] in versions:
