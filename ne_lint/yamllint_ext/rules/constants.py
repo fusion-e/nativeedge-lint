@@ -419,19 +419,6 @@ deprecated_relationship_types = {
         'nativeedge.relationships.vsphere.nic_connected_to_server',
     'cloudify.vsphere.controller_connected_to_vm':
         'nativeedge.relationships.vsphere.controller_connected_to_vm',
-
-    'cloudify.relationships.connected_to':
-        'nativeedge.relationships.connected_to',
-    'cloudify.relationships.depends_on':
-        'nativeedge.relationships.depends_on',
-    'cloudify.relationships.contained_in':
-        'nativeedge.relationships.contained_in',
-    'cloudify.relationships.depends_on_lifecycle_operation':
-        'nativeedge.relationships.depends_on_lifecycle_operation',
-    'cloudify.relationships.depends_on_shared_resource':
-        'nativeedge.relationships.depends_on_shared_resource',
-    'cloudify.relationships.connected_to_shared_resource':
-        'nativeedge.relationships.connected_to_shared_resource',
 }
 
 ACCEPTED_LIST_TYPES = (
