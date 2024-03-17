@@ -563,9 +563,10 @@ def check_cyclic_node_dependency(edges, lines_index):
             "A dependency loop consistent of {} was identified".format(cycle)
         )
 
+
 def check_interfaces(model, line):
     if model.interfaces:
-        for key, value in model.interfaces.items():    
+        for key, value in model.interfaces.items():
             if key.startswith('cloudify.'):
                 yield LintProblem(
                     line,
@@ -574,6 +575,7 @@ def check_interfaces(model, line):
                     f"Replace usage of {key} with "
                     f"{key.replace('cloudify', 'nativeedge')}."
                 )
+
 
 def check_relationships(model, line):
     if model.relationships:
