@@ -418,7 +418,7 @@ deprecated_relationship_types = {
     'cloudify.vsphere.nic_connected_to_server':
         'nativeedge.relationships.vsphere.nic_connected_to_server',
     'cloudify.vsphere.controller_connected_to_vm':
-        'nativeedge.relationships.vsphere.controller_connected_to_vm'
+        'nativeedge.relationships.vsphere.controller_connected_to_vm',
 }
 
 ACCEPTED_LIST_TYPES = (
