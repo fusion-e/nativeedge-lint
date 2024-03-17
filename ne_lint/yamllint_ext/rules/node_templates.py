@@ -91,6 +91,9 @@ def check(token=None, context=None, node_types=None, **_):
         yield from check_supports_tagging(
             parsed_node_template,
             parsed_node_template.line or token.line)
+        yield from check_interfaces(
+            parsed_node_template,
+            parsed_node_template.line or token.line)
     yield from check_cyclic_node_dependency(edges, line_index)
 
 
@@ -556,3 +559,15 @@ def check_cyclic_node_dependency(edges, lines_index):
             None,
             "A dependency loop consistent of {} was identified".format(cycle)
         )
+
+def check_interfaces(model, line):
+    if model.interfaces:
+        for key, value in model.interfaces.items():    
+            if key.startswith('cloudify.'):
+                yield LintProblem(
+                    line,
+                    None,
+                    "deprecated interfaces. "
+                    f"Replace usage of {key} with "
+                    f"{key.replace('cloudify', 'nativeedge')}."
+                )

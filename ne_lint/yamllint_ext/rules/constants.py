@@ -3,11 +3,6 @@
 import yaml
 
 
-deprecated_interfaces = {
-    'cloudify.interfaces.lifecycle': 
-        'nativeedge.interfaces.lifecycle'
-}
-
 # TODO: Determine if we warn Cloudify node types.
 deprecated_node_types = {
     'cloudify.azure.nodes.resources.Azure':
