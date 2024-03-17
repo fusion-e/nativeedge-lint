@@ -2,6 +2,12 @@
 
 import yaml
 
+
+deprecated_interfaces = {
+    'cloudify.interfaces.lifecycle': 
+        'nativeedge.interfaces.lifecycle'
+}
+
 # TODO: Determine if we warn Cloudify node types.
 deprecated_node_types = {
     'cloudify.azure.nodes.resources.Azure':
@@ -418,7 +424,14 @@ deprecated_relationship_types = {
     'cloudify.vsphere.nic_connected_to_server':
         'nativeedge.relationships.vsphere.nic_connected_to_server',
     'cloudify.vsphere.controller_connected_to_vm':
-        'nativeedge.relationships.vsphere.controller_connected_to_vm'
+        'nativeedge.relationships.vsphere.controller_connected_to_vm',
+
+    'cloudify.relationships.connected_to':
+        'nativeedge.relationships.connected_to',
+    'cloudify.relationships.depends_on':
+        'nativeedge.relationships.depends_on',
+    'cloudify.relationships.contained_in':
+        'nativeedge.relationships.contained_in',
 }
 
 ACCEPTED_LIST_TYPES = (

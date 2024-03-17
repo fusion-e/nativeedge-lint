@@ -39,6 +39,7 @@ ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
 # RUN pip3 install https://github.com/cloudify-incubator/cloudify-ecosystem-test/archive/latest.zip
 COPY setup.py setup.py
 COPY ne_lint/ ne_lint
+RUN sudo chown -R circleci:circleci ne_lint
 RUN pip3 install -e .
 
 WORKDIR /project
