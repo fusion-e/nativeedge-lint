@@ -40,7 +40,7 @@ commands:
       - run:
           name: Create new version
           command: |
-            VERSION="$(cat project/ne_lint/__version__.py | grep "=" | awk '{print $3}')"
+            VERSION="$(cat ne_lint/__version__.py | grep "=" | awk '{print $3}')"
             # CREATE THE RELEASE
             URL="https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/releases"
             DATA='{"tag_name":'${VERSION}',"target_commitish":"main","name":'${VERSION}',"body":"NewRelease","draft":false,"prerelease":false,"generate_release_notes":true}'
