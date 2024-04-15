@@ -28,3 +28,7 @@ clrf:
 
 prune:
 	@find . -name "*.pyc" -exec rm -f {} \;
+
+wheels:
+	@pip wheel /project -w /workspace/build/ --find-links /workspace/build
+	cp /workspace/build/ne_lint*whl /project
