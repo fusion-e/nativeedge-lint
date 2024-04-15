@@ -601,7 +601,8 @@ def process_relevant_tokens(model, keyword):
 
 def update_dict_values_recursive(default_dict, name_file_config):
     with io.open(name_file_config):
-        f = open("config.yaml", "r")
+        name_file_config = name_file_config or "config.yaml"
+        f = open(name_file_config, "r")
         user_dict = f.read()
 
     default_dict = yaml.load(default_dict, Loader=yaml.Loader)
@@ -613,6 +614,7 @@ def update_dict_values_recursive(default_dict, name_file_config):
                 update_dict_values_recursive(default_dict[key], value)
             if value:
                 default_dict[key] = value
+
     return default_dict
 
 
