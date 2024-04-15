@@ -54,7 +54,8 @@ jobs:
 
   release:
     executor: py36
-    steps: 
+    steps:
+      - checkout
       - release
 
 workflows:
