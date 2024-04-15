@@ -36,7 +36,7 @@ commands:
     steps:
       - run:
           name: Create Wheel
-          command: pip wheel project/
+          command: pip wheel .
       - run:
           name: Create new version
           command: |
