@@ -605,7 +605,7 @@ def update_dict_values_recursive(default_dict, name_file_config):
         f = open(name_file_config, "r")
         user_dict = f.read()
 
-    default_dict = yaml.load(default_dict, Loader=yaml.Loader)
+    default_dict = yaml.safe_load(default_dict)
     user_dict = yaml.load(user_dict, Loader=yaml.Loader)
 
     if user_dict and default_dict:
