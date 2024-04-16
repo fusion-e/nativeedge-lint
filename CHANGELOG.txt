@@ -2,3 +2,6 @@
   - Support nativeedge_1_0
   - Support nativeedge node types.
   - Deprecate rebranded node types.
+0.1.1:
+  - Support the config file.
+  - Update config for auto-release.
