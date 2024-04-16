@@ -610,11 +610,13 @@ def update_dict_values(default_dict, name_file_config):
     default_dict = update_dict_values_recursive(default_dict, user_dict)
     return default_dict
 
+
 def update_dict_values_recursive(default_dict, user_dict):
     if user_dict and default_dict:
         for key, value in user_dict.items():
             if isinstance(value, dict):
-                default_dict[key] = update_dict_values_recursive(default_dict.get(key, {}), value)
+                default_dict[key] = update_dict_values_recursive(
+                    default_dict.get(key, {}), value)
             elif value is not None:
                 default_dict[key] = value
     return default_dict
