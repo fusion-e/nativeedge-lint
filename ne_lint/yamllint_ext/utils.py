@@ -599,22 +599,26 @@ def process_relevant_tokens(model, keyword):
     return wrapper_outer
 
 
-def update_dict_values_recursive(default_dict, name_file_config):
+def update_dict_values(default_dict, name_file_config):
     with io.open(name_file_config):
-        name_file_config = name_file_config or "config.yaml"
-        f = open(name_file_config, "r")
-        user_dict = f.read()
+        name_file_config = name_file_config
+        with open(name_file_config, "r") as f:
+            user_dict = f.read()
 
     default_dict = yaml.safe_load(default_dict)
     user_dict = yaml.safe_load(user_dict)
+    default_dict = update_dict_values_recursive(default_dict, user_dict)
+    return default_dict
 
+
+def update_dict_values_recursive(default_dict, user_dict):
     if user_dict and default_dict:
         for key, value in user_dict.items():
-            if value is dict:
-                update_dict_values_recursive(default_dict[key], value)
-            if value:
+            if isinstance(value, dict):
+                default_dict[key] = update_dict_values_recursive(
+                    default_dict.get(key, {}), value)
+            elif value is not None:
                 default_dict[key] = value
-
     return default_dict
 
 

@@ -1,7 +1,8 @@
 # Copyright © 2023 Dell Inc. or its subsidiaries. All Rights Reserved.
 
+import yaml
 import yamllint.rules
-from ne_lint.yamllint_ext.utils import update_dict_values_recursive
+from ne_lint.yamllint_ext.utils import update_dict_values
 from yamllint.config import YamlLintConfig
 from yamllint.config import (
     validate_rule_conf,
@@ -13,11 +14,13 @@ from ne_lint.yamllint_ext.config.constants import \
 
 class YamlLintConfigExt(YamlLintConfig):
     def __init__(self, content=None, file=None, yamllint_rules=None):
+        default_config = DEFAULT_YAMLLINT_CONFIG
         if content:
-            update_dict_values_recursive(
+            updated_dict = update_dict_values(
                 DEFAULT_YAMLLINT_CONFIG, content)
+            default_config = yaml.dump(updated_dict)
         self._yamllint_rules = yamllint_rules or yamllint.rules
-        super().__init__(DEFAULT_YAMLLINT_CONFIG, file)
+        super().__init__(default_config, file)
 
     @property
     def yamllint_rules(self):
