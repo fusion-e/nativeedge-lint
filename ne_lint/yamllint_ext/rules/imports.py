@@ -32,8 +32,17 @@ def check(token=None, **_):
 
 
 def validate_import_items(item, token):
-    url = urlparse(item.value)
-    if url.scheme not in ['http', 'https', 'plugin']:
+    try:
+        url = urlparse(item.value)
+    except AttributeError:
+        url = None
+    # if not url:
+    #     yield LintProblem(
+    #         token.line,
+    #         None,
+    #         f'Invalid value for import item: {item.value}.'
+    #     )
+    if url and url.scheme not in ['http', 'https', 'plugin']:
         if not url.scheme and url.path.split('/')[-1].endswith('.yaml'):
             # TODO: Do we need to be backward compatible here?
             if url.path not in ['nativeedge/types/types.yaml',
@@ -52,24 +61,29 @@ def validate_import_items(item, token):
                 None,
                 'invalid import. {} scheme not accepted'.format(url.scheme)
             )
-    if url.scheme in ['plugin'] and url.path in [
+    if url and url.scheme in ['plugin'] and url.path in [
             'nativeedge-openstack-plugin',
             'cloudify-openstack-plugin']:
         yield from check_openstack_plugin_version(url, token.line)
-    elif url.scheme in ['https', 'https'] and not url.path.endswith('.yaml'):
+    elif url and url.scheme in ['https', 'https'] and not \
+            url.path.endswith('.yaml'):
         yield LintProblem(
             token.line,
             None,
             'invalid import. {}'.format(url)
         )
-    elif url.scheme in ['https', 'https']:
+    elif url and url.scheme in ['https', 'https']:
         yield from validate_imported_dsl_version(
             token.line, ctx.get('dsl_version'),
             ctx.get('imported_tosca_definitions_version'))
 
 
 def validate_string(item, line):
-    if not isinstance(item, yaml.nodes.ScalarNode):
+    if isinstance(item, yaml.nodes.MappingNode) and \
+            item.value[0][0].value == 'plugin':
+        # This will be caught in validate mapping
+        pass
+    elif not isinstance(item, yaml.nodes.ScalarNode):
         yield LintProblem(line, None, 'import is not a string.')
 
 
@@ -108,7 +122,9 @@ def unused_imports(item, token):
         None,
         'unused import item: {}'.format(item.value)
     )
+    try:
+        ctx['post_processing_problems'].update({item.value: problem})
+    except TypeError:
+        pass
     if False:
         yield problem
-    else:
-        ctx['post_processing_problems'].update({item.value: problem})

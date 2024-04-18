@@ -144,6 +144,7 @@ def get_json_from_marketplace(url):
 
 
 def get_plugin_id_from_marketplace(plugin_name):
+    plugin_name = plugin_name.replace('nativeedge-', 'cloudify-')
     url_plugin_id = f'https://{MARKET_PLACE_DOMAIN}/' \
         f'plugins?name={plugin_name}'
     json_resp = get_json_from_marketplace(url_plugin_id)
@@ -277,7 +278,7 @@ def get_node_types_for_plugin_import(plugin_import):
 
 
 def get_node_types_for_plugin_version(plugin_name, plugin_version):
-
+    plugin_name = plugin_name.replace('nativeedge-', 'cloudify-')
     node_types = {}
     offset = 0
     while True:
@@ -288,6 +289,8 @@ def get_node_types_for_plugin_version(plugin_name, plugin_version):
         result = get_json_from_marketplace(url)
         if 'items' in result:
             for item in result['items']:
+                item['type'] = item['type'].replace(
+                    'cloudify.nodes', 'nativeedge.nodes')
                 if item['type'] not in node_types:
                     node_types[item['type']] = item
             # Stop paginating results when the offset has been incrimented
@@ -464,6 +467,8 @@ def setup_types(buffer=None, data=None, base_path=None):
     if not data:
         return
     for imported in data.get('imports', {}):
+        if not isinstance(imported, str):
+            continue
         import_dsl_yaml(imported, base_path=base_path)
     add_to_node_types(data.get('node_types', {}))
 
@@ -487,7 +492,7 @@ def setup_node_templates(elem):
     if elem.prev and elem.prev.node.value == 'node_templates':
         for item in elem.node.value:
             node_template = setup_node_template(item)
-            if node_template.name not in context:
+            if node_template and node_template.name not in context:
                 context['node_templates'].update({
                     node_template.name: node_template
                 })
