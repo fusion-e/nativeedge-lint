@@ -9,3 +9,6 @@
   - Ticket: NE-28209
     Description: Yield lint error on incomplete import.
   	Developer: adam.terramel
+  - Ticket: NE-28220
+    Description: transform plugin and node type names for marketplace.
+    Developer: adam.terramel
