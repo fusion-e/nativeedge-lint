@@ -464,6 +464,8 @@ def setup_types(buffer=None, data=None, base_path=None):
     if not data:
         return
     for imported in data.get('imports', {}):
+        if not isinstance(imported, str):
+            continue
         import_dsl_yaml(imported, base_path=base_path)
     add_to_node_types(data.get('node_types', {}))
 
@@ -487,7 +489,7 @@ def setup_node_templates(elem):
     if elem.prev and elem.prev.node.value == 'node_templates':
         for item in elem.node.value:
             node_template = setup_node_template(item)
-            if node_template.name not in context:
+            if node_template and node_template.name not in context:
                 context['node_templates'].update({
                     node_template.name: node_template
                 })

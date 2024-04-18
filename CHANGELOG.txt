@@ -5,3 +5,7 @@
 0.1.1:
   - Support the config file.
   - Update config for auto-release.
+0.1.2:
+  - Ticket: NE-28209
+    Description: Yield lint error on incomplete import.
+  	Developer: adam.terramel
