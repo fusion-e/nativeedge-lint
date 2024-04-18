@@ -3,6 +3,7 @@
 from yamllint.rules import _RULES as ruleset
 
 from . import inputs
+from . import labels
 from . import imports
 from . import node_types
 from . import dsl_version
@@ -14,6 +15,7 @@ from . import blueprint_labels
 
 _RULES = {
     inputs.ID: inputs,
+    labels.ID: labels,
     imports.ID: imports,
     node_types.ID: node_types,
     dsl_version.ID: dsl_version,
