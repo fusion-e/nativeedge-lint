@@ -5,7 +5,7 @@ from ne_lint.yamllint_ext.generators import NENode
 from ne_lint.yamllint_ext.utils import (
     process_relevant_tokens,
     recurse_get_readable_object,
-    # context as ctx
+    context as ctx
 )
 
 VALUES = []
@@ -30,6 +30,8 @@ def check(token=None, **_):
                 desc='Every label should be a dictionary')
         else:
             for k, v in dictionary.items():
+                if k not in ctx['labels']:
+                    ctx['labels'].update({k: None})
                 if not isinstance(v, dict):
                     yield LintProblem(
                         token.line,
@@ -61,8 +63,9 @@ def check(token=None, **_):
                         yield LintProblem(
                             token.line,
                             None,
-                            f'The "hidden" label with the values {nested_value} '
-                            'is functionally the same as removing the "hidden" '
-                            'label. For consciseness, remove the "hidden" label.',
+                            'The "hidden" label with the values '
+                            f'{nested_value} is functionally the '
+                            'same as removing the "hidden" label. '
+                            'For consciseness, remove the "hidden" label.',
                             start_mark=item[LEVEL1].start_mark.line,
                             end_mark=item[LEVEL1].end_mark.line)

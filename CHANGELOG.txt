@@ -12,3 +12,10 @@
   - Ticket: NE-28220
     Description: transform plugin and node type names for marketplace.
     Developer: adam.terramel
+0.1.3:
+  - Ticket: NE-28214
+    Description: Alert user when get_environment_capability is used and csys-obj-parent label is not.
+    Developer: adam.terramel
+  - Ticket: NE-28215
+    Description: Supporting linting on plugin mappings in interfaces.
+    Developer: adam.terramel

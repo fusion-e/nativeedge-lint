@@ -18,8 +18,16 @@ CONF = {'allowed-values': list(VALUES), 'check-keys': bool}
 DEFAULT = {'allowed-values': ['true', 'false'], 'check-keys': True}
 
 
-@process_relevant_tokens(NENode, ['outputs', 'capabilities'])
+@process_relevant_tokens(NENode,
+                         [
+                              'outputs',
+                              'capabilities',
+                              'get_capability',
+                              'get_environment_capability',
+                         ])
 def check(token=None, **_):
+    output_obj = None
+    USE_PARENT_LABEL = False
     for item in token.node.value:
         if token.prev.node.value == 'outputs':
             output_obj = NEOutput(item)
@@ -29,7 +37,10 @@ def check(token=None, **_):
             output_obj = NECapability(item)
             if not output_obj.name and not output_obj.mapping:
                 continue
-        if output_obj.not_output():
+        elif token.prev.node.value in ['get_environment_capability']:
+            if 'csys-obj-parent' not in ctx['labels']:
+                USE_PARENT_LABEL = True
+        if not output_obj or output_obj.not_output():
             continue
         if isinstance(output_obj, NEOutput):
             ctx['outputs'].update(output_obj.__dict__())
@@ -49,6 +60,13 @@ def check(token=None, **_):
                 '{} {} does not provide a description.'.format(
                     desig, output_obj.name)
             )
+    if USE_PARENT_LABEL:
+        yield LintProblem(
+            token.line,
+            None,
+            'The intrinsic function get_environment_capability '
+            'is used but the label "csys-obj-parent" is not present.'
+        )
 
 
 class NEOutput(object):

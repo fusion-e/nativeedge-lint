@@ -5,6 +5,7 @@ from yamllint.rules import _RULES as ruleset
 from . import inputs
 from . import labels
 from . import imports
+from . import interfaces
 from . import node_types
 from . import dsl_version
 from . import capabilities
