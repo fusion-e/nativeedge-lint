@@ -3,6 +3,7 @@
 import io
 import os
 import re
+import ssl
 import sys
 import json
 import time
@@ -57,6 +58,7 @@ context = {
     'current_tokens_line': 0,
     'add_label': [],
     'line_diff': {},
+    'labels': {},
 }
 
 MARKET_PLACE_DOMAIN = 'marketplace.cloudify.co'
@@ -132,12 +134,13 @@ def skip_inputs_in_node_templates(top_level):
 
 
 def get_json_from_marketplace(url):
+    ctx = ssl.create_default_context()
+    # ctx.check_hostname = False
+    # ctx.verify_mode = ssl.CERT_NONE
     try:
-        resp = urllib.request.urlopen(url)
+        resp = urllib.request.urlopen(url, context=ctx)
     except (urllib.error.HTTPError, urllib.error.URLError) as e:
         logger.error(f'Failed on URL: {url}.')
-        if isinstance(e, urllib.error.URLError):
-            raise urllib.error.URLError("Connection Error")
         return {}
     body = resp.read()
     return json.loads(body)

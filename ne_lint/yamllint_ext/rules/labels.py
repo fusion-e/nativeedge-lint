@@ -5,7 +5,7 @@ from ne_lint.yamllint_ext.generators import NENode
 from ne_lint.yamllint_ext.utils import (
     process_relevant_tokens,
     recurse_get_readable_object,
-    # context as ctx
+    context as ctx
 )
 
 VALUES = []
@@ -30,6 +30,8 @@ def check(token=None, **_):
                 desc='Every label should be a dictionary')
         else:
             for k, v in dictionary.items():
+                if k not in ctx['labels']:
+                    ctx['labels'].update({k: None})
                 if not isinstance(v, dict):
                     yield LintProblem(
                         token.line,
