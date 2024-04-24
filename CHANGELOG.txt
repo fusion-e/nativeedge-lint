@@ -16,3 +16,6 @@
   - Ticket: NE-28214
     Description: Alert user when get_environment_capability is used and csys-obj-parent label is not.
     Developer: adam.terramel
+  - Ticket: NE-28368
+    Description: Replace line endings CRLF with LF.
+    Developer: nely.maor

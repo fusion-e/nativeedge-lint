@@ -303,6 +303,8 @@ def _run(buffer,
     # it changes the line numbers of the entire file, so we do it once all
     # other tasks are done
     if extra_empty_line:
+        input_file_path = os.path.abspath(input_file)
+        problem.file = input_file_path
         fix_empty_lines(problem)
 
     if context['line_diff'] or context['add_label']:

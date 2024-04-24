@@ -120,6 +120,10 @@ def lint(blueprint_path,
             if item.level == 'warning':
                 logger.warning(message)
             elif item.level == 'error':
+                if message.__contains__("wrong new line character: expected"):
+                    split_error = message.split(":", maxsplit=2)
+                    split_error[2] = " Replace line endings CRLF with LF"
+                    message = ":".join(split_error)
                 logger.error(message)
             else:
                 logger.info(message)
