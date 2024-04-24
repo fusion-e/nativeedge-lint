@@ -498,6 +498,13 @@ def remove_node_type_from_context(node_type):
                 del ctx[UNUSED_IMPORT_CTX][import_item]
 
 
+def remove_plugin_from_context(plugin_name):
+    if UNUSED_IMPORT_CTX in ctx:
+        for import_item in list(ctx[UNUSED_IMPORT_CTX].keys()):
+            if plugin_name in import_item:
+                del ctx[UNUSED_IMPORT_CTX][import_item]
+
+
 def check_get_attribute(model, line):
     if not model.properties:
         return
@@ -566,14 +573,37 @@ def check_cyclic_node_dependency(edges, lines_index):
 
 def check_interfaces(model, line):
     if model.interfaces:
-        for key, value in model.interfaces.items():
-            if key.startswith('cloudify.'):
+        for iface_name, iface_value in model.interfaces.items():
+            if isinstance(iface_value, dict):
+                for op_name, op_value in iface_value.items():
+                    if isinstance(op_value, dict):
+                        keys = list(op_value.keys())
+                        for k in keys:
+                            if k not in ['implementation',
+                                         'inputs',
+                                         'executor']:
+                                yield LintProblem(
+                                    line,
+                                    None,
+                                    f'Operation key {k} '
+                                    'is not in schema: '
+                                    '[implementation, inputs, executor].'
+                                )
+                            elif k == 'implementation':
+                                if isinstance(op_value[k], str):
+                                    if 'fabric.fabric_plugin' in op_value[k]:
+                                        remove_plugin_from_context(
+                                            'nativeedge-fabric-plugin')
+                                    elif 'ansible.ne_ansible' in op_value[k]:
+                                        remove_plugin_from_context(
+                                            'nativeedge-ansible-plugin')
+            if iface_name.startswith('cloudify.'):
                 yield LintProblem(
                     line,
                     None,
                     "deprecated interfaces. "
-                    f"Replace usage of {key} with "
-                    f"{key.replace('cloudify', 'nativeedge')}."
+                    f"Replace usage of {iface_name} with "
+                    f"{iface_name.replace('cloudify', 'nativeedge')}."
                 )
 
 
@@ -581,7 +611,19 @@ def check_relationships(model, line):
     if model.relationships:
         for data in model.relationships:
             for key, value in data.items():
-                if value.startswith('cloudify.'):
+                if key not in ['target',
+                               'type',
+                               'source_interfaces',
+                               'target_interfaces']:
+                    yield LintProblem(
+                        line,
+                        None,
+                        f'Interface key {key} '
+                        'is not in schema: '
+                        '[target, type, source_interfaces, '
+                        'target_interfaces].'
+                    )
+                elif isinstance(value, str) and value.startswith('cloudify.'):
                     yield LintProblem(
                         line,
                         None,

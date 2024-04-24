@@ -48,6 +48,7 @@ rules:
   new-lines:
     type: platform
   inputs: enable
+  labels: enable
   imports: enable
   node_types: enable
   dsl_version: enable

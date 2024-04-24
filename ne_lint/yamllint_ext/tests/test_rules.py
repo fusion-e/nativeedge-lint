@@ -150,6 +150,10 @@ def test_node_templates():
             foo: bar
           baz: { get_input: taco }
           quk: { get_attribute: [ quuk, quuz ] }
+        interfaces:
+          nativeedge.interfaces.lifecycle:
+            peep:
+              implementation: 'fabric.fabric_plugin'
     """
 
     elem = get_mock_cfy_node(node_templates_content, 'node_templates')
@@ -157,6 +161,9 @@ def test_node_templates():
         'foo': models.NodeTemplate('foo'),
     }
     with patch('ne_lint.yamllint_ext.rules.node_templates.ctx') as ctx:
+        ctx['imported_node_types_by_plugin'] = {
+            'nativeedge-fabric-plugin': {}
+        }
         ctx['inputs'] = {}
         result = get_gen_as_list(
             rules.node_templates.check,
@@ -170,6 +177,8 @@ def test_node_templates():
         assert 'undefined target' in result[2].message
         assert isinstance(result[3], LintProblem)
         assert 'deprecated property' in result[3].message
+        assert 'nativeedge-fabric-plugin' not in \
+            ctx['imported_node_types_by_plugin']
 
 
 def test_node_types():
