@@ -6,6 +6,7 @@ from ne_lint.yamllint_ext.autofix.commas import fix_commas
 from ne_lint.yamllint_ext.autofix.indentation import fix_indentation
 from ne_lint.yamllint_ext.autofix.brackets import fix_spaces_in_brackets
 from ne_lint.yamllint_ext.autofix.trailing_spaces import fix_trailing_spaces
+from ne_lint.yamllint_ext.autofix.line_ending import fix_line_endings
 from ne_lint.yamllint_ext.autofix.deprecated_node_types import \
     fix_deprecated_node_types
 from ne_lint.yamllint_ext.autofix.deprecated_relationships import \
@@ -22,3 +23,4 @@ def fix_problem(problem):
         fix_colons(problem)
         fix_commas(problem)
         fix_spaces_in_brackets(problem)
+        fix_line_endings(problem)

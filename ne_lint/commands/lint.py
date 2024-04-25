@@ -18,7 +18,6 @@ from ne_lint.yamllint_ext.config import YamlLintConfigExt
 from ne_lint.yamllint_ext.autofix.add_label import fix_add_label
 from ne_lint.yamllint_ext.autofix.empty_lines import fix_empty_lines
 
-
 def report_both_fix_autofix(af, f):
     f = f or []
     if af and f:
@@ -63,6 +62,7 @@ def lint(blueprint_path,
         extra_empty_line = False
         add_label_offset = False
         problems = []
+
         for x in fix_only:
             x = json.loads(x)
             problem = LintProblem(
@@ -71,9 +71,8 @@ def lint(blueprint_path,
                 desc=x['message'],
                 rule=x['rule'],
             )
-            input_file_path = os.path.abspath(blueprint_path)
-            problem.file = input_file_path
-            # print(problems)
+
+            problem.file = os.path.abspath(blueprint_path)
             if problem.rule == 'inputs' and \
                     'is missing a display_label' in problem.message:
                 add_label_offset = True
@@ -120,10 +119,6 @@ def lint(blueprint_path,
             if item.level == 'warning':
                 logger.warning(message)
             elif item.level == 'error':
-                if message.__contains__("wrong new line character: expected"):
-                    split_error = message.split(":", maxsplit=2)
-                    split_error[2] = " Replace line endings CRLF with LF"
-                    message = ":".join(split_error)
                 logger.error(message)
             else:
                 logger.info(message)

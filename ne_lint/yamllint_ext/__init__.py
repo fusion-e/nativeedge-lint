@@ -25,9 +25,9 @@ from ne_lint.yamllint_ext.utils import (
     setup_node_templates,
     add_severity
 )
-from ne_lint.yamllint_ext.autofix.utils import build_diff_lines
 from ne_lint.yamllint_ext.autofix import fix_problem
 from ne_lint.yamllint_ext.rules.inputs import ID as input_rule
+from ne_lint.yamllint_ext.autofix.utils import build_diff_lines
 from ne_lint.yamllint_ext.rules.imports import ID as import_rule
 from ne_lint.yamllint_ext.autofix.add_label import fix_add_label
 from ne_lint.yamllint_ext.autofix.empty_lines import fix_empty_lines
@@ -262,7 +262,7 @@ def _run(buffer,
             add_severity(problem)
 
     for problem in sorted_problems:
-
+        problem.file = os.path.abspath(input_file)
         problem.fixes = fix
         # Insert the syntax error (if any) at the right place...
 
@@ -281,9 +281,6 @@ def _run(buffer,
             syntax_error = None
 
         if problem.fix:
-            input_file_path = os.path.abspath(input_file)
-            problem.file = input_file_path
-
             if problem.rule == 'inputs' and \
                     'is missing a display_label' in problem.message:
                 add_label = True
@@ -303,8 +300,6 @@ def _run(buffer,
     # it changes the line numbers of the entire file, so we do it once all
     # other tasks are done
     if extra_empty_line:
-        input_file_path = os.path.abspath(input_file)
-        problem.file = input_file_path
         fix_empty_lines(problem)
 
     if context['line_diff'] or context['add_label']:
