@@ -107,7 +107,7 @@ def connect_two_sorted_dicts(dict1, dict2):
 
 
 @contextmanager
-def filelines(filename, binary=False):
+def filelines_binary(filename, binary=False):
     fr = 'r'
     fw = 'w'
     if binary:
