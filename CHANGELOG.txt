@@ -21,5 +21,5 @@
     Developer: adam.terramel
 0.1.4:
   - Ticket: NE-28368
-    Description: fixed CLEF to LF.
+    Description: fixed CRLF to LF.
     Developer: nely.maor

@@ -1,7 +1,7 @@
 # Copyright © 2023 Dell Inc. or its subsidiaries. All Rights Reserved.
 
-from ne_lint.yamllint_ext.utils import context
 from contextlib import contextmanager
+from ne_lint.yamllint_ext.utils import context
 
 
 @contextmanager
@@ -104,3 +104,17 @@ def connect_two_sorted_dicts(dict1, dict2):
             key2 = next(keys2, None)
 
     return result_dict
+
+
+@contextmanager
+def filelines(filename, binary=False):
+    fr = 'r'
+    fw = 'w'
+    if binary:
+        fr = 'rb'
+        fw = 'wb'
+    with open(filename, fr) as file:
+        lines = file.readlines()
+    yield lines
+    with open(filename,  fw) as file:
+        file.writelines(lines)
