@@ -56,41 +56,12 @@ def lint(blueprint_path,
          skip_suggestions=None,
          autofix=False,
          fix=None,
-         fix_only=None,
+         fix_only=False,
          **_):
-
+ 
     if fix_only:
-        extra_empty_line = False
-        add_label_offset = False
-        problems = []
-        for x in fix_only:
-            x = json.loads(x)
-            problem = LintProblem(
-                line=x['line'],
-                column=None,
-                desc=x['message'],
-                rule=x['rule'],
-            )
-            input_file_path = os.path.abspath(blueprint_path)
-            problem.file = input_file_path
-            # print(problems)
-            if problem.rule == 'inputs' and \
-                    'is missing a display_label' in problem.message:
-                add_label_offset = True
-                problems.append(problem)
-            elif problem.rule == 'empty-lines':
-                extra_empty_line = True
-            else:
-                fix_problem(problem)
-
-        if add_label_offset:
-            fix_add_label(problems, fix_only=True)
-
-        if extra_empty_line:
-            fix_empty_lines(problem)
-
-        sys.exit(0)
-
+        autofix= True
+    
     fix = report_both_fix_autofix(autofix, fix)
     format_json(format)
 
@@ -101,7 +72,8 @@ def lint(blueprint_path,
             blueprint_path,
             yaml_config,
             skip_suggestions=skip_suggestions,
-            fix=fix)
+            fix=fix,
+            fix_only=fix_only)
     except Exception as e:
         if verbose:
             raise e
@@ -136,12 +108,13 @@ def create_report_for_file(file_path,
                            conf,
                            create_report_for_file=False,
                            skip_suggestions=None,
-                           fix=None):
+                           fix=None,
+                           fix_only=False):
     if not os.path.exists(file_path):
         raise RuntimeError('File path does not exist: {}.'.format(file_path))
     logger.info('Linting blueprint: {}'.format(file_path))
     with io.open(file_path, newline='') as f:
-        return run(f, conf, create_report_for_file, skip_suggestions, fix)
+        return run(f, conf, create_report_for_file, skip_suggestions, fix, fix_only)
 
 
 def formatted_message(item, format=None):
