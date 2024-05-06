@@ -20,4 +20,4 @@ v = """Show verbose output, including exceptions."""
 
 xs = """Do not display suggested values for supported sections."""
 
-fo = """Fix all issues like autofix flage without linting again."""
+fo = """Fix all issues like autofix flag without linting again."""
