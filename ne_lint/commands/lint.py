@@ -56,7 +56,7 @@ def lint(blueprint_path,
          **_):
 
     if fix_only:
-        autofix= True
+        autofix = True
 
     fix = report_both_fix_autofix(autofix, fix)
     format_json(format)
@@ -110,11 +110,11 @@ def create_report_for_file(file_path,
         raise RuntimeError('File path does not exist: {}.'.format(file_path))
     logger.info('Linting blueprint: {}'.format(file_path))
     with io.open(file_path, newline='') as f:
-        return run(f, 
-                   conf, 
-                   create_report_for_file, 
-                   skip_suggestions, 
-                   fix, 
+        return run(f,
+                   conf,
+                   create_report_for_file,
+                   skip_suggestions,
+                   fix,
                    fix_only)
 
 

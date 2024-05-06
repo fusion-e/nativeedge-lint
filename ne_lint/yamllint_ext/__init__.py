@@ -323,9 +323,9 @@ def _run(buffer,
                 if problem.fixed:
                     continue
                 if problem.line > lines[index]:
-                    while (index + 1 < len_lines and 
+                    while (index + 1 < len_lines and
                            problem.line not in range(
-                               lines[index], 
+                               lines[index],
                                lines[index + 1])):
                         index += 1
                     problem.update_line = problem.line + values[index]
@@ -337,11 +337,11 @@ def _run(buffer,
             yield syntax_error
 
 
-def run(input, 
-        conf, 
-        filepath=None, 
-        skip_suggestions=None, 
-        fix=None, 
+def run(input,
+        conf,
+        filepath=None,
+        skip_suggestions=None,
+        fix=None,
         fix_only=False):
     """Lints a YAML source.
 
