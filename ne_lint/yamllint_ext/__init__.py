@@ -267,7 +267,7 @@ def _run(buffer,
 
     input_file_path = os.path.abspath(input_file)
     problem.file = input_file_path
-    
+
     for problem in sorted_problems:
 
         problem.fixes = fix
