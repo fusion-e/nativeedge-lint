@@ -20,3 +20,4 @@ def fix_spaces_in_brackets(problem):
                 new_line = re.sub(r'\s+\]', ' ]', new_line)
                 lines[problem.line - 1] = new_line
                 problem.fixed = True
+        problem.fixed = True

@@ -265,6 +265,9 @@ def _run(buffer,
         if not problem.severity:
             add_severity(problem)
 
+    input_file_path = os.path.abspath(input_file)
+    problem.file = input_file_path
+    
     for problem in sorted_problems:
 
         problem.fixes = fix
@@ -300,12 +303,13 @@ def _run(buffer,
         if not fix:
             yield problem
 
-    if add_label:
-        fix_add_label(sorted_problems)
-
     # this needs to be separated from the rest of the auto fix functions since
     # it changes the line numbers of the entire file, so we do it once all
     # other tasks are done
+
+    if add_label:
+        fix_add_label(sorted_problems)
+
     if extra_empty_line:
         fix_empty_lines(problem)
 
