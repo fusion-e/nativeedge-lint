@@ -319,7 +319,7 @@ def _run(buffer,
         lines = list(context['line_diff'].keys())
         values = list(context['line_diff'].values())
         len_lines = len(lines)
-        
+
         for problem in sorted_problems:
             if problem.fixed:
                 continue

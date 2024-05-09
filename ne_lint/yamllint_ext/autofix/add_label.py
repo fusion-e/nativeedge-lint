@@ -21,10 +21,10 @@ def fix_add_label(problems, fix_only=False):
             with filelines(problem.file) as lines:
                 label = lines[problem.line - 1 + counter]
                 try:
-                    is_empty_line = re.findall(EMPTY, 
+                    is_empty_line = re.findall(EMPTY,
                                                lines[problem.line + counter])
                     if is_empty_line:
-                        while not re.findall(EMPTY, 
+                        while not re.findall(EMPTY,
                                              lines[problem.line + counter]):
                             counter += 1
                         indentation = re.search(

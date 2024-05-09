@@ -27,5 +27,5 @@
     Description: fixed Flage --fix-only -fo
     Developer: nely.maor
   - Ticket: NE-28203
-    Description: fixed Flage --fix with empty-lines rules
+    Description: Fixed the bugs in the --fix flag
     Developer: nely.maor
