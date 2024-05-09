@@ -300,9 +300,6 @@ def _run(buffer,
                 problem.fixed = True
             fix_problem(problem)
 
-        if not fix:
-            yield problem
-
     # this needs to be separated from the rest of the auto fix functions since
     # it changes the line numbers of the entire file, so we do it once all
     # other tasks are done
@@ -322,20 +319,20 @@ def _run(buffer,
         lines = list(context['line_diff'].keys())
         values = list(context['line_diff'].values())
         len_lines = len(lines)
-        if lines:
-            for problem in sorted_problems:
-                if problem.fixed:
-                    continue
-                if problem.line > lines[index]:
-                    while (index + 1 < len_lines and
-                           problem.line not in range(
-                               lines[index],
-                               lines[index + 1])):
-                        index += 1
-                    problem.update_line = problem.line + values[index]
+        
+        for problem in sorted_problems:
+            if problem.fixed:
+                continue
+            if lines and problem.line > lines[index]:
+                while (index + 1 < len_lines and
+                        problem.line not in range(
+                            lines[index],
+                            lines[index + 1])):
+                    index += 1
+                problem.update_line = problem.line + values[index]
 
-                if not problem.fixed:
-                    yield problem
+            if not problem.fixed:
+                yield problem
 
         if syntax_error:
             yield syntax_error
