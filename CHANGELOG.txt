@@ -19,3 +19,13 @@
   - Ticket: NE-28215
     Description: Supporting linting on plugin mappings in interfaces.
     Developer: adam.terramel
+0.1.4:
+  - Ticket: NE-28368
+    Description: fixed CRLF to LF.
+    Developer: nely.maor
+  - Ticket: NE-28864
+    Description: fixed Flage --fix-only -fo
+    Developer: nely.maor
+  - Ticket: NE-28203
+    Description: Fixed the bugs in the --fix flag
+    Developer: nely.maor

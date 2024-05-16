@@ -122,9 +122,10 @@ class Options(object):
         self.fix_only = click.option(
             '-fo',
             '--fix-only',
-            default=None,
-            type=click.STRING,
-            multiple=True,
+            default=False,
+            type=click.BOOL,
+            is_flag=True,
+            multiple=False,
             help=helptexts.fo)
 
 
