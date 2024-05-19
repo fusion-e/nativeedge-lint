@@ -49,6 +49,8 @@ DEFAULT = {
 
 @process_relevant_tokens(NENode, 'node_templates')
 def check(token=None, context=None, node_types=None, **_):
+    if not ctx['start_lines']['node_templates']:
+        ctx['start_lines']['node_templates'] = token.node.start_mark.line
     line_index = {}
     edges = []
     for node_template in token.node.value:

@@ -44,7 +44,16 @@ LEVEL1 = 1
 
 @process_relevant_tokens(NENode, ['inputs', 'get_input'])
 def check(token=None, skip_suggestions=None, **_):
-    if token.prev.node.value == 'inputs':
+    if not ctx['start_lines']['inputs']:
+        ctx['start_lines']['inputs'] = token.node.start_mark.line
+    not_input = False
+    inputs_start_line = ctx['start_lines']['inputs']
+    node_templates_start_line = ctx['start_lines'].get('node_templates')
+    if all(isinstance(v, int) for v in [inputs_start_line,
+                                        node_templates_start_line]):
+        not_input = node_templates_start_line > inputs_start_line and \
+            node_templates_start_line < token.node.start_mark.line
+    if token.prev.node.value == 'inputs' and not not_input:
         for item in token.node.value:
             if isinstance(item, yaml.nodes.ScalarNode):
                 yield LintProblem(
@@ -73,7 +82,7 @@ def check(token=None, skip_suggestions=None, **_):
                 )
             yield from validate_inputs(input_obj,
                                        input_obj.line or token.line,
-                                       ctx.get("dsl_version"),
+                                       ctx.get("dsl_version", ''),
                                        skip_suggestions,
                                        item)
 
@@ -106,7 +115,12 @@ def check(token=None, skip_suggestions=None, **_):
                 del ctx[UNUSED_INPUTS][token.node.value]
 
 
-def validate_inputs(input_obj, line, dsl, skip_suggestions=None, item=None):
+def validate_inputs(input_obj,
+                    line,
+                    dsl=None,
+                    skip_suggestions=None,
+                    item=None):
+    dsl = dsl or 'null'
     suggestions = 'inputs' in skip_suggestions
     if input_obj.invalid_keys:
         yield LintProblem(
