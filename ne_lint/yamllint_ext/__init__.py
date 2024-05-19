@@ -261,14 +261,14 @@ def _run(buffer,
     sorted_problems = sorted(problems, key=lambda x: x.line)
     add_label = False
     extra_empty_line = False
+    input_file_path = os.path.abspath(input_file)
     for problem in sorted_problems:
         if not problem.severity:
             add_severity(problem)
 
-    input_file_path = os.path.abspath(input_file)
-    problem.file = input_file_path
-
     for problem in sorted_problems:
+        if not problem.file:
+            problem.file = input_file_path
 
         problem.fixes = fix
         # Insert the syntax error (if any) at the right place...

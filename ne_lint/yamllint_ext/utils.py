@@ -46,7 +46,7 @@ INTRINSIC_FNS = [
 
 context = {
     'imports': [],
-    'dsl_version': None,
+    'dsl_version': '',
     'inputs': {},
     'imported_node_types': [],
     UNUSED_INPUTS: {},
@@ -59,6 +59,10 @@ context = {
     'add_label': [],
     'line_diff': {},
     'labels': {},
+    'start_lines': {
+        'inputs': None,
+        'node_templates': None,
+    },
 }
 
 MARKET_PLACE_DOMAIN = 'marketplace.cloudify.co'

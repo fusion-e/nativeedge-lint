@@ -74,7 +74,7 @@ def validate_import_items(item, token):
         )
     elif url and url.scheme in ['https', 'https']:
         yield from validate_imported_dsl_version(
-            token.line, ctx.get('dsl_version'),
+            token.line, ctx.get('dsl_version', ''),
             ctx.get('imported_tosca_definitions_version'))
 
 

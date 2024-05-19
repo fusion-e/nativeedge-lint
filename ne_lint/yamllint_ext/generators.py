@@ -63,6 +63,7 @@ class NENode(object):
         self._prev_prev = None
         self._next = None
         self._node_templates = None
+        self._token = None
 
         try:
             self._line = node.start_mark.line + 1
@@ -84,6 +85,14 @@ class NENode(object):
     @prev_prev.setter
     def prev_prev(self, value):
         self._prev_prev = value
+
+    @property
+    def token(self):
+        return self._token
+
+    @token.setter
+    def token(self, value):
+        self._token = value
 
     @property
     def next_token(self):
@@ -173,14 +182,18 @@ class YamlParserLintProblem():
 def token_or_comment_or_line_generator(buffer):
     """Generator that mixes tokens and lines, ordering them by line number"""
 
+    latest_token = None
     tok_or_com_gen = token_or_comment_generator(buffer)
     line_gen = line_generator(buffer)
     node_gen = node_generator(buffer)
 
     tok_or_com = next(tok_or_com_gen, None)
+    if tok_or_com:
+        latest_token = tok_or_com
     line = next(line_gen, None)
     try:
         node = NENode(next(node_gen, None))
+        node.token = latest_token
     except yaml.parser.ParserError as e:
         start_line = e.context_mark.line
         end_line = e.problem_mark.line

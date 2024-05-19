@@ -20,7 +20,6 @@ LEVEL1 = 1
 
 @process_relevant_tokens(NENode, ['blueprint_labels', 'blueprint-labels'])
 def check(token=None, **_):
-    # dsl = ctx.get("dsl_version")
     if token.prev.node.value == 'blueprint-labels':
         yield LintProblem(
                 token.prev.line,

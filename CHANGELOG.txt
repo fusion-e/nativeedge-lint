@@ -29,3 +29,10 @@
   - Ticket: NE-28203
     Description: Fixed the bugs in the --fix flag
     Developer: nely.maor
+0.1.5:
+  - Ticket: NE-28217
+    Description: Treat inputs key not as inputs if it appears in another section.
+    Developer: adam.terramel
+  - Ticket: NE-31022
+    Description: Handle issue when no DSL.
+    Developer: adam.terramel
