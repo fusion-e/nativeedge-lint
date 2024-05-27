@@ -486,3 +486,90 @@ def test_cyclic():
     ]
     for result in results:
         assert result.message in expected_results_message
+
+
+def test_node_templates_properties():
+    node_templates_content = """
+    node_templates:
+      resource:
+        type: nativeedge.nodes.kubernetes.resources.FileDefinedResource
+        properties:
+          client_config: foo
+          file:
+            resource_path: resources/file.yaml
+            template_variables:
+              PORT: 80
+          validate_resource_statuss: false
+    """
+
+    elem = get_mock_cfy_node(node_templates_content, 'node_templates')
+    context = {
+        'resource': models.NodeTemplate('resource'),
+    }
+    with patch('ne_lint.yamllint_ext.rules.node_templates.ctx') as ctx:
+        ctx['imported_node_types_by_plugin'] = {
+            'nativeedge-kubernetes-plugin': {
+                'nativeedge.nodes.kubernetes.'
+                'resources.FileDefinedResource': {},
+            }
+        }
+        ctx['inputs'] = {}
+        ctx['node_types_props'] = {
+            "nativeedge.nodes.kubernetes.resources.FileDefinedResource": {
+                "properties": {
+                    "file": {
+                        "type": "nativeedge.types.kubernetes.FileResource",
+                        "description": "..."
+                    },
+                    "allow_node_redefinition": {
+                        "type": "boolean",
+                        "description": "...",
+                        "default": True
+                    },
+                    "validate_resource_status": {
+                        "type": "boolean",
+                        "description": "...",
+                        "default": False
+                    },
+                    "client_config": {
+                        "type": "nativeedge.types.kubernetes.ClientConfig",
+                        "required": False,
+                        "description": "..."
+                    },
+                    "use_external_resource": {
+                        "type": "boolean",
+                        "description": "...",
+                        "default": False
+                    },
+                    "create_if_missing": {
+                        "type": "boolean",
+                        "description": "...",
+                        "default": False
+                    },
+                    "use_if_exists": {
+                        "type": "boolean",
+                        "description": "...",
+                        "default": True
+                    },
+                    "options": {
+                        "description": "...",
+                        "type": "nativeedge.types.kubernetes.Options"
+                    },
+                    "labels": {
+                        "description": "...",
+                    }
+                },
+            }
+        }
+        result = get_gen_as_list(
+            rules.node_templates.check,
+            {
+              'token': elem,
+              'context': context,
+              'node_types': [
+                  'nativeedge.nodes.kubernetes.resources.FileDefinedResource'
+              ]
+            }
+        )
+        assert isinstance(result[0], LintProblem)
+        assert 'Invalid property' in result[0].message

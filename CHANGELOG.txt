@@ -36,3 +36,7 @@
   - Ticket: NE-31022
     Description: Handle issue when no DSL.
     Developer: adam.terramel
+0.1.6:
+  - Ticket: NE-28213
+    Description: Linter will alert if an invalid property is used.
+    Developer: adam.terramel

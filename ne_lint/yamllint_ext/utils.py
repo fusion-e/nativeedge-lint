@@ -45,6 +45,7 @@ INTRINSIC_FNS = [
 ]
 
 context = {
+    'node_types_props': {},
     'imports': [],
     'dsl_version': '',
     'inputs': {},
@@ -53,6 +54,7 @@ context = {
     UNUSED_IMPORT_CTX: {},
     'node_templates': {},
     'node_types': {},
+    'data_types': {},
     'capabilities': {},
     'outputs': {},
     'current_tokens_line': 0,
@@ -344,9 +346,17 @@ def import_dsl_yaml(import_item, base_path=None, cache_ttl=None):
         # per plugin import line.
         # this enables us to analyze
         # if a plugin is being used.
-        result[UNUSED_IMPORT] = {
-            import_item: list(result['node_types'].keys())
-        }
+        for k in result['node_types'].keys():
+            if k not in context['node_types_props']:
+                context['node_types_props'][k] = {}
+            node_type_props = result['node_types'][k].get('properties', {})
+            context['node_types_props'][k].update(node_type_props or {})
+            if UNUSED_IMPORT not in result:
+                result[UNUSED_IMPORT] = {}
+            if import_item not in result[UNUSED_IMPORT]:
+                result[UNUSED_IMPORT][import_item] = []
+            result[UNUSED_IMPORT][import_item].append(k)
+
     if parsed_import_item.scheme in ['http', 'https']:
         if cache_item_path.exists():
             with open(cache_item_path.absolute(), 'r') as jsonfile:
@@ -467,6 +477,17 @@ def find_values_by_key(yaml_data, keys):
 
 
 def setup_types(buffer=None, data=None, base_path=None):
+    current_dir = pathlib.Path(__file__).parent.resolve()
+    props_json = pathlib.Path(os.path.join(
+        current_dir,
+        'nativeedge/properties.json')).resolve()
+    types_json = pathlib.Path(os.path.join(
+        current_dir,
+        'nativeedge/datatypes.json')).resolve()
+    with open(props_json, 'r') as inf:
+        context['node_types_props'] = json.load(inf)
+    with open(types_json, 'r') as inf:
+        context['data_types'] = json.load(inf)
     try:
         data = data or yaml.safe_load(buffer)
     except yaml.parser.ParserError:
