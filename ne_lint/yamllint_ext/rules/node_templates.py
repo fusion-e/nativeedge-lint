@@ -680,6 +680,7 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
         prop_data_type_name = valid_props[prop_name].get('type')
         # Check if the plugin defines the node template property type.
         prop_value = transform_string(model.properties[prop_name])
+
         if not prop_data_type_name:
             # No is does not.
             return
@@ -688,8 +689,7 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
                 prop_key, input_name, input_type = lint_dsl_fn(
                     prop_name,
                     prop_value,
-                    prop_data_type_name,
-                    line)
+                    prop_data_type_name)
                 if all([prop_key, input_name, input_type]):
                     yield LintProblem(
                         line, None,
@@ -735,7 +735,6 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
             prop_type = type(prop_value)
             prop_type_index = PROPERTY_TYPES_Z.index(prop_type)
             prop_type_dsl_name = PROPERTY_TYPES[prop_type_index]
-
             if not isinstance(prop_value, dict):
                 yield LintProblem(
                     line,
@@ -751,37 +750,31 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
 
             # The data type is not a basic data type.
             for sub_prop_name in prop_value.keys():
-                if sub_prop_name in INTRINSIC_FNS:
-                    # The value of the property is an intrinsic function.
-                    input_def = {}
-                    if sub_prop_name == 'get_input':
-                        # The intrinsic function is an input.
-                        sub_prop_value = prop_value.get(sub_prop_name)
-                        input_def = ctx['inputs'][sub_prop_value]
-                    if input_def and 'type' in input_def:
-                        if prop_data_type_name not in PROPERTY_TYPES and \
-                                input_def["type"].value != 'dict':
-                            yield LintProblem(
-                                line,
-                                None,
-                                f'The node template "{model.name}" has '
-                                f'an invalid property "{prop_name}". '
-                                f'The intrinsic function "{sub_prop_name}" '
-                                f'has the target input "{sub_prop_value}", '
-                                'which declares a type '
-                                f'"{input_def["type"].value}" but the '
-                                'node property is expected to be a dict '
-                                'representation of the custom data type '
-                                f'"{prop_data_type_name}".'
-                            )
-                        continue
+                prop_key, input_name, input_type = lint_dsl_fn(
+                    prop_name,
+                    prop_value,
+                    prop_data_type_name)
+                if all([prop_key, input_name, input_type]):
+                    yield LintProblem(
+                        line,
+                        None,
+                        f'The node template "{model.name}" has '
+                        f'an invalid property "{prop_name}". '
+                        f'The intrinsic function "{prop_key}" '
+                        f'has the target input "{input_name}", '
+                        'which declares a type '
+                        f'"{input_type}" but the '
+                        'node property is expected to be a dict '
+                        'representation of the custom data type '
+                        f'"{prop_data_type_name}".'
+                    )
                 if sub_prop_name not in data_type_properties:
                     yield LintProblem(
                         line, None,
                         f'The node template "{model.name}" has '
                         f'an invalid property "{prop_name}". '
                         f'The key "{sub_prop_name}" must be one of '
-                        f'{", ".join({list(data_type_properties.keys())})}'
+                        f'{", ".join(list(data_type_properties.keys()))}'
                     )
                 else:
                     parameter_type = data_type_properties[sub_prop_name].get(
@@ -811,20 +804,19 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
                             prop_key, input_name, input_type = lint_dsl_fn(
                                 prop_name,
                                 prop_value[sub_prop_name],
-                                parameter_type,
-                                line)
+                                prop_type_value)
                             if all([prop_key, input_name, input_type]):
                                 yield LintProblem(
                                     line, None,
                                     f'The node template "{model.name}" '
                                     'has an invalid property '
-                                    f'"{prop_name}". The intrinsic '
-                                    f'function "{prop_key}" has the '
+                                    f'"{prop_name}.{sub_prop_name}". The '
+                                    f'intrinsic function "{prop_key}" has the '
                                     f'target input "{input_name}", which '
                                     'declares a type '
                                     f'"{input_type}" but '
                                     'the node property is expected to be '
-                                    f'of the type "{prop_data_type_name}".'
+                                    f'of the type "{prop_type_value}".'
                                 )
 
 
@@ -839,7 +831,8 @@ def check_properties(model, line):
                 model, k, valid_properties, line)
 
 
-def lint_dsl_fn(prop_name, prop_value, prop_data_type_name, line):
+def lint_dsl_fn(prop_name, prop_value, prop_data_type_name):
+    print(f'1{prop_name} {prop_value} {prop_data_type_name}')
     prop_key = None
     input_name = None
     input_type = None
@@ -847,8 +840,13 @@ def lint_dsl_fn(prop_name, prop_value, prop_data_type_name, line):
         if prop_key in INTRINSIC_FNS:
             if prop_key == 'get_input':
                 input_name = prop_value.get(prop_key)
-                input_def = ctx['inputs'][input_name]
-                if input_def and 'type' in input_def:
-                    if input_def["type"].value != prop_data_type_name:
-                        input_type = input_def["type"].value
+                if isinstance(input_name, str):
+                    input_def = ctx['inputs'][input_name]
+                    if input_def and 'type' in input_def:
+                        if isinstance(input_def, dict) and \
+                                input_def['type'] != prop_data_type_name:
+                            input_type = input_def['type']
+                        elif input_def["type"].value != prop_data_type_name:
+                            input_type = input_def["type"].value
+    print(f'2{prop_key} {input_name} {input_type}')
     return (prop_key, input_name, input_type)
