@@ -685,7 +685,7 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
             return
         if prop_data_type_name in PROPERTY_TYPES:
             if isinstance(prop_value, dict):
-                prop_key, input_name, input_type = lint_intrinsic_function(
+                prop_key, input_name, input_type = lint_dsl_fn(
                     prop_name,
                     prop_value,
                     prop_data_type_name,
@@ -702,15 +702,17 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
                         f'"{input_type}" but '
                         'the node property is expected to be '
                         f'of the type "{prop_data_type_name}".'
-                    )              
+                    )
                     return
                 elif any([prop_key, input_name, input_type]):
                     return
-            expected_prop_type_index = PROPERTY_TYPES.index(prop_data_type_name)
+            expected_prop_type_index = PROPERTY_TYPES.index(
+                prop_data_type_name)
             expected_prop_type_obj = PROPERTY_TYPES_Z[expected_prop_type_index]
             prop_type = actual_prop_value_obj = type(prop_value)
             if actual_prop_value_obj in PROPERTY_TYPES_Z:
-                actual_prop_type_index = PROPERTY_TYPES_Z.index(actual_prop_value_obj)
+                actual_prop_type_index = PROPERTY_TYPES_Z.index(
+                    actual_prop_value_obj)
                 prop_type = PROPERTY_TYPES[actual_prop_type_index]
             if prop_data_type_name == 'integer' and \
                     isinstance(prop_value, str) and prop_value.isdigit():
@@ -729,18 +731,36 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
             # Check if the data type has a definition.
             data_type_properties = ctx['data_types'].get(
                 prop_data_type_name, {})
+            prop_value = transform_string(model.properties[prop_name])
+            prop_type = type(prop_value)
+            prop_type_index = PROPERTY_TYPES_Z.index(prop_type)
+            prop_type_dsl_name = PROPERTY_TYPES[prop_type_index]
+
+            if not isinstance(prop_value, dict):
+                yield LintProblem(
+                    line,
+                    None,
+                    f'The node template "{model.name}" has an invalid '
+                    f'property "{prop_name}". The value '
+                    f'"{prop_value}" is actually of type '
+                    f'"{prop_type_dsl_name}". The expected type is a dict '
+                    'representation of the custom data type '
+                    f'"{prop_data_type_name}".'
+                )
+                return
 
             # The data type is not a basic data type.
-            for sub_prop_name in model.properties[prop_name].keys():
+            for sub_prop_name in prop_value.keys():
                 if sub_prop_name in INTRINSIC_FNS:
                     # The value of the property is an intrinsic function.
                     input_def = {}
                     if sub_prop_name == 'get_input':
                         # The intrinsic function is an input.
-                        sub_prop_value = model.properties[prop_name].get(sub_prop_name)
+                        sub_prop_value = prop_value.get(sub_prop_name)
                         input_def = ctx['inputs'][sub_prop_value]
                     if input_def and 'type' in input_def:
-                        if prop_data_type_name not in PROPERTY_TYPES and input_def["type"].value != 'dict':
+                        if prop_data_type_name not in PROPERTY_TYPES and \
+                                input_def["type"].value != 'dict':
                             yield LintProblem(
                                 line,
                                 None,
@@ -753,7 +773,7 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
                                 'node property is expected to be a dict '
                                 'representation of the custom data type '
                                 f'"{prop_data_type_name}".'
-                            )                   
+                            )
                         continue
                 if sub_prop_name not in data_type_properties:
                     yield LintProblem(
@@ -764,15 +784,20 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
                         f'{", ".join({list(data_type_properties.keys())})}'
                     )
                 else:
-                    parameter_type = data_type_properties[sub_prop_name].get("type")
+                    parameter_type = data_type_properties[sub_prop_name].get(
+                        "type")
                     if parameter_type:
-                        prop_value = transform_string(model.properties[prop_name][sub_prop_name])
-                        prop_type_index = PROPERTY_TYPES_Z.index(type(prop_value))
+                        sub_prop_value = transform_string(
+                            prop_value[sub_prop_name])
+                        prop_type_index = PROPERTY_TYPES_Z.index(
+                            type(sub_prop_value))
                         prop_type_value = PROPERTY_TYPES[prop_type_index]
                         if parameter_type == 'integer' and \
-                                isinstance(prop_value, str) and prop_value.isdigit():
+                                isinstance(sub_prop_value, str) and \
+                                sub_prop_value.isdigit():
                             pass
-                        elif parameter_type != prop_type_value and prop_type_value != 'dict':
+                        elif parameter_type != prop_type_value and \
+                                prop_type_value != 'dict':
                             yield LintProblem(
                                 line,
                                 None,
@@ -783,9 +808,9 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
                                 f'The expected type is {parameter_type}.'
                             )
                         elif prop_type_value == 'dict':
-                            prop_key, input_name, input_type = lint_intrinsic_function(
+                            prop_key, input_name, input_type = lint_dsl_fn(
                                 prop_name,
-                                model.properties[prop_name][sub_prop_name],
+                                prop_value[sub_prop_name],
                                 parameter_type,
                                 line)
                             if all([prop_key, input_name, input_type]):
@@ -800,7 +825,7 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
                                     f'"{input_type}" but '
                                     'the node property is expected to be '
                                     f'of the type "{prop_data_type_name}".'
-                                )              
+                                )
 
 
 def check_properties(model, line):
@@ -814,7 +839,7 @@ def check_properties(model, line):
                 model, k, valid_properties, line)
 
 
-def lint_intrinsic_function(prop_name, prop_value, prop_data_type_name, line):
+def lint_dsl_fn(prop_name, prop_value, prop_data_type_name, line):
     prop_key = None
     input_name = None
     input_type = None
