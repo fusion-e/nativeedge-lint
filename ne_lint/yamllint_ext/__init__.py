@@ -348,8 +348,8 @@ def remove_consecutive_indentation_problems(problems):
 
         if problems[cnt].rule == 'indentation':
             while (cnt + 1 < len(problems) and
-                problems[cnt+1].rule == 'indentation'):
-                    cnt += 1
+                    problems[cnt+1].rule == 'indentation'):
+                cnt += 1
         cnt += 1
     return cleaned_problems
 
