@@ -240,6 +240,9 @@ def _run(buffer,
          fix_only=False):
 
     fix = fix or []
+    add_label = False
+    extra_empty_line = False
+    input_file_path = os.path.abspath(input_file)
 
     assert hasattr(buffer, '__getitem__'), \
         '_run() argument must be a buffer, not a stream'
@@ -259,9 +262,8 @@ def _run(buffer,
                                           skip_suggestions))
 
     sorted_problems = sorted(problems, key=lambda x: x.line)
-    add_label = False
-    extra_empty_line = False
-    input_file_path = os.path.abspath(input_file)
+    sorted_problems = remove_consecutive_indentation_problems(sorted_problems)
+
     for problem in sorted_problems:
         if not problem.severity:
             add_severity(problem)
@@ -336,6 +338,20 @@ def _run(buffer,
 
         if syntax_error:
             yield syntax_error
+
+
+def remove_consecutive_indentation_problems(problems):
+    cleaned_problems = []
+    cnt = 0
+    while cnt < len(problems):
+        cleaned_problems.append(problems[cnt])
+
+        if problems[cnt].rule == 'indentation':
+            while (cnt + 1 < len(problems) and
+                    problems[cnt+1].rule == 'indentation'):
+                cnt += 1
+        cnt += 1
+    return cleaned_problems
 
 
 def run(input,
