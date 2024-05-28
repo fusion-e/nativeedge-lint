@@ -40,3 +40,6 @@
   - Ticket: NE-30488
     Description: Fixed consecutive indentation
     Developer: nely.maor
+  - Ticket: NE-28213
+    Description: Linter will alert if an invalid property is used.
+    Developer: adam.terramel
