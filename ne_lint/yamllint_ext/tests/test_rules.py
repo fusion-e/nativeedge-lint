@@ -486,3 +486,212 @@ def test_cyclic():
     ]
     for result in results:
         assert result.message in expected_results_message
+
+
+def test_node_templates_properties():
+    context = {
+        'resource': models.NodeTemplate('resource'),
+    }
+    ctx = {}
+    ctx['imported_node_types_by_plugin'] = {
+        'nativeedge-kubernetes-plugin': {
+            'nativeedge.nodes.kubernetes.'
+            'resources.FileDefinedResource': {},
+        }
+    }
+    ctx['inputs'] = {
+        'client_config': {
+            'type': 'string'
+        },
+        'param': {
+            'type': 'integer'
+        }
+    }
+    ctx['data_types'] = {
+        'nativeedge.types.kubernetes.ClientConfig': {
+            'host': {
+                'type': 'string',
+            }
+        },
+        'nativeedge.types.kubernetes.FileResource': {
+            'resource_path': {
+                'type': 'string',
+            },
+            'template_variables': {
+                'type': 'dict',
+            }
+        },
+    }
+    ctx['node_types_props'] = {
+        "nativeedge.nodes.kubernetes.resources.FileDefinedResource": {
+            "properties": {
+                "file": {
+                    "type": "nativeedge.types.kubernetes.FileResource",
+                    "description": "..."
+                },
+                "allow_node_redefinition": {
+                    "type": "boolean",
+                    "description": "...",
+                    "default": True
+                },
+                "validate_resource_status": {
+                    "type": "boolean",
+                    "description": "...",
+                    "default": False
+                },
+                "client_config": {
+                    "type": "nativeedge.types.kubernetes.ClientConfig",
+                    "required": False,
+                    "description": "..."
+                },
+                "use_external_resource": {
+                    "type": "boolean",
+                    "description": "...",
+                    "default": False
+                },
+                "create_if_missing": {
+                    "type": "boolean",
+                    "description": "...",
+                    "default": False
+                },
+                "use_if_exists": {
+                    "type": "boolean",
+                    "description": "...",
+                    "default": True
+                },
+                "options": {
+                    "description": "...",
+                    "type": "nativeedge.types.kubernetes.Options"
+                },
+                "labels": {
+                    "description": "...",
+                }
+            },
+        }
+    }
+
+    with patch.dict('ne_lint.yamllint_ext.rules.node_templates.ctx', ctx):
+        node_templates_content = """
+        node_templates:
+          resource:
+            type: nativeedge.nodes.kubernetes.resources.FileDefinedResource
+            properties:
+              client_config: foo.bar.com
+              file:
+                resource_path: resources/file.yaml
+                template_variables:
+                  PORT: 80
+              validate_resource_status: false
+        """
+        elem = get_mock_cfy_node(node_templates_content, 'node_templates')
+
+        result = get_gen_as_list(
+            rules.node_templates.check,
+            {
+              'token': elem,
+              'context': context,
+              'node_types': [
+                  'nativeedge.nodes.kubernetes.resources.FileDefinedResource'
+              ]
+            }
+        )
+        assert isinstance(result[0], LintProblem)
+        expected = 'The value "foo.bar.com" is actually of type "string". ' \
+                   'The expected type is a dict representation of the ' \
+                   'custom data type ' \
+                   '"nativeedge.types.kubernetes.ClientConfig"'
+        assert expected in result[0].message
+
+        node_templates_content = """
+        node_templates:
+          resource:
+            type: nativeedge.nodes.kubernetes.resources.FileDefinedResource
+            properties:
+              client_config:
+                host: foo.bar.com
+              file:
+                resource_paths: resources/file.yaml
+                template_variables:
+                  PORT: 80
+              validate_resource_status: false
+        """
+        elem = get_mock_cfy_node(node_templates_content, 'node_templates')
+        result = get_gen_as_list(
+            rules.node_templates.check,
+            {
+              'token': elem,
+              'context': context,
+              'node_types': [
+                  'nativeedge.nodes.kubernetes.resources.FileDefinedResource'
+              ]
+            }
+        )
+        assert isinstance(result[0], LintProblem)
+        expected = 'The key "resource_paths" must be one of resource_path, ' \
+                   'template_variables'
+        assert expected in result[0].message
+
+    with patch.dict('ne_lint.yamllint_ext.rules.node_templates.ctx', ctx):
+
+        node_templates_content = """
+        node_templates:
+          resource:
+            type: nativeedge.nodes.kubernetes.resources.FileDefinedResource
+            properties:
+              client_config: { get_input: client_config }
+              file:
+                resource_path: resources/file.yaml
+                template_variables:
+                  PORT: 80
+              validate_resource_status: false
+        """
+        elem = get_mock_cfy_node(node_templates_content, 'node_templates')
+        result = get_gen_as_list(
+            rules.node_templates.check,
+            {
+              'token': elem,
+              'context': context,
+              'node_types': [
+                  'nativeedge.nodes.kubernetes.resources.FileDefinedResource'
+              ]
+            }
+        )
+        assert isinstance(result[0], LintProblem)
+        expected = 'The node template "resource" has an invalid property ' \
+                   '"client_config". The intrinsic function "get_input" has ' \
+                   'the target input "client_config", which declares a type ' \
+                   '"string" but the node property is expected to be a dict ' \
+                   'representation of the custom data type ' \
+                   '"nativeedge.types.kubernetes.ClientConfig"'
+        assert expected in result[0].message
+
+        node_templates_content = """
+        node_templates:
+          resource:
+            type: nativeedge.nodes.kubernetes.resources.FileDefinedResource
+            properties:
+              client_config:
+                host: foo.bar.com
+              file:
+                resource_path: resources/file.yaml
+                template_variables: { get_input: param }
+              validate_resource_status: false
+        """
+        elem = get_mock_cfy_node(node_templates_content, 'node_templates')
+        result = get_gen_as_list(
+            rules.node_templates.check,
+            {
+              'token': elem,
+              'context': context,
+              'node_types': [
+                  'nativeedge.nodes.kubernetes.resources.FileDefinedResource'
+              ]
+            }
+        )
+        assert isinstance(result[0], LintProblem)
+        expected = 'The node template "resource" has an invalid property ' \
+                   '"file.template_variables". The intrinsic function ' \
+                   '"get_input" has the target input "param", which ' \
+                   'declares a type "integer" but the node property is ' \
+                   'expected to be of the type "dict"'
+        assert expected in result[0].message
