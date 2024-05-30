@@ -1,0 +1,152 @@
+def secrets = [
+  [path: 'secret/jenkins/github', engineVersion: 2, secretValues: [
+    [envVar: 'GITHUB_TOKEN', vaultKey: 'private_token']
+  ]],
+//   [path: 'secret/jenkins/aws-new-auto', engineVersion: 2, secretValues: [
+//     [envVar: 'AWS_ACCESS_KEY_ID', vaultKey: 'aws_access_key_id'],
+//     [envVar: 'AWS_SECRET_ACCESS_KEY', vaultKey: 'aws_secret_access_key']
+//   ]],
+]
+
+def configuration = [vaultUrl: "${env.VAULT_URL}", vaultCredentialId: 'vault-app-role', engineVersion: 2]
+
+def getVersion() {
+  return sh(returnStdout: true, script: 'cat ne_lint/__version__.py | grep "=" | awk '{print $3}')').trim()
+}
+
+def createRelease () {
+  
+}
+
+@Library('pipeline-shared-library') _
+
+pipeline {
+  agent {
+    kubernetes {
+      defaultContainer 'jnlp'
+      yaml k8sPodTemplate(
+        containerPython11: true,
+        // containerPython11CpuRequest: '1',
+        // containerPython11MemRequest: '2Gi',
+        // containerPython11CpuLimit: '2',
+        // containerPython11MemLimit: '4Gi',
+        // containerPython11Privileged: true,
+      )
+    }
+  }
+  parameters {
+    booleanParam(name: 'FLAKE8', defaultValue: true, description: 'Run Flake8')
+    booleanParam(name: 'UNITTESTS', defaultValue: true, description: 'Run unit tests')
+    booleanParam(name: 'RELEASE', defaultValue: false, description: 'Create and upload release')
+  }
+  
+  environment {
+    VERSION = getVersion()
+    PROJECT = 'nativeedge-lint'
+    URL = 
+  }
+  
+  options {
+    checkoutToSubdirectory('nativeedge-lint')
+    buildDiscarder(logRotator(numToKeepStr: '10'))
+    timeout(time: 30, unit: 'MINUTES')
+    timestamps()
+  }
+
+  stages{
+    stage('Run Unitests & Flake8'){
+      parallel{
+        stage ('Flake8') {
+          when {
+            anyOf {
+              expression { params.FLAKE8 }
+            }
+            beforeAgent true
+          }
+          environment {
+            PATH = "/root/.local/bin:$PATH"
+          }
+          steps{
+            sh script: "mkdir -p ${env.WORKSPACE}/flake8 && cp -rf ${env.WORKSPACE}/${env.PROJECT}/. ${env.WORKSPACE}/flake8", label: "copying repo to separate workspace"
+            container('python'){
+              dir("${env.WORKSPACE}/flake8") {
+                echo 'install flake 8'
+                sh 'pip install flake8 --user'
+                echo 'run flake8'
+                sh 'flake8 ne_lint'
+              }
+            }
+          }
+        }
+        stage('Unit tests'){
+          when {
+            anyOf {
+              expression { params.UNITTESTS }
+            }
+            beforeAgent true
+          }
+          steps{
+            // echo 'Create Wheel'
+            // sh 'pip wheel .'
+            sh script: "mkdir -p ${env.WORKSPACE}/ne_unittests && cp -rf ${env.WORKSPACE}/${env.PROJECT}/. ${env.WORKSPACE}/ne_unittests", label: "copying repo to separate workspace"
+            container('python'){
+              dir("${env.WORKSPACE}/ne_unittests"){
+                sh script:"""
+                  python -m venv venv
+                  set +x
+                  . venv/bin/activate
+                  set -x
+                  pip install -U -r requirements.txt -r test-requirements.txt
+                  python -m pip freeze --all
+                  pytest \
+                    -vv -s ne_lint \
+                    --junitxml=test-results/ne_lint.xml
+                """, label: 'Run pytests'
+              }
+            }
+          }
+        }
+      }
+    }
+    stage('Release'){
+      environment{
+        URL="https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${env.PROJECT}/releases"
+      }
+      when {
+        anyOf {
+          allOf {
+            branch pattern: "main", comparator: "REGEXP" //upload on rel/.+ also? if so "main|rel/.+"
+            expression { ! currentBuild.buildCauses.toString().contains('UserIdCause') }
+          }
+          expression { currentBuild.buildCauses.toString().contains('UserIdCause') && params.RELEASE }
+        }
+      }
+      steps{
+        sh script: "mkdir -p ${env.WORKSPACE}/ne_release && cp -rf ${env.WORKSPACE}/${env.PROJECT}/. ${env.WORKSPACE}/ne_release", label: "copying repo to separate workspace"
+        dir("${env.WORKSPACE}/ne_release"){
+          echo 'Create Wheel'
+          sh 'pip wheel .'
+          // change draft to false
+          // Create new Plugin GH Token
+          sh script:"""
+            DATA="{'tag_name':"${VERSION}",'target_commitish':'main','name':"${VERSION}",'body':'NewRelease','draft':true,'prerelease':false,'generate_release_notes':true}"
+            RESP=`curl -L -X POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Authorization: Bearer ${GITHUB_TOKEN}" \$URL -d \$DATA`
+            sleep 10
+            ASSETS_URL=\$(echo \$RESP | jq -r '.assets_url' | sed s/api/uploads/g)
+            VERSION=\$(echo \$VERSION | sed s/\"//g)
+            FILE=ne_lint-\$VERSION-py3-none-any.whl
+            URL="\$ASSETS_URL?name=\$FILE"
+            curl -L -X POST -H "Content-Type: application/octet-stream" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Authorization: Bearer ${GITHUB_TOKEN}" \$URL --data-binary "@\$FILE"
+          """, label: 'Create new version'
+          
+      }
+    }
+  }
+  post {
+    always {
+      if(params.UNITTESTS) {
+        junit '**/test-results/*.xml'
+      }
+    }
+  }
+}
