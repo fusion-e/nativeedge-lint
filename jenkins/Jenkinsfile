@@ -43,7 +43,6 @@ pipeline {
   environment {
     VERSION = getVersion()
     PROJECT = 'nativeedge-lint'
-    URL = 
   }
   
   options {
@@ -62,9 +61,6 @@ pipeline {
               expression { params.FLAKE8 }
             }
             beforeAgent true
-          }
-          environment {
-            PATH = "/root/.local/bin:$PATH"
           }
           steps{
             sh script: "mkdir -p ${env.WORKSPACE}/flake8 && cp -rf ${env.WORKSPACE}/${env.PROJECT}/. ${env.WORKSPACE}/flake8", label: "copying repo to separate workspace"
