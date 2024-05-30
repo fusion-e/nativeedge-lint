@@ -141,8 +141,10 @@ pipeline {
   }
   post {
     always {
-      if(params.UNITTESTS) {
-        junit '**/test-results/*.xml'
+      script {
+        if (params.UNITTESTS) {
+          junit '**/test-results/*.xml'
+        }
       }
     }
   }
