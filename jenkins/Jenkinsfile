@@ -11,12 +11,12 @@ def secrets = [
 def configuration = [vaultUrl: "${env.VAULT_URL}", vaultCredentialId: 'vault-app-role', engineVersion: 2]
 
 def getVersion() {
-  return sh(returnStdout: true, script: "cat ne_lint/__version__.py | grep "=" | awk '{print \$3}')").trim()
+  return sh(returnStdout: true, script: "cat ne_lint/__version__.py | grep '=' | awk '{print \$3}')").trim()
 }
 
-def createRelease () {
+// def createRelease () {
   
-}
+// }
 
 @Library('pipeline-shared-library') _
 
