@@ -43,6 +43,7 @@ pipeline {
   environment {
     VERSION = getVersion()
     PROJECT = 'nativeedge-lint'
+    REPO_OWNER = 'cosmo-admin'
   }
   
   options {
@@ -106,7 +107,7 @@ pipeline {
     }
     stage('Release'){
       environment{
-        URL="https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${env.PROJECT}/releases"
+        URL="https://api.github.com/repos/${env.REPO_OWNER}/${env.PROJECT}/releases"
       }
       when {
         anyOf {
