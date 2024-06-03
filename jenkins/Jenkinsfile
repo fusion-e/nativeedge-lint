@@ -67,10 +67,10 @@ pipeline {
             sh script: "mkdir -p ${env.WORKSPACE}/flake8 && cp -rf ${env.WORKSPACE}/${env.PROJECT}/. ${env.WORKSPACE}/flake8", label: "copying repo to separate workspace"
             container('python'){
               dir("${env.WORKSPACE}/flake8") {
-                echo 'install flake 8'
-                sh 'pip install flake8 --user'
+                echo 'Install flake 8'
+                sh 'pip install -U flake8'
                 echo 'run flake8'
-                sh 'flake8 ne_lint'
+                sh 'python -m flake8 ne_lint'
               }
             }
           }
@@ -83,8 +83,6 @@ pipeline {
             beforeAgent true
           }
           steps{
-            // echo 'Create Wheel'
-            // sh 'pip wheel .'
             sh script: "mkdir -p ${env.WORKSPACE}/ne_unittests && cp -rf ${env.WORKSPACE}/${env.PROJECT}/. ${env.WORKSPACE}/ne_unittests", label: "copying repo to separate workspace"
             container('python'){
               dir("${env.WORKSPACE}/ne_unittests"){
