@@ -43,3 +43,7 @@
   - Ticket: NE-28213
     Description: Linter will alert if an invalid property is used.
     Developer: adam.terramel
+0.1.7:
+  - Ticket: NE-33100
+    Description: Remove print statements that should not have made it into release. Improve code.
+    Developer: adam.terramel

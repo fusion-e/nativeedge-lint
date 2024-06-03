@@ -2,6 +2,7 @@
 
 import re
 import networkx as nx
+from yaml.nodes import ScalarNode
 
 from ne_lint.yamllint_ext import LintProblem
 from ne_lint.yamllint_ext.generators import NENode
@@ -687,7 +688,6 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
         if prop_data_type_name in PROPERTY_TYPES:
             if isinstance(prop_value, dict):
                 prop_key, input_name, input_type = lint_dsl_fn(
-                    prop_name,
                     prop_value,
                     prop_data_type_name)
                 if all([prop_key, input_name, input_type]):
@@ -751,7 +751,6 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
             # The data type is not a basic data type.
             for sub_prop_name in prop_value.keys():
                 prop_key, input_name, input_type = lint_dsl_fn(
-                    prop_name,
                     prop_value,
                     prop_data_type_name)
                 if all([prop_key, input_name, input_type]):
@@ -768,6 +767,7 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
                         'representation of the custom data type '
                         f'"{prop_data_type_name}".'
                     )
+                    continue
                 if sub_prop_name not in data_type_properties:
                     yield LintProblem(
                         line, None,
@@ -802,7 +802,6 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
                             )
                         elif prop_type_value == 'dict':
                             prop_key, input_name, input_type = lint_dsl_fn(
-                                prop_name,
                                 prop_value[sub_prop_name],
                                 prop_type_value)
                             if all([prop_key, input_name, input_type]):
@@ -831,8 +830,7 @@ def check_properties(model, line):
                 model, k, valid_properties, line)
 
 
-def lint_dsl_fn(prop_name, prop_value, prop_data_type_name):
-    print(f'1{prop_name} {prop_value} {prop_data_type_name}')
+def lint_dsl_fn(prop_value, prop_data_type_name):
     prop_key = None
     input_name = None
     input_type = None
@@ -848,5 +846,6 @@ def lint_dsl_fn(prop_name, prop_value, prop_data_type_name):
                             input_type = input_def['type']
                         elif input_def["type"].value != prop_data_type_name:
                             input_type = input_def["type"].value
-    print(f'2{prop_key} {input_name} {input_type}')
+    if isinstance(input_type, ScalarNode):
+        input_type = input_type.value
     return (prop_key, input_name, input_type)
