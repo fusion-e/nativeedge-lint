@@ -118,7 +118,7 @@ def create_report_for_file(file_path,
                    fix_only)
 
 
-def formatted_message(item, format=None):
+def formatted_message(item, format=None, json_dumps=True):
     if format == 'json':
         rule, item_message = item.message.split(':', 1)
         try:
@@ -129,11 +129,14 @@ def formatted_message(item, format=None):
                 raise Exception('Something is up with that line.')
         except Exception:
             severity = '0'
-        return json.dumps({
+        data = {
             "level": item.level,
             "line": item.line,
             "rule": sub(r"[()]", "", rule),
             "message": item_message,
             "severity": int(severity),
-        })
+        }
+        if json_dumps:
+            data = json.dumps(data)
+        return data
     return '{0: <4}: {1:>4}'.format(item.line, item.message)

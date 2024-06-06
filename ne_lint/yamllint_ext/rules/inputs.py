@@ -121,6 +121,7 @@ def validate_inputs(input_obj,
                     skip_suggestions=None,
                     item=None):
     dsl = dsl or 'null'
+    skip_suggestions = skip_suggestions or ()
     suggestions = 'inputs' in skip_suggestions
     if input_obj.invalid_keys:
         yield LintProblem(
