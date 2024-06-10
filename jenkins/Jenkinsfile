@@ -264,6 +264,7 @@ pipeline {
             expression { return RELEASE }
           }
         }
+      }
       agent {
         docker {
           label 'franklin'
