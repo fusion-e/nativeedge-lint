@@ -188,6 +188,19 @@ pipeline {
       }
     }
     stage ('Upload Prepare'){
+      when {
+        anyOf {
+          allOf {
+            branch pattern: "main", comparator: "REGEXP" //upload on rel/.+ also? if so "main|rel/.+"
+            expression { ! currentBuild.buildCauses.toString().contains('UserIdCause') }
+            expression { return RELEASE }
+          }
+          allOf {
+            expression { currentBuild.buildCauses.toString().contains('UserIdCause') && params.RELEASE }
+            expression { return RELEASE }
+          }
+        }
+      }
       steps{
         script {
           container('awscli') {
@@ -240,11 +253,17 @@ pipeline {
     }
     stage('Sync artifact to Jfrog') {
       when {
-        allOf {
-          expression { params.RELEASE }
-          branch pattern: "main", comparator: "REGEXP"
+        anyOf {
+          allOf {
+            branch pattern: "main", comparator: "REGEXP" //upload on rel/.+ also? if so "main|rel/.+"
+            expression { ! currentBuild.buildCauses.toString().contains('UserIdCause') }
+            expression { return RELEASE }
+          }
+          allOf {
+            expression { currentBuild.buildCauses.toString().contains('UserIdCause') && params.RELEASE }
+            expression { return RELEASE }
+          }
         }
-      }
       agent {
         docker {
           label 'franklin'
