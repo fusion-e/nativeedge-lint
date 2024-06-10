@@ -44,3 +44,4 @@ def fix_empty_lines(problem):
             # remove blanklines from end of file
             while re.match(PATTERN, lines[-1]):
                 lines.pop(-1)
+            problem.fixed = True

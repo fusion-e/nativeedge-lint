@@ -19,3 +19,31 @@
   - Ticket: NE-28215
     Description: Supporting linting on plugin mappings in interfaces.
     Developer: adam.terramel
+0.1.4:
+  - Ticket: NE-28368
+    Description: fixed CRLF to LF.
+    Developer: nely.maor
+  - Ticket: NE-28864
+    Description: fixed Flage --fix-only -fo
+    Developer: nely.maor
+  - Ticket: NE-28203
+    Description: Fixed the bugs in the --fix flag
+    Developer: nely.maor
+0.1.5:
+  - Ticket: NE-28217
+    Description: Treat inputs key not as inputs if it appears in another section.
+    Developer: adam.terramel
+  - Ticket: NE-31022
+    Description: Handle issue when no DSL.
+    Developer: adam.terramel
+0.1.6:
+  - Ticket: NE-30488
+    Description: Fixed consecutive indentation
+    Developer: nely.maor
+  - Ticket: NE-28213
+    Description: Linter will alert if an invalid property is used.
+    Developer: adam.terramel
+0.1.7:
+  - Ticket: NE-33100
+    Description: Remove print statements that should not have made it into release. Improve code.
+    Developer: adam.terramel

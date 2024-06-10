@@ -196,7 +196,9 @@ def get_cosmetic_problems(buffer,
                 rule_conf = conf.rules[rule.ID]
                 for problem in rule.check(rule_conf, elem):
                     problem.rule = rule.ID
-                    if problem.rule in ['trailing-spaces', 'empty-lines']:
+                    if problem.rule in ['trailing-spaces',
+                                        'empty-lines',
+                                        'new-lines']:
                         problem.fixable = True
                     problem.level = rule_conf['level']
                     cache.append(problem)
@@ -234,8 +236,13 @@ def _run(buffer,
          base_path=None,
          input_file=None,
          skip_suggestions=None,
-         fix=None):
+         fix=None,
+         fix_only=False):
+
     fix = fix or []
+    add_label = False
+    extra_empty_line = False
+    input_file_path = os.path.abspath(input_file)
 
     assert hasattr(buffer, '__getitem__'), \
         '_run() argument must be a buffer, not a stream'
@@ -255,13 +262,15 @@ def _run(buffer,
                                           skip_suggestions))
 
     sorted_problems = sorted(problems, key=lambda x: x.line)
-    add_label = False
-    extra_empty_line = False
+    sorted_problems = remove_consecutive_indentation_problems(sorted_problems)
+
     for problem in sorted_problems:
         if not problem.severity:
             add_severity(problem)
 
     for problem in sorted_problems:
+        if not problem.file:
+            problem.file = input_file_path
 
         problem.fixes = fix
         # Insert the syntax error (if any) at the right place...
@@ -293,15 +302,13 @@ def _run(buffer,
                 problem.fixed = True
             fix_problem(problem)
 
-        if not fix:
-            yield problem
+    # this needs to be separated from the rest of the auto fix functions since
+    # it changes the line numbers of the entire file, so we do it once all
+    # other tasks are done
 
     if add_label:
         fix_add_label(sorted_problems)
 
-    # this needs to be separated from the rest of the auto fix functions since
-    # it changes the line numbers of the entire file, so we do it once all
-    # other tasks are done
     if extra_empty_line:
         fix_empty_lines(problem)
 
@@ -309,30 +316,50 @@ def _run(buffer,
         build_diff_lines()
 
     # Fix the lines in the error message according to the dictionary we created
-    index = 0
-    lines = list(context['line_diff'].keys())
-    values = list(context['line_diff'].values())
-    len_lines = len(lines)
-    if lines:
+    if not fix_only:
+        index = 0
+        lines = list(context['line_diff'].keys())
+        values = list(context['line_diff'].values())
+        len_lines = len(lines)
+
         for problem in sorted_problems:
             if problem.fixed:
                 continue
-            if problem.line > lines[index]:
+            if lines and problem.line > lines[index]:
                 while (index + 1 < len_lines and
-                       problem.line not in range(
-                           lines[index],
-                           lines[index + 1])):
+                        problem.line not in range(
+                            lines[index],
+                            lines[index + 1])):
                     index += 1
                 problem.update_line = problem.line + values[index]
 
             if not problem.fixed:
                 yield problem
 
-    if syntax_error:
-        yield syntax_error
+        if syntax_error:
+            yield syntax_error
 
 
-def run(input, conf, filepath=None, skip_suggestions=None, fix=None):
+def remove_consecutive_indentation_problems(problems):
+    cleaned_problems = []
+    cnt = 0
+    while cnt < len(problems):
+        cleaned_problems.append(problems[cnt])
+
+        if problems[cnt].rule == 'indentation':
+            while (cnt + 1 < len(problems) and
+                    problems[cnt+1].rule == 'indentation'):
+                cnt += 1
+        cnt += 1
+    return cleaned_problems
+
+
+def run(input,
+        conf,
+        filepath=None,
+        skip_suggestions=None,
+        fix=None,
+        fix_only=False):
     """Lints a YAML source.
 
     Returns a generator of LintProblem objects.
@@ -357,7 +384,8 @@ def run(input, conf, filepath=None, skip_suggestions=None, fix=None):
                     input_file=input.name,
                     base_path=base_path,
                     skip_suggestions=skip_suggestions,
-                    fix=fix)
+                    fix=fix,
+                    fix_only=fix_only)
     elif hasattr(input, 'read'):  # Python 2's file or Python 3's io.IOBase
         # We need to have everything in memory to parse correctly
         content = input.read()
@@ -367,6 +395,7 @@ def run(input, conf, filepath=None, skip_suggestions=None, fix=None):
                     input_file=input.name,
                     base_path=base_path,
                     skip_suggestions=skip_suggestions,
-                    fix=fix)
+                    fix=fix,
+                    fix_only=fix_only)
     else:
         raise TypeError('input should be a string or a stream')

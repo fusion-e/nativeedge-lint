@@ -20,7 +20,6 @@ LEVEL1 = 1
 
 @process_relevant_tokens(NENode, ['labels'])
 def check(token=None, **_):
-    # dsl = ctx.get("dsl_version")
     for item in token.node.value:
         dictionary = recurse_get_readable_object(item)
         if not isinstance(dictionary, dict):

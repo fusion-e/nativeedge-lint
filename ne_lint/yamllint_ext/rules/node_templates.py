@@ -2,6 +2,7 @@
 
 import re
 import networkx as nx
+from yaml.nodes import ScalarNode
 
 from ne_lint.yamllint_ext import LintProblem
 from ne_lint.yamllint_ext.generators import NENode
@@ -45,10 +46,30 @@ DEFAULT = {
     'check-keys': True,
     'check-node-types': True
 }
+PROPERTY_TYPES = (
+    'integer',
+    'string',
+    'boolean',
+    'dict',
+    'list',
+    'float',
+    'regex'
+)
+PROPERTY_TYPES_Z = (
+    int,
+    str,
+    bool,
+    dict,
+    list,
+    float,
+    None
+)
 
 
 @process_relevant_tokens(NENode, 'node_templates')
 def check(token=None, context=None, node_types=None, **_):
+    if not ctx['start_lines']['node_templates']:
+        ctx['start_lines']['node_templates'] = token.node.start_mark.line
     line_index = {}
     edges = []
     for node_template in token.node.value:
@@ -95,6 +116,9 @@ def check(token=None, context=None, node_types=None, **_):
             parsed_node_template,
             parsed_node_template.line or token.line)
         yield from check_relationships(
+            parsed_node_template,
+            parsed_node_template.line or token.line)
+        yield from check_properties(
             parsed_node_template,
             parsed_node_template.line or token.line)
     yield from check_cyclic_node_dependency(edges, line_index)
@@ -631,3 +655,197 @@ def check_relationships(model, line):
                         f"Replace usage of {value} with "
                         f"{value.replace('cloudify', 'nativeedge')}."
                     )
+
+
+def transform_string(value):
+    if isinstance(value, str):
+        if value == 'true':
+            value = True
+        elif value == 'false':
+            value = False
+    return value
+
+
+def check_if_properties_are_valid(model, prop_name, valid_props, line):
+    # Check if the property is not expected.
+    if prop_name not in valid_props:
+        yield LintProblem(
+            line,
+            None,
+            f'The node template "{model.name}" has '
+            f'an invalid property "{prop_name}". '
+            f'It must be one of '
+            f'{", ".join(list(valid_props.keys()))}'
+        )
+    else:
+        prop_data_type_name = valid_props[prop_name].get('type')
+        # Check if the plugin defines the node template property type.
+        prop_value = transform_string(model.properties[prop_name])
+
+        if not prop_data_type_name:
+            # No is does not.
+            return
+        if prop_data_type_name in PROPERTY_TYPES:
+            if isinstance(prop_value, dict):
+                prop_key, input_name, input_type = lint_dsl_fn(
+                    prop_value,
+                    prop_data_type_name)
+                if all([prop_key, input_name, input_type]):
+                    yield LintProblem(
+                        line, None,
+                        f'The node template "{model.name}" '
+                        'has an invalid property '
+                        f'"{prop_name}". The intrinsic '
+                        f'function "{prop_key}" has the '
+                        f'target input "{input_name}", which '
+                        'declares a type '
+                        f'"{input_type}" but '
+                        'the node property is expected to be '
+                        f'of the type "{prop_data_type_name}".'
+                    )
+                    return
+                elif any([prop_key, input_name, input_type]):
+                    return
+            expected_prop_type_index = PROPERTY_TYPES.index(
+                prop_data_type_name)
+            expected_prop_type_obj = PROPERTY_TYPES_Z[expected_prop_type_index]
+            prop_type = actual_prop_value_obj = type(prop_value)
+            if actual_prop_value_obj in PROPERTY_TYPES_Z:
+                actual_prop_type_index = PROPERTY_TYPES_Z.index(
+                    actual_prop_value_obj)
+                prop_type = PROPERTY_TYPES[actual_prop_type_index]
+            if prop_data_type_name == 'integer' and \
+                    isinstance(prop_value, str) and prop_value.isdigit():
+                pass
+            elif not isinstance(prop_value, expected_prop_type_obj):
+                yield LintProblem(
+                    line,
+                    None,
+                    f'The node template "{model.name}" has an invalid '
+                    f'property "{prop_name}". The value '
+                    f'"{prop_value}" is actually of type '
+                    f'"{prop_type}". The expected type is '
+                    f'"{prop_data_type_name}".'
+                )
+        else:
+            # Check if the data type has a definition.
+            data_type_properties = ctx['data_types'].get(
+                prop_data_type_name, {})
+            prop_value = transform_string(model.properties[prop_name])
+            prop_type = type(prop_value)
+            prop_type_index = PROPERTY_TYPES_Z.index(prop_type)
+            prop_type_dsl_name = PROPERTY_TYPES[prop_type_index]
+            if not isinstance(prop_value, dict):
+                yield LintProblem(
+                    line,
+                    None,
+                    f'The node template "{model.name}" has an invalid '
+                    f'property "{prop_name}". The value '
+                    f'"{prop_value}" is actually of type '
+                    f'"{prop_type_dsl_name}". The expected type is a dict '
+                    'representation of the custom data type '
+                    f'"{prop_data_type_name}".'
+                )
+                return
+
+            # The data type is not a basic data type.
+            for sub_prop_name in prop_value.keys():
+                prop_key, input_name, input_type = lint_dsl_fn(
+                    prop_value,
+                    prop_data_type_name)
+                if all([prop_key, input_name, input_type]):
+                    yield LintProblem(
+                        line,
+                        None,
+                        f'The node template "{model.name}" has '
+                        f'an invalid property "{prop_name}". '
+                        f'The intrinsic function "{prop_key}" '
+                        f'has the target input "{input_name}", '
+                        'which declares a type '
+                        f'"{input_type}" but the '
+                        'node property is expected to be a dict '
+                        'representation of the custom data type '
+                        f'"{prop_data_type_name}".'
+                    )
+                    continue
+                if sub_prop_name not in data_type_properties:
+                    yield LintProblem(
+                        line, None,
+                        f'The node template "{model.name}" has '
+                        f'an invalid property "{prop_name}". '
+                        f'The key "{sub_prop_name}" must be one of '
+                        f'{", ".join(list(data_type_properties.keys()))}'
+                    )
+                else:
+                    parameter_type = data_type_properties[sub_prop_name].get(
+                        "type")
+                    if parameter_type:
+                        sub_prop_value = transform_string(
+                            prop_value[sub_prop_name])
+                        prop_type_index = PROPERTY_TYPES_Z.index(
+                            type(sub_prop_value))
+                        prop_type_value = PROPERTY_TYPES[prop_type_index]
+                        if parameter_type == 'integer' and \
+                                isinstance(sub_prop_value, str) and \
+                                sub_prop_value.isdigit():
+                            pass
+                        elif parameter_type != prop_type_value and \
+                                prop_type_value != 'dict':
+                            yield LintProblem(
+                                line,
+                                None,
+                                f'The node template "{model.name}" has an '
+                                f'invalid property "{prop_name}". The key '
+                                f'"{sub_prop_name}" is actually of type '
+                                f'"{prop_type_value}". '
+                                f'The expected type is {parameter_type}.'
+                            )
+                        elif prop_type_value == 'dict':
+                            prop_key, input_name, input_type = lint_dsl_fn(
+                                prop_value[sub_prop_name],
+                                prop_type_value)
+                            if all([prop_key, input_name, input_type]):
+                                yield LintProblem(
+                                    line, None,
+                                    f'The node template "{model.name}" '
+                                    'has an invalid property '
+                                    f'"{prop_name}.{sub_prop_name}". The '
+                                    f'intrinsic function "{prop_key}" has the '
+                                    f'target input "{input_name}", which '
+                                    'declares a type '
+                                    f'"{input_type}" but '
+                                    'the node property is expected to be '
+                                    f'of the type "{prop_type_value}".'
+                                )
+
+
+def check_properties(model, line):
+    if not model.properties:
+        return
+    node_type_properties = ctx['node_types_props'].get(model.node_type, {})
+    valid_properties = node_type_properties.get('properties', {})
+    if valid_properties:
+        for k in model.properties.keys():
+            yield from check_if_properties_are_valid(
+                model, k, valid_properties, line)
+
+
+def lint_dsl_fn(prop_value, prop_data_type_name):
+    prop_key = None
+    input_name = None
+    input_type = None
+    for prop_key in prop_value.keys():
+        if prop_key in INTRINSIC_FNS:
+            if prop_key == 'get_input':
+                input_name = prop_value.get(prop_key)
+                if isinstance(input_name, str):
+                    input_def = ctx['inputs'][input_name]
+                    if input_def and 'type' in input_def:
+                        if isinstance(input_def, dict) and \
+                                input_def['type'] != prop_data_type_name:
+                            input_type = input_def['type']
+                        elif input_def["type"].value != prop_data_type_name:
+                            input_type = input_def["type"].value
+    if isinstance(input_type, ScalarNode):
+        input_type = input_type.value
+    return (prop_key, input_name, input_type)
