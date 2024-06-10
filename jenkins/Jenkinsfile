@@ -24,11 +24,6 @@ pipeline {
       yaml k8sPodTemplate(
         containerPython11: true,
         containerAwsCli: true,
-        // containerPython11CpuRequest: '1',
-        // containerPython11MemRequest: '2Gi',
-        // containerPython11CpuLimit: '2',
-        // containerPython11MemLimit: '4Gi',
-        // containerPython11Privileged: true,
       )
     }
   }
@@ -113,6 +108,7 @@ pipeline {
           }
           expression { currentBuild.buildCauses.toString().contains('UserIdCause') && params.RELEASE }
         }
+        beforeAgent true
       }
       steps{
         script {
@@ -133,7 +129,6 @@ pipeline {
                     exit 1
                   fi
                 """, label: 'checking version'
-                // upload wheel to codeArtifact and sync to artifactory.
               }
             }
           }
@@ -149,7 +144,7 @@ pipeline {
         }
       }
     }
-    stage('Release & Upload'){
+    stage('Release to GitHub'){
       environment {
         RELEASE_URL = "https://api.github.com/repos/${env.ORG}/${env.PROJECT}/releases"
       }
@@ -165,6 +160,7 @@ pipeline {
             expression { return RELEASE }
           }
         }
+        beforeAgent true
       }
       steps{
         sh script: "mkdir -p ${env.WORKSPACE}/ne_release && cp -rf ${env.WORKSPACE}/${env.PROJECT}/. ${env.WORKSPACE}/ne_release", label: "copying repo to separate workspace"
@@ -187,7 +183,7 @@ pipeline {
         }
       }
     }
-    stage ('Upload Prepare'){
+    stage ('Artifact Upload Prepare'){
       when {
         anyOf {
           allOf {
@@ -200,6 +196,7 @@ pipeline {
             expression { return RELEASE }
           }
         }
+        beforeAgent true
       }
       steps{
         script {
@@ -215,10 +212,18 @@ pipeline {
     }
     stage ('Upload Artifact to codeArtifact') {
       when {
-        allOf {
-          expression { params.RELEASE }
-          branch pattern: "main", comparator: "REGEXP"
+        anyOf {
+          allOf {
+            branch pattern: "main", comparator: "REGEXP" //upload on rel/.+ also? if so "main|rel/.+"
+            expression { ! currentBuild.buildCauses.toString().contains('UserIdCause') }
+            expression { return RELEASE }
+          }
+          allOf {
+            expression { currentBuild.buildCauses.toString().contains('UserIdCause') && params.RELEASE }
+            expression { return RELEASE }
+          }
         }
+        beforeAgent true
       }
       environment {
         RT_URL = "https://${Constants.ARTIFACTORY}/artifactory"
@@ -230,26 +235,25 @@ pipeline {
       steps {
         container('python'){
           sh "pip install twine urllib3==1.26 --user"
-          dir("${env.PROJECT}/nativeedge-lint"){
+          dir("${env.PROJECT}"){
             script {
-              restPackageName = pip.getPackageName()
-              restPackageVersion = pip.getPackageVersion()
+              nePackageName = pip.getPackageName()
+              nePackageVersion = pip.getPackageVersion()
             }
             sh "python setup.py sdist"
           }
         }
         container("awscli"){
           withVault([configuration: configuration, vaultSecrets: secrets]){
-            codeartifactDeleteIfExists(restPackageName, restPackageVersion)
-            codeartifactDeleteIfExists(workerPackageName, workerPackageVersion)
+            codeartifactDeleteIfExists(nePackageName, nePackageVersion)
           }
         }
         container('python'){
-          dir("${env.PROJECT}/nativeedge-lint"){
+          dir("${env.PROJECT}"){
             sh "twine upload --repository codeartifact dist/*.tar.gz"
           }
         }
-      }// upload to artifactory and codeArtifact
+      }
     }
     stage('Sync artifact to Jfrog') {
       when {
@@ -264,6 +268,7 @@ pipeline {
             expression { return RELEASE }
           }
         }
+        beforeAgent true
       }
       agent {
         docker {
@@ -272,16 +277,42 @@ pipeline {
           args '-u root:sudo'
         }
       }
+      environment {
+        RT_URL = "https://${Constants.ARTIFACTORY}/artifactory"
+        UPLOAD_URL = "https://${Constants.ARTIFACTORY}/artifactory/isgedge-generic-virtual/hzp/hzp-iam-lib-py/hzp-iam-lib-py-${params.IAM_LIB_VER}.tar.gz"
+        AWS_REGION = "eu-west-1"
+        AWS_CODEARTIFACT_ACCOUNT_ID = "163877087245"
+        AWS_CODEARTIFACT_DOMAIN = "fusion-developers"
+        AWS_CODEARTIFACT_REPO = "pip"
+      }
       steps {
         script {
           withVault([configuration: configuration, vaultSecrets: secrets]) {
             withCredentials([string(credentialsId: 'jfrog_user', variable: 'JF_USER'), string(credentialsId: 'jfrog_pwd_new', variable: 'JF_PWD')]) {
+              echo "Installing packages"
+              sh """
+                pip install twine
+              """
+              echo "Installing Jfrog CLI"
+              sh """
+                wget -qO - https://releases.jfrog.io/artifactory/jfrog-gpg-public/jfrog_public_gpg.key | apt-key add -
+                echo "deb https://releases.jfrog.io/artifactory/jfrog-debs xenial contrib" >> /etc/apt/sources.list
+                apt update
+                apt install -y jfrog-cli-v2-jf
+              """
+              echo "Installing AWS CLI"
+              sh """
+                cd /tmp
+                curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                unzip -q awscliv2.zip
+                ./aws/install
+              """
               echo "Pulling from codeartifact and publishing to jfrog"
               sh """
                 aws codeartifact login --tool pip --domain ${env.AWS_CODEARTIFACT_DOMAIN} --domain-owner ${env.AWS_CODEARTIFACT_ACCOUNT_ID} --repository ${env.AWS_CODEARTIFACT_REPO}
                 mkdir -p libs
                 cd libs
-                pip download --no-cache-dir ne-lint-"${env.VERSION}"
+                pip download --no-cache-dir ne-lint=="${env.VERSION}"
                 jf rt upload --url ${env.RT_URL} --user ${JF_USER} --password ${JF_PWD} --insecure-tls ne-lint-"${env.VERSION}".tar.gz isgedge-pypi-virtual
                 cd ..
                 rm -rf libs
