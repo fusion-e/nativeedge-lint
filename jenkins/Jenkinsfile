@@ -1,0 +1,322 @@
+def secrets = [
+  [path: 'secret/jenkins/github', engineVersion: 2, secretValues: [
+    [envVar: 'GITHUB_TOKEN', vaultKey: 'private_token']
+  ]],
+  [path: 'secret/jenkins/aws-new-auto', engineVersion: 2, secretValues: [
+    [envVar: 'AWS_ACCESS_KEY_ID', vaultKey: 'aws_access_key_id'],
+    [envVar: 'AWS_SECRET_ACCESS_KEY', vaultKey: 'aws_secret_access_key']
+  ]],
+]
+
+def configuration = [vaultUrl: "${env.VAULT_URL}", vaultCredentialId: 'vault-app-role', engineVersion: 2]
+
+def getVersion() {
+  return sh(returnStdout: true, script: "cat ${env.WORKSPACE}/nativeedge-lint/ne_lint/__version__.py | grep '=' | awk '{print \$3}'").trim()
+}
+
+import co.fusion.jenkins.lib.Constants;
+@Library('pipeline-shared-library') _
+
+pipeline {
+  agent {
+    kubernetes {
+      defaultContainer 'jnlp'
+      yaml k8sPodTemplate(
+        containerPython11: true,
+        containerAwsCli: true,
+      )
+    }
+  }
+  parameters {
+    booleanParam(name: 'FLAKE8', defaultValue: true, description: 'Run Flake8')
+    booleanParam(name: 'UNITTESTS', defaultValue: true, description: 'Run unit tests')
+    booleanParam(name: 'RELEASE', defaultValue: false, description: 'Create and upload release - will work only if release candidate does not exist already')
+  }
+  
+  environment {
+    PROJECT = 'nativeedge-lint'
+    ORG = 'fusion-e'
+    VERSION = getVersion()
+  }
+  
+  options {
+    checkoutToSubdirectory('nativeedge-lint')
+    buildDiscarder(logRotator(numToKeepStr: '10'))
+    timeout(time: 30, unit: 'MINUTES')
+    timestamps()
+  }
+
+  stages{
+    stage('Run Unitests & Flake8'){
+      parallel{
+        stage ('Flake8') {
+          when {
+            anyOf {
+              expression { params.FLAKE8 }
+            }
+            beforeAgent true
+          }
+          steps{
+            sh script: "mkdir -p ${env.WORKSPACE}/flake8 && cp -rf ${env.WORKSPACE}/${env.PROJECT}/. ${env.WORKSPACE}/flake8", label: "copying repo to separate workspace"
+            container('python'){
+              dir("${env.WORKSPACE}/flake8") {
+                echo 'Install flake 8'
+                sh 'pip install -U flake8'
+                echo 'run flake8'
+                sh 'python -m flake8 ne_lint'
+              }
+            }
+          }
+        }
+        stage('Unit tests'){
+          when {
+            anyOf {
+              expression { params.UNITTESTS }
+            }
+            beforeAgent true
+          }
+          steps{
+            sh script: "mkdir -p ${env.WORKSPACE}/ne_unittests && cp -rf ${env.WORKSPACE}/${env.PROJECT}/. ${env.WORKSPACE}/ne_unittests", label: "copying repo to separate workspace"
+            container('python'){
+              dir("${env.WORKSPACE}/ne_unittests"){
+                sh script:"""
+                  python -m venv venv
+                  set +x
+                  . venv/bin/activate
+                  set -x
+                  pip install -U -r requirements.txt -r test-requirements.txt
+                  python -m pip freeze --all
+                  pytest \
+                    -vv -s ne_lint \
+                    --junitxml=test-results/ne_lint.xml
+                """, label: 'Run pytests'
+              }
+            }
+          }
+        }
+      }
+    }
+    stage('Check Version'){
+      environment {
+        RELEASE_URL = "https://api.github.com/repos/${env.ORG}/${env.PROJECT}/releases"
+      }
+      when {
+        anyOf {
+          allOf {
+            branch pattern: "main", comparator: "REGEXP"
+            expression { ! currentBuild.buildCauses.toString().contains('UserIdCause') }
+          }
+          expression { currentBuild.buildCauses.toString().contains('UserIdCause') && params.RELEASE }
+        }
+        beforeAgent true
+      }
+      steps{
+        script {
+          RELEASE = false // change release to true if version doesn't exist in GH. used in later stages
+        }
+        catchError(message: 'No release candidate found', buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+          sh script: "mkdir -p ${env.WORKSPACE}/ne_release && cp -rf ${env.WORKSPACE}/${env.PROJECT}/. ${env.WORKSPACE}/ne_release", label: "copying repo to separate workspace"
+          container('python'){
+            dir("${env.WORKSPACE}/ne_release"){
+              withVault([configuration: configuration, vaultSecrets: secrets]) {
+                sh script:"""#!/bin/bash
+                  LATEST_VERSION=\$(curl -L -X GET -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Authorization: Bearer ${env.GITHUB_TOKEN}" -H "Accept: application/json" \$RELEASE_URL | jq -r 'reduce .[] as \$item (null; if . == null and (\$item.tag_name | select(test("^[0-9]+.[0-9]+.[0-9]+\$"))) then \$item.tag_name else . end)')
+                  echo "The latest released version is \$LATEST_VERSION\nThe version to release is: ${env.VERSION}"
+                  if [[ \$(printf "\$LATEST_VERSION" ${env.VERSION} | sort -V | sed -n 2p) == ${env.VERSION} ]]; then
+                    echo 'releasing'
+                  else
+                    echo 'The version you are trying to release is lower than latest released version'
+                    exit 1
+                  fi
+                """, label: 'checking version'
+              }
+            }
+          }
+        }
+      }
+      post {
+        success{
+          container ('python'){
+            script{
+              RELEASE = true
+            }
+          }
+        }
+      }
+    }
+    stage('Release to GitHub'){
+      environment {
+        RELEASE_URL = "https://api.github.com/repos/${env.ORG}/${env.PROJECT}/releases"
+      }
+      when {
+        anyOf {
+          allOf {
+            branch pattern: "main", comparator: "REGEXP"
+            expression { ! currentBuild.buildCauses.toString().contains('UserIdCause') }
+            expression { return RELEASE }
+          }
+          allOf {
+            expression { currentBuild.buildCauses.toString().contains('UserIdCause') && params.RELEASE }
+            expression { return RELEASE }
+          }
+        }
+        beforeAgent true
+      }
+      steps{
+        catchError(message: 'Version exists in GitHub - Not uploading', buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+          sh script: "mkdir -p ${env.WORKSPACE}/ne_release && cp -rf ${env.WORKSPACE}/${env.PROJECT}/. ${env.WORKSPACE}/ne_release", label: "copying repo to separate workspace"
+          container('python'){
+            dir("${env.WORKSPACE}/ne_release"){
+              withVault([configuration: configuration, vaultSecrets: secrets]) {
+                echo 'create wheel'
+                sh 'pip wheel .'
+                sh script:""" #!/bin/bash
+                    DATA='{"tag_name":${env.VERSION},"target_commitish":"main","name":${env.VERSION},"body":"NewRelease","draft":false,"prerelease":false,"generate_release_notes":true}'
+                    (curl -L -X POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Authorization: Bearer ${env.GITHUB_TOKEN}" -H "Accept: application/json" \$RELEASE_URL -d \$DATA) > response.json
+                    sleep 10
+                    ASSETS_URL=\$(jq -r '.assets_url' response.json | sed s/api/uploads/g)
+                    FILE="ne_lint-${env.VERSION}-py3-none-any.whl"
+                    FINAL_URL="\$ASSETS_URL?name=\$FILE"
+                    curl -L -X POST -H "Content-Type: application/octet-stream" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Authorization: Bearer ${env.GITHUB_TOKEN}" \$FINAL_URL --data-binary "@\$FILE"
+                """, label: 'Create new version'
+              }
+            }
+          }
+        }
+      }
+    }
+    stage ('Artifact Upload Prepare'){
+      when {
+        anyOf {
+          allOf {
+            branch pattern: "main", comparator: "REGEXP" 
+            expression { ! currentBuild.buildCauses.toString().contains('UserIdCause') }
+            expression { return RELEASE }
+          }
+          allOf {
+            expression { currentBuild.buildCauses.toString().contains('UserIdCause') && params.RELEASE }
+            expression { return RELEASE }
+          }
+        }
+        beforeAgent true
+      }
+      steps{
+        container('python'){
+          sh "pip install twine urllib3==1.26 --user"
+          dir("${env.PROJECT}"){
+            script {
+              nePackageName = pip.getPackageName()
+              nePackageVersion = pip.getPackageVersion()
+            }
+            sh "python setup.py sdist"
+            dir('./dist'){
+              echo 'stashing ne-lint for later upload'
+              stash includes: '*', name: 'ne-lint'
+            }
+          }
+        }
+        script {
+          container('awscli') {
+            withVault([configuration: configuration, vaultSecrets: secrets]) {
+              codeartifactRepoUrl = pip.indexUrl()
+              codeartifactEntrypoint = pip.registryEnpoint()
+              codeartifactToken = pip.registryToken()
+              codeartifactDeleteIfExists(nePackageName, nePackageVersion)
+            }
+          }
+        }
+      }
+    }
+    stage ('Upload Artifact to registries') {
+      parallel{
+        stage ('Upload to codeArtifact') {
+          when {
+            anyOf {
+              allOf {
+                branch pattern: "main", comparator: "REGEXP"
+                expression { ! currentBuild.buildCauses.toString().contains('UserIdCause') }
+                expression { return RELEASE }
+              }
+              allOf {
+                expression { currentBuild.buildCauses.toString().contains('UserIdCause') && params.RELEASE }
+                expression { return RELEASE }
+              }
+            }
+            beforeAgent true
+          }
+          environment {
+            TWINE_USERNAME = "aws"
+            TWINE_PASSWORD = "${codeartifactToken}"
+            TWINE_REPOSITORY_URL = "${codeartifactEntrypoint}"
+            PATH = "/root/.local/bin:$PATH"
+          }
+          steps {
+            container('python'){
+              dir("${env.PROJECT}"){
+                echo 'unstashing and uploading'
+                unstash 'ne-lint'
+                sh "twine upload --repository codeartifact *.tar.gz"
+              }
+            }
+          }
+        }
+        stage('Upload to Jfrog Artifactory') {
+          when {
+            anyOf {
+              allOf {
+                branch pattern: "main", comparator: "REGEXP"
+                expression { ! currentBuild.buildCauses.toString().contains('UserIdCause') }
+                expression { return RELEASE }
+              }
+              allOf {
+                expression { currentBuild.buildCauses.toString().contains('UserIdCause') && params.RELEASE }
+                expression { return RELEASE }
+              }
+            }
+            beforeAgent true
+          }
+          agent {
+            docker {
+              label 'franklin'
+              image 'python:3-bookworm'
+              args '-u root:sudo'
+            }
+          }
+          environment {
+            RT_URL = "https://${Constants.ARTIFACTORY}/artifactory"
+            UPLOAD_URL = "https://${Constants.ARTIFACTORY}/artifactory/isgedge-generic-virtual/hzp/hzp-iam-lib-py/hzp-iam-lib-py-${params.IAM_LIB_VER}.tar.gz"
+          }
+          steps {
+            script {
+              withVault([configuration: configuration, vaultSecrets: secrets]) {
+                withCredentials([string(credentialsId: 'jfrog_user', variable: 'JF_USER'), string(credentialsId: 'jfrog_pwd_new', variable: 'JF_PWD')]) {
+                  echo "Installing Jfrog CLI"
+                  sh """
+                    wget -qO - https://releases.jfrog.io/artifactory/jfrog-gpg-public/jfrog_public_gpg.key | apt-key add -
+                    echo "deb https://releases.jfrog.io/artifactory/jfrog-debs xenial contrib" >> /etc/apt/sources.list
+                    apt update
+                    apt install -y jfrog-cli-v2-jf
+                  """
+                  echo 'unstashing and uploading'
+                  unstash 'ne-lint'
+                  sh """
+                    jf rt upload --url ${env.RT_URL} --user ${JF_USER} --password ${JF_PWD} --insecure-tls ne-lint-"${env.VERSION}".tar.gz isgedge-pypi-virtual
+                  """
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  post {
+    always {
+      script {
+        if (params.UNITTESTS) {
+          junit '**/test-results/*.xml'
+        }
+      }
+    }
+  }
+}
