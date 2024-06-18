@@ -370,7 +370,7 @@ def run(input,
     :param skip_suggestions: Do not suggest changes in lint message.
     :param autofix: fix changes in place.
     """
-
+    skip_suggestions = skip_suggestions or ()
     if conf.is_file_ignored(filepath):
         return ()
 

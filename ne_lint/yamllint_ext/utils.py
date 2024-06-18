@@ -312,6 +312,16 @@ def get_node_types_for_plugin_version(plugin_name, plugin_version):
     return node_types
 
 
+def delete_cache_item(cache_item_path, cache_ttl):
+    if cache_item_path.exists():
+        # Check if the file has been stale for a while
+        if cache_item_path.stat().st_ctime + cache_ttl < time.time():
+            try:
+                os.remove(cache_item_path)
+            except OSError:
+                pass
+
+
 def import_dsl_yaml(import_item, base_path=None, cache_ttl=None):
     cache_ttl = cache_ttl or 86400
     cache_item = re.sub('[^0-9a-zA-Z]+', '_', import_item)
@@ -319,15 +329,11 @@ def import_dsl_yaml(import_item, base_path=None, cache_ttl=None):
     cache_dir = pathlib.Path(os.path.join(
         current_dir,
         'nativeedge/__nelint_runtime_cache')).resolve()
-    cache_dir
     if not cache_dir.exists():
         os.makedirs(cache_dir.absolute())
     cache_item_path = pathlib.Path(
         os.path.join(cache_dir.absolute(), cache_item))
-    if cache_item_path.exists():
-        # Check if the file has been stale for a while
-        if cache_item_path.stat().st_ctime + cache_ttl < time.time():
-            os.remove(cache_item_path)
+    delete_cache_item(cache_item_path, cache_ttl)
 
     result = {}
     parsed_import_item = urlparse(import_item)
