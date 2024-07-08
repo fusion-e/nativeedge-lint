@@ -51,3 +51,7 @@
   - Ticket: NE-33323
     Description: Linter Serverless Service.
     Developer: adam.terramel
+0.1.9:
+  - Ticket: NE-37496
+    Description: Add data type validation. Improve sub types validation.
+    Developer: adam.terramel

@@ -9,7 +9,6 @@ from ne_lint.commands.lint import (
 from ne_lint.yamllint_ext.config import YamlLintConfigExt
 
 
-
 def handler(event, *_, **__):
     blueprint_file_content = event.get('blueprintFileContent')
     errors = get_linting_errors(blueprint_file_content)

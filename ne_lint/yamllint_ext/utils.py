@@ -505,6 +505,7 @@ def setup_types(buffer=None, data=None, base_path=None):
             continue
         import_dsl_yaml(imported, base_path=base_path)
     add_to_node_types(data.get('node_types', {}))
+    add_to_data_types(data.get('data_types', {}))
 
 
 def add_to_imported_node_types(node_types_used):
@@ -518,6 +519,13 @@ def add_to_imported_node_types(node_types_used):
 
 def add_to_node_types(node_types):
     context['imported_node_types'].extend(node_types.keys())
+
+
+def add_to_data_types(data_types):
+    for k, v in data_types.items():
+        if not isinstance(v, dict):
+            v = {}
+        context['data_types'][k] = v.get('properties', {})
 
 
 def setup_node_templates(elem):
