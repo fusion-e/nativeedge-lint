@@ -176,3 +176,5 @@ ne_lint/yamllint_ext/nativeedge/__nelint_runtime_cache/[\_a-zA-Z]*
 
 blueprint.yaml
 *blueprint.yaml
+
+.vscode

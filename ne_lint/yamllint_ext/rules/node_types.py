@@ -28,15 +28,33 @@ def check(token=None, skip_suggestions=None, **_):
         dsl = ctx.get("dsl_version")
         for value in types:
             if value not in constants.INPUTS_BY_DSL.get(dsl, []):
-                yield LintProblem(
-                    token.line,
-                    None,
-                    'Type {} is not supported by DSL {}.'.format(value, dsl)
-                )
+                if value not in ctx['data_types'].keys():
+                    yield LintProblem(
+                        get_line_from_buffer(
+                            value,
+                            token.node.start_mark,
+                            token.node.end_mark,
+                            token.node.end_mark.buffer.split('\n')
+                        ) or token.line,
+                        None,
+                        f'Type {value} is not supported by DSL {dsl} '
+                        'and has not been defined in the blueprint or plugin.'
+                    )
         if check_node_imported(node_type[0].value):
             yield from node_type_follows_naming_conventions(
                 node_type[0].value, token.line, skip_suggestions)
     remove_node_type_from_context(node_type)
+
+
+def get_line_from_buffer(value, start_mark, end_mark, all_lines):
+    counter = 0
+    start_line = start_mark.line
+    end_line = end_mark.line + 1
+    # all_lines = token.node.end_mark.buffer.split('\n')
+    for line in all_lines[start_line:end_line]:
+        if value in line:
+            return start_mark.line + counter + 1
+        counter += 1
 
 
 def get_values_by_key_type(dictionary):

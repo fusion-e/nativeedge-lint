@@ -2,9 +2,11 @@ import os
 import json
 import requests
 
+BLUEPRINT_PATH = 'docker/serverless/blueprint.yaml'
+
 
 def get_data():
-    with open('docker/serverless/blueprint.yaml', 'r') as outfile:
+    with open(BLUEPRINT_PATH, 'r') as outfile:
         data = json.dumps(
             {
                 'blueprintFileContent': outfile.read()
@@ -14,21 +16,26 @@ def get_data():
 
 
 def make_request():
-    url = f'https://{os.environ["API_GATEWAY_DOMAIN"]}/test/diagnostics'
+    if 'API_DOMAIN_GATEWAY' not in os.environ:
+        url = 'http://localhost:9000/2015-03-31/functions/function/invocations'
+    else:
+        url = f'http://{os.environ["API_GATEWAY_DOMAIN"]}/test/diagnostics'
     headers = {
         'Content-type': 'application/json',
         'Accept': 'text/plain'
     }
+    data = get_data()
     result = requests.post(
         url,
         headers=headers,
-        data=get_data(),
+        data=data,
     )
-    return result
+    if result.ok:
+        return result
+    raise Exception(f'Failed to call API: {result}')
 
 
 if __name__ == "__main__":
-
     json_response = make_request().json()
     for error in json_response['body']['lintingData']['errors']:
         message = f"Line {error['line']}: {error['rule']}/{error['message']}"

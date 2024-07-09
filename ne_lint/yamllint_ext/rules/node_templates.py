@@ -690,7 +690,8 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
                 prop_key, input_name, input_type = lint_dsl_fn(
                     prop_value,
                     prop_data_type_name)
-                if all([prop_key, input_name, input_type]):
+                if all([prop_key, input_name, input_type]) and \
+                        input_type != prop_data_type_name:
                     yield LintProblem(
                         line, None,
                         f'The node template "{model.name}" '
@@ -754,19 +755,20 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
                     prop_value,
                     prop_data_type_name)
                 if all([prop_key, input_name, input_type]):
-                    yield LintProblem(
-                        line,
-                        None,
-                        f'The node template "{model.name}" has '
-                        f'an invalid property "{prop_name}". '
-                        f'The intrinsic function "{prop_key}" '
-                        f'has the target input "{input_name}", '
-                        'which declares a type '
-                        f'"{input_type}" but the '
-                        'node property is expected to be a dict '
-                        'representation of the custom data type '
-                        f'"{prop_data_type_name}".'
-                    )
+                    if input_type != 'dict':
+                        yield LintProblem(
+                            line,
+                            None,
+                            f'The node template "{model.name}" has '
+                            f'an invalid property "{prop_name}". '
+                            f'The intrinsic function "{prop_key}" '
+                            f'has the target input "{input_name}", '
+                            'which declares a type '
+                            f'"{input_type}" but the '
+                            'node property is expected to be a dict '
+                            'representation of the custom data type '
+                            f'"{prop_data_type_name}".'
+                        )
                     continue
                 if sub_prop_name not in data_type_properties:
                     yield LintProblem(
@@ -804,7 +806,8 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
                             prop_key, input_name, input_type = lint_dsl_fn(
                                 prop_value[sub_prop_name],
                                 prop_type_value)
-                            if all([prop_key, input_name, input_type]):
+                            if all([prop_key, input_name, input_type]) and \
+                                    parameter_type != input_type:
                                 yield LintProblem(
                                     line, None,
                                     f'The node template "{model.name}" '
@@ -815,7 +818,7 @@ def check_if_properties_are_valid(model, prop_name, valid_props, line):
                                     'declares a type '
                                     f'"{input_type}" but '
                                     'the node property is expected to be '
-                                    f'of the type "{prop_type_value}".'
+                                    f'of the type "{parameter_type}".'
                                 )
 
 
