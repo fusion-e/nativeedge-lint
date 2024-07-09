@@ -55,3 +55,7 @@
   - Ticket: NE-37496
     Description: Add data type validation. Improve sub types validation.
     Developer: adam.terramel
+0.1.10:
+  - Ticket: NE-37699
+    Description: Some fix associated with vscode.
+    Developer: adam.terramel

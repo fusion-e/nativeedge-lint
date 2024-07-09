@@ -2,7 +2,7 @@ import os
 import json
 import requests
 
-BLUEPRINT_PATH = 'docker/serverless/blueprint.yaml'
+BLUEPRINT_PATH = 'docker/serverless/test.yaml'
 
 
 def get_data():
