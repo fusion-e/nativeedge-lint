@@ -345,8 +345,11 @@ def import_dsl_yaml(import_item, base_path=None, cache_ttl=None):
             node_types = get_node_types_for_plugin_import(
                 import_item)
             result['node_types'] = node_types
-            with open(cache_item_path.absolute(), 'w') as jsonfile:
-                json.dump(node_types, jsonfile)
+            try:
+                with open(cache_item_path.absolute(), 'w') as jsonfile:
+                    json.dump(node_types, jsonfile)
+            except OSError:
+                logger.debug(f'Not pushing to cache: {cache_item_path}')
         # This is kind of wasteful, but
         # what this does is it stores the node types also
         # per plugin import line.
@@ -503,7 +506,10 @@ def setup_types(buffer=None, data=None, base_path=None):
     for imported in data.get('imports', {}):
         if not isinstance(imported, str):
             continue
-        import_dsl_yaml(imported, base_path=base_path)
+        try:
+            import_dsl_yaml(imported, base_path=base_path)
+        except OSError:
+            pass
     add_to_node_types(data.get('node_types', {}))
     add_to_data_types(data.get('data_types', {}))
 
