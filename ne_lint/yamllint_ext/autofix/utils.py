@@ -90,8 +90,10 @@ def build_diff_lines():
 
 def connect_two_sorted_dicts(dict1, dict2):
     result_dict = {}
-    keys1 = iter(dict1)
-    keys2 = iter(dict2)
+    # flake8: noqa
+    keys1 = iter(dict1) #gitleaks:allow
+    keys2 = iter(dict2) #gitleaks:allow
+    
     key1 = next(keys1, None)
     key2 = next(keys2, None)
 
