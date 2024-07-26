@@ -33,7 +33,8 @@ setup(
     package_data={
         'ne_lint': [
             'yamllint_ext/nativeedge/__nelint_runtime_cache/README.md',
-            'yamllint_ext/nativeedge/properties.json'
+            'yamllint_ext/nativeedge/properties.json',
+            'yamllint_ext/nativeedge/datatypes.json'
         ]
     },
     install_requires=install_requires

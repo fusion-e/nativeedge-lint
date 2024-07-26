@@ -2,7 +2,7 @@ import os
 import json
 import requests
 
-BLUEPRINT_PATH = 'docker/serverless/test.yaml'
+BLUEPRINT_PATH = 'docker/serverless/blueprint.yaml'
 
 
 def get_data():
@@ -19,7 +19,7 @@ def make_request():
     if 'API_DOMAIN_GATEWAY' not in os.environ:
         url = 'http://localhost:9000/2015-03-31/functions/function/invocations'
     else:
-        url = f'http://{os.environ["API_GATEWAY_DOMAIN"]}/test/diagnostics'
+        url = f'http://{os.environ["API_DOMAIN_GATEWAY"]}/test/diagnostics'
     headers = {
         'Content-type': 'application/json',
         'Accept': 'text/plain'
