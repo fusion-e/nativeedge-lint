@@ -67,3 +67,7 @@
   - Ticket: NE-30006
     Developer: adam.terramel
     Description: Re-release.
+0.1.13:
+  - Ticket: NE-30006
+    Developer: adam.terramel
+    Description: Re-release.

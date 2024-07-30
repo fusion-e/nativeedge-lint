@@ -96,7 +96,7 @@ def check(token=None, context=None, node_types=None, **_):
         yield from check_relationships(
             parsed_node_template,
             parsed_node_template.line or token.line)
-        if parse_node_template.properties:
+        if parsed_node_template.properties:
             yield from check_client_config(
                 parsed_node_template,
                 parsed_node_template.line or token.line)
@@ -115,12 +115,12 @@ def check(token=None, context=None, node_types=None, **_):
             yield from check_supports_tagging(
                 parsed_node_template,
                 parsed_node_template.line or token.line)
-        if parse_node_template.node_type:
+        if parsed_node_template.node_type:
             yield from check_node_type_imported(
                 node_types,
                 parsed_node_template,
                 parsed_node_template.line or token.line)
-            if parse_node_template.properties:
+            if parsed_node_template.properties:
                 yield from check_terraform(
                     parsed_node_template,
                     parsed_node_template.line or token.line)
