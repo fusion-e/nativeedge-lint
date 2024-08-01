@@ -87,29 +87,7 @@ def check(token=None, context=None, node_types=None, **_):
         yield from check_intrinsic_functions(
             parsed_node_template.dict,
             parsed_node_template.line or token.line)
-        yield from check_client_config(
-            parsed_node_template,
-            parsed_node_template.line or token.line)
         yield from check_dependent_types(
-            parsed_node_template,
-            parsed_node_template.line or token.line)
-        yield from check_security_group(
-              parsed_node_template,
-              parsed_node_template.line or token.line)
-        yield from check_node_type_imported(
-            node_types,
-            parsed_node_template,
-            parsed_node_template.line or token.line)
-        yield from check_terraform(
-            parsed_node_template,
-            parsed_node_template.line or token.line)
-        yield from check_external_resource(
-            parsed_node_template,
-            parsed_node_template.line or token.line)
-        yield from check_get_attribute(
-            parsed_node_template,
-            parsed_node_template.line or token.line)
-        yield from check_supports_tagging(
             parsed_node_template,
             parsed_node_template.line or token.line)
         yield from check_interfaces(
@@ -118,9 +96,34 @@ def check(token=None, context=None, node_types=None, **_):
         yield from check_relationships(
             parsed_node_template,
             parsed_node_template.line or token.line)
-        yield from check_properties(
-            parsed_node_template,
-            parsed_node_template.line or token.line)
+        if parsed_node_template.properties:
+            yield from check_client_config(
+                parsed_node_template,
+                parsed_node_template.line or token.line)
+            yield from check_security_group(
+                parsed_node_template,
+                parsed_node_template.line or token.line)
+            yield from check_properties(
+                parsed_node_template,
+                parsed_node_template.line or token.line)
+            yield from check_external_resource(
+                parsed_node_template,
+                parsed_node_template.line or token.line)
+            yield from check_get_attribute(
+                parsed_node_template,
+                parsed_node_template.line or token.line)
+            yield from check_supports_tagging(
+                parsed_node_template,
+                parsed_node_template.line or token.line)
+        if parsed_node_template.node_type:
+            yield from check_node_type_imported(
+                node_types,
+                parsed_node_template,
+                parsed_node_template.line or token.line)
+            if parsed_node_template.properties:
+                yield from check_terraform(
+                    parsed_node_template,
+                    parsed_node_template.line or token.line)
     yield from check_cyclic_node_dependency(edges, line_index)
 
 
@@ -530,8 +533,6 @@ def remove_plugin_from_context(plugin_name):
 
 
 def check_get_attribute(model, line):
-    if not model.properties:
-        return
     relationships = get_target_list_relationships(model, line)
     for item, value in model.properties.items():
         attribute = find_values_by_key(value, ['get_attribute'])

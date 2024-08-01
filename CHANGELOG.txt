@@ -63,3 +63,11 @@
   - Ticket: NE-30006
     Developer: yaniv.kaplan
     Description: gitleaks allowlist added.
+0.1.12:
+  - Ticket: NE-30006
+    Developer: adam.terramel
+    Description: Re-release.
+0.1.13:
+  - Ticket: NE-30006
+    Developer: adam.terramel
+    Description: Re-release.
